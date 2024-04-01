@@ -1,9 +1,25 @@
-import { Card, CardHeader, Typography, Avatar, CardActions, Button, CardContent, Divider } from "@mui/material";
-import { LoaderFunctionArgs, useLoaderData, useNavigate } from "react-router-dom";
+import {
+  Card,
+  CardHeader,
+  Typography,
+  Avatar,
+  CardActions,
+  Button,
+  CardContent,
+  Divider,
+  Modal,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
+} from "@mui/material";
+import { Form, LoaderFunctionArgs, useLoaderData, useNavigate, useParams } from "react-router-dom";
 import { Habit, fetchHabitById } from "../../habitsModel";
 import Cover from "../../components/Cover";
-import { ChevronLeft } from "@mui/icons-material";
+import { ChevronLeft, Delete, DeleteForever, Edit } from "@mui/icons-material";
 import { IconMap } from "../../utils/IconMap";
+import { useState } from "react";
 
 async function loader({ params }: LoaderFunctionArgs<{ id: string }>) {
   const { id } = params;
@@ -19,8 +35,10 @@ SelectedHabit.loader = loader;
 
 export default function SelectedHabit() {
   const { habit } = useLoaderData() as { habit: Habit };
-
+  const { id } = useParams();
   const navigate = useNavigate();
+
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
   if (!habit) {
     return (
@@ -33,11 +51,11 @@ export default function SelectedHabit() {
   return (
     <Cover>
       <CardActions>
-        <Button startIcon={<ChevronLeft />} aria-label="back" onClick={() => navigate("/overview")}>
+        <Button startIcon={<ChevronLeft />} aria-label="back" onClick={() => navigate(-1)}>
           Back
         </Button>
       </CardActions>
-      <Card sx={{ p: 0 }}>
+      <Card sx={{ p: 0 }} elevation={0}>
         <CardHeader
           avatar={
             <Avatar
@@ -82,7 +100,30 @@ export default function SelectedHabit() {
           </Typography>
         </CardContent>
         <CardActions>
-          <Button color="primary">Edit</Button>
+          <Button color="primary" startIcon={<Edit />} onClick={() => navigate(`/my-habits/${id}/edit`)}>
+            Edit
+          </Button>
+          <Button color="error" startIcon={<DeleteForever />} onClick={() => setDeleteDialogOpen(true)}>
+            Delete
+          </Button>
+          <Dialog
+            open={deleteDialogOpen}
+            onClose={() => setDeleteDialogOpen(false)}
+            aria-labelledby={"delete-confirm-title"}
+          >
+            <DialogTitle id={"delete-confirm-title"}>Delete habit "{habit.name}"?</DialogTitle>
+            <DialogContent>
+              <DialogContentText>This action cannot be undone.</DialogContentText>
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={() => setDeleteDialogOpen(false)}>Cancel</Button>
+              <Form action={`/my-habits/${id}/delete`} method="post">
+                <Button type="submit" color="error">
+                  Delete
+                </Button>
+              </Form>
+            </DialogActions>
+          </Dialog>
         </CardActions>
       </Card>
     </Cover>

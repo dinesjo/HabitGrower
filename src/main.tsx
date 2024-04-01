@@ -4,7 +4,14 @@ import "@fontsource/roboto/500.css";
 import "@fontsource/roboto/700.css";
 import React from "react";
 import ReactDOM from "react-dom/client";
-import { createBrowserRouter, createRoutesFromElements, Outlet, Route, RouterProvider } from "react-router-dom";
+import {
+  createBrowserRouter,
+  createRoutesFromElements,
+  Outlet,
+  redirect,
+  Route,
+  RouterProvider,
+} from "react-router-dom";
 import Root from "./routes/root";
 import ErrorPage from "./error-page";
 import IndexLayout from "./routes/Index/IndexLayout";
@@ -16,26 +23,56 @@ import AccountView from "./routes/Profile/AccountView";
 import SignInView from "./routes/Profile/SignInView";
 import ProfileLayout from "./routes/Profile/ProfileLayout";
 import theme from "./theme";
-import SelectedHabit from "./routes/Index/SelectedHabit";
+import SelectedHabit from "./routes/MyHabits/SelectedHabit";
 import MyHabitsIndex from "./routes/MyHabits/MyHabitsIndex";
 import EditHabitForm from "./components/EditHabitForm";
+import { createEmptyHabit, deleteHabit, updateHabit } from "./habitsModel";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
     <Route element={<Root />}>
       <Route path="/" element={<Outlet />} id="root" loader={Root.loader}>
-        <Route path="overview">
-          <Route index element={<IndexLayout />} loader={IndexLayout.loader} />
-          <Route path=":id" element={<SelectedHabit />} loader={SelectedHabit.loader} />
-        </Route>
+        <Route index element={<IndexLayout />} loader={IndexLayout.loader} />
         <Route path="profile" element={<ProfileLayout />}>
           <Route index element={<AccountView />} loader={AccountView.loader} />
           <Route path="signout" action={signOut} />
           <Route path="signin" element={<SignInView />} />
         </Route>
+
         <Route path="my-habits">
           <Route index element={<MyHabitsIndex />} loader={MyHabitsIndex.loader} />
-          <Route path="edit/:id" element={<EditHabitForm />} loader={EditHabitForm.loader} />
+          <Route path=":id" element={<SelectedHabit />} loader={SelectedHabit.loader} />
+          <Route
+            path=":id/edit"
+            element={<EditHabitForm />}
+            loader={EditHabitForm.loader}
+            action={async ({ params, request }) => {
+              const formData = await request.formData();
+              await updateHabit(params.id as string, {
+                name: formData.get("name") as string,
+                description: formData.get("description") as string,
+                icon: formData.get("icon") as string,
+                color: formData.get("color") as string,
+                frequency: Number(formData.get("frequency")),
+                frequencyUnit: formData.get("frequencyUnit") as "day" | "week" | "month",
+              });
+              return redirect(`/my-habits/${params.id}`);
+            }}
+          />
+          <Route
+            path=":id/delete"
+            action={async ({ params }) => {
+              await deleteHabit(params.id as string);
+              return redirect("/my-habits");
+            }}
+          />
+          <Route
+            path="new-habit"
+            action={async () => {
+              const id = await createEmptyHabit();
+              return redirect(`/my-habits/${id}/edit`);
+            }}
+          />
         </Route>
         <Route path="*" element={<ErrorPage />} />
       </Route>

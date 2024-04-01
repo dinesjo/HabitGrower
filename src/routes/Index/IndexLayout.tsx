@@ -1,8 +1,8 @@
-import { Typography } from "@mui/material";
+import { Card, CardActionArea, CardHeader, Grid, Typography } from "@mui/material";
 import Cover from "../../components/Cover";
-import HabitsCards from "./HabitsCards";
-import { useLoaderData } from "react-router-dom";
-import { Habit, fetchHabits } from "../../habitsModel";
+import { NavLink, useLoaderData } from "react-router-dom";
+import { fetchHabits } from "../../habitsModel";
+import { IconMap } from "../../utils/IconMap";
 
 async function loader() {
   return {
@@ -13,7 +13,7 @@ async function loader() {
 IndexLayout.loader = loader;
 
 export default function IndexLayout() {
-  const { habits } = useLoaderData() as { habits: Habit[] };
+  const { habits } = useLoaderData();
   if (!habits) {
     return (
       <Cover>
@@ -30,7 +30,6 @@ export default function IndexLayout() {
       <Typography variant="subtitle1" color="text.secondary">
         Have you kept up with your habits today?
       </Typography>
-      <HabitsCards habits={habits} />
     </Cover>
   );
 }
