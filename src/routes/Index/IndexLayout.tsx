@@ -1,8 +1,7 @@
-import { Card, CardActionArea, CardHeader, Grid, Typography } from "@mui/material";
+import { Typography } from "@mui/material";
 import Cover from "../../components/Cover";
-import { NavLink, useLoaderData } from "react-router-dom";
-import { fetchHabits } from "../../habitsModel";
-import { IconMap } from "../../utils/IconMap";
+import { useLoaderData } from "react-router-dom";
+import { Habit, fetchHabits } from "../../habitsModel";
 
 async function loader() {
   return {
@@ -13,7 +12,7 @@ async function loader() {
 IndexLayout.loader = loader;
 
 export default function IndexLayout() {
-  const { habits } = useLoaderData();
+  const { habits } = useLoaderData() as { habits: Record<string, Habit> };
   if (!habits) {
     return (
       <Cover>

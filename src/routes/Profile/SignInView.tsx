@@ -4,7 +4,6 @@ import firebase from "firebase/compat/app";
 import * as firebaseui from "firebaseui";
 import "firebaseui/dist/firebaseui.css";
 import { useEffect } from "react";
-import Cover from "../../components/Cover";
 import { getUser } from "../../firebase";
 import { redirect } from "react-router-dom";
 
