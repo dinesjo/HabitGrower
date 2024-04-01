@@ -17,8 +17,6 @@
     "@mui/material": "^5.15.14",
     "firebase": "^10.10.0",
     "firebaseui": "^6.1.0",
-    "jotai": "^2.7.2",
-    "jotai-devtools": "^0.8.0",
     "localforage": "^1.10.0",
     "match-sorter": "^6.3.4",
     "react": "^18.2.0",

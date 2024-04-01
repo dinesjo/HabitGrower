@@ -1,11 +1,8 @@
 import { Card, Grid, CardHeader, CardActionArea } from "@mui/material";
-import { habitsAtom } from "../../store";
-import { useAtom } from "jotai";
 import { NavLink } from "react-router-dom";
+import { Habit } from "../../habitsModel";
 
-export default function HabitsCards() {
-  const [habits] = useAtom(habitsAtom);
-
+export default function HabitsCards({ habits }: { habits: Habit[] }) {
   return (
     <>
       <Grid

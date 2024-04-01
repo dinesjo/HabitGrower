@@ -16,7 +16,6 @@ import {
   useMediaQuery,
 } from "@mui/material";
 import { AccountCircle, Add, Home, Menu } from "@mui/icons-material";
-import { DevTools } from "jotai-devtools";
 import FullscreenSpinner from "../components/FullscreenSpinner";
 import { getUser } from "../firebase";
 import { User } from "firebase/auth";
@@ -138,8 +137,7 @@ export default function Root() {
             <Outlet />
           </Box>
         )}
-      </Box>{" "}
-      <DevTools />
+      </Box>
     </>
   );
 }
