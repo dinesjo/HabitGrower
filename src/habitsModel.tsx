@@ -1,10 +1,11 @@
-import { AutoStories, FitnessCenter, SelfImprovement, WaterDrop } from "@mui/icons-material";
+import { get, push, ref } from "firebase/database";
+import { database, getUser } from "./firebase";
 
 export interface Habit {
   id: string;
   name: string;
   description?: string;
-  icon?: JSX.Element;
+  icon?: string;
   frequency?: number;
   frequencyUnit?: "day" | "week" | "month";
   startDate?: Date;
@@ -12,50 +13,58 @@ export interface Habit {
   color?: string;
 }
 
-const database: Habit[] = [
-  {
-    id: "1",
-    name: "Drink Water",
-    description: "Drink 8 glasses of water every day",
-    icon: <WaterDrop />,
-    frequency: 8,
-    frequencyUnit: "day",
-    startDate: new Date("2022-01-01"),
-    endDate: new Date("2022-12-31"),
-    color: "blue",
-  },
-  {
-    id: "2",
-    name: "Exercise",
-    description: "Exercise for 30 minutes",
-    icon: <FitnessCenter />,
-    color: "green",
-  },
-  {
-    id: "3",
-    name: "Read",
-    description: "Read a book",
-    icon: <AutoStories />,
-    color: "orange",
-  },
-  {
-    id: "4",
-    name: "Meditate",
-    description: "Meditate for 10 minutes",
-    icon: <SelfImprovement />,
-  },
-];
 export async function fetchHabits() {
-  return new Promise<Habit[]>((resolve) => {
-    setTimeout(() => {
-      resolve(database);
-    }, 700);
+  const userId = await getUser().then((user) => {
+    if (user) {
+      return user.uid;
+    } else {
+      throw new Error("User not found");
+    }
   });
+
+  return await get(ref(database, "users/" + userId + "/habits"))
+    .then((snapshot) => {
+      if (snapshot.exists()) {
+        return snapshot.val();
+      } else {
+        console.log("No data available");
+      }
+    })
+    .catch((error) => {
+      console.error(error);
+    });
 }
+
 export async function fetchHabitById(id: string) {
-  return new Promise<Habit | undefined>((resolve) => {
-    setTimeout(() => {
-      resolve(database.find((habit) => habit.id === id));
-    }, 700);
+  const userId = await getUser().then((user) => {
+    if (user) {
+      return user.uid;
+    } else {
+      throw new Error("User not found");
+    }
   });
+
+  return await get(ref(database, "users/" + userId + "/habits/"))
+    .then((snapshot) => {
+      if (snapshot.exists()) {
+        return snapshot.val().find((habit: Habit) => habit.id === id);
+      } else {
+        console.log("No data available");
+      }
+    })
+    .catch((error) => {
+      console.error(error);
+    });
+}
+
+export async function createHabit(habit: Habit) {
+  const userId = await getUser().then((user) => {
+    if (user) {
+      return user.uid;
+    } else {
+      throw new Error("User not found");
+    }
+  });
+
+  return await push(ref(database, "users/" + userId + "/habits"), habit);
 }

@@ -17,6 +17,8 @@ import SignInView from "./routes/Profile/SignInView";
 import ProfileLayout from "./routes/Profile/ProfileLayout";
 import theme from "./theme";
 import SelectedHabit from "./routes/Index/SelectedHabit";
+import MyHabitsIndex from "./routes/MyHabits/MyHabitsIndex";
+import EditHabitForm from "./components/EditHabitForm";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -30,6 +32,10 @@ const router = createBrowserRouter(
           <Route index element={<AccountView />} loader={AccountView.loader} />
           <Route path="signout" action={signOut} />
           <Route path="signin" element={<SignInView />} />
+        </Route>
+        <Route path="my-habits">
+          <Route index element={<MyHabitsIndex />} loader={MyHabitsIndex.loader} />
+          <Route path="edit/:id" element={<EditHabitForm />} loader={EditHabitForm.loader} />
         </Route>
         <Route path="*" element={<ErrorPage />} />
       </Route>

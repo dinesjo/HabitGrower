@@ -15,8 +15,7 @@ import {
   Typography,
   useMediaQuery,
 } from "@mui/material";
-import { AccountCircle, Add, Home, Menu } from "@mui/icons-material";
-import FullscreenSpinner from "../components/FullscreenSpinner";
+import { AccountCircle, Home, Menu, SelfImprovement } from "@mui/icons-material";
 import { getUser } from "../firebase";
 import { User } from "firebase/auth";
 
@@ -49,7 +48,7 @@ export default function Root() {
       ),
     },
     { text: "Overview", path: "/overview", icon: <Home /> },
-    { text: "New Habit", path: "/add-habit", icon: <Add />, disabled: true },
+    { text: "My Habits", path: "/my-habits", icon: <SelfImprovement /> },
   ];
 
   return (
@@ -122,7 +121,6 @@ export default function Root() {
                   },
                 }}
                 onClick={() => setDrawerOpen(false)} // close mobile sidebar on click
-                disabled={page.disabled}
               >
                 <ListItemIcon>{page.icon}</ListItemIcon>
                 <ListItemText primary={<Typography variant="h6">{page.text}</Typography>} />
@@ -130,13 +128,9 @@ export default function Root() {
             ))}
           </List>
         </Drawer>
-        {loading ? (
-          <FullscreenSpinner />
-        ) : (
-          <Box sx={{ width: "100%", height: "100vh" }}>
-            <Outlet />
-          </Box>
-        )}
+        <Box sx={{ width: "100%", height: "100vh" }}>
+          <Outlet />
+        </Box>
       </Box>
     </>
   );

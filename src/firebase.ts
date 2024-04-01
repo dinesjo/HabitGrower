@@ -1,13 +1,14 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
 import { User, getAuth, onAuthStateChanged } from "firebase/auth";
 import firebase from "firebase/compat/app";
+import { getDatabase } from "firebase/database";
 import { redirect } from "react-router-dom";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDMfCeJUzcBqHpfdfDbi_KQ4KIzmQuwOMs",
   authDomain: "habitgrower.firebaseapp.com",
+  databaseURL: "https://habitgrower-default-rtdb.europe-west1.firebasedatabase.app",
   projectId: "habitgrower",
   storageBucket: "habitgrower.appspot.com",
   messagingSenderId: "691357820339",
@@ -18,8 +19,9 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 firebase.initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
 const auth = getAuth();
+
+export const database = getDatabase(app);
 
 export async function getUser() {
   return new Promise<User | null>((resolve, reject) => {

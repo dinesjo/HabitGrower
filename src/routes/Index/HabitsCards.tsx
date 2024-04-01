@@ -1,6 +1,7 @@
 import { Card, Grid, CardHeader, CardActionArea } from "@mui/material";
 import { NavLink } from "react-router-dom";
 import { Habit } from "../../habitsModel";
+import { IconMap } from "../../utils/IconMap";
 
 export default function HabitsCards({ habits }: { habits: Habit[] }) {
   return (
@@ -20,7 +21,7 @@ export default function HabitsCards({ habits }: { habits: Habit[] }) {
                 <CardHeader
                   component={NavLink}
                   to={`/overview/${habit.id}`}
-                  avatar={habit.icon}
+                  avatar={IconMap[habit.icon || "default"]}
                   title={habit.name}
                   subheader={habit.description}
                   sx={{ color: habit.color || "text.primary", textDecoration: "none" }}
