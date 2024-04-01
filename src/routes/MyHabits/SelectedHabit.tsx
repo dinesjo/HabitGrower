@@ -7,7 +7,6 @@ import {
   Button,
   CardContent,
   Divider,
-  Modal,
   Dialog,
   DialogTitle,
   DialogContent,
@@ -17,7 +16,7 @@ import {
 import { Form, LoaderFunctionArgs, useLoaderData, useNavigate, useParams } from "react-router-dom";
 import { Habit, fetchHabitById } from "../../habitsModel";
 import Cover from "../../components/Cover";
-import { ChevronLeft, Delete, DeleteForever, Edit } from "@mui/icons-material";
+import { ChevronLeft, DeleteForever, Edit } from "@mui/icons-material";
 import { IconMap } from "../../utils/IconMap";
 import { useState } from "react";
 

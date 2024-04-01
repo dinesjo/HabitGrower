@@ -1,5 +1,5 @@
 import { Form, LoaderFunctionArgs, useLoaderData, useNavigate } from "react-router-dom";
-import { fetchHabitById } from "../habitsModel";
+import { Habit, fetchHabitById } from "../habitsModel";
 import {
   Button,
   Container,
@@ -28,15 +28,16 @@ async function loader({ params }: LoaderFunctionArgs<{ id: string }>) {
 EditHabitForm.loader = loader;
 
 export default function EditHabitForm() {
-  const { habit } = useLoaderData();
+  const { habit } = useLoaderData() as { habit: Habit };
   const navigate = useNavigate();
 
   return (
     <Cover>
-      <Typography variant="h5" gutterBottom>
-        Edit Habit
+      <Typography variant="h5" align="center" gutterBottom>
+        Edit Habit: <b>{habit.name}</b>
       </Typography>
       <Container
+        maxWidth="xs"
         component={Form}
         autoComplete="off"
         method="post"

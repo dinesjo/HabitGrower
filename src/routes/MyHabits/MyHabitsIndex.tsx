@@ -12,7 +12,7 @@ import {
 } from "@mui/material";
 import Cover from "../../components/Cover";
 import { Form, useLoaderData, useNavigate } from "react-router-dom";
-import { fetchHabits } from "../../habitsModel";
+import { Habit, fetchHabits } from "../../habitsModel";
 import { Add, Edit } from "@mui/icons-material";
 import { IconMap } from "../../utils/IconMap";
 
@@ -25,7 +25,7 @@ async function loader() {
 MyHabitsIndex.loader = loader;
 
 export default function MyHabitsIndex() {
-  const { habits } = useLoaderData();
+  const { habits } = useLoaderData() as { habits: Record<string, Habit> };
   const navigate = useNavigate();
 
   return (
@@ -56,7 +56,7 @@ export default function MyHabitsIndex() {
                   }
                 >
                   <ListItemButton sx={{ p: 1 }} onClick={() => navigate(`/my-habits/${key}`)}>
-                    <ListItemAvatar sx={{ color: habit.color }}>{IconMap[habit.icon]}</ListItemAvatar>
+                    <ListItemAvatar sx={{ color: habit.color }}>{IconMap[habit.icon || "Default"]}</ListItemAvatar>
                     <ListItemText
                       primary={<Typography sx={{ color: habit.color }}>{habit.name}</Typography>}
                       secondary={habit.description}

@@ -1,9 +1,8 @@
-import { Outlet, useNavigation, NavLink, useRouteLoaderData, Form } from "react-router-dom";
+import { Outlet, useNavigation, NavLink, useRouteLoaderData, } from "react-router-dom";
 import { useState } from "react";
 import {
   Avatar,
   Box,
-  Button,
   CircularProgress,
   Drawer,
   IconButton,
@@ -16,7 +15,7 @@ import {
   Typography,
   useMediaQuery,
 } from "@mui/material";
-import { AccountCircle, Add, Home, Menu, SelfImprovement } from "@mui/icons-material";
+import { AccountCircle, Home, Menu, SelfImprovement } from "@mui/icons-material";
 import { getUser } from "../firebase";
 import { User } from "firebase/auth";
 

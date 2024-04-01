@@ -25,8 +25,7 @@ export async function fetchHabits() {
   return await get(ref(database, "users/" + userId + "/habits"))
     .then((snapshot) => {
       if (snapshot.exists()) {
-        console.log(snapshot.val());
-        return snapshot.val();
+        return snapshot.val() as { [key: string]: Habit };
       } else {
         console.log("No data available");
       }
@@ -48,7 +47,7 @@ export async function fetchHabitById(id: string) {
   return await get(ref(database, "users/" + userId + "/habits/" + id))
     .then((snapshot) => {
       if (snapshot.exists()) {
-        return snapshot.val();
+        return snapshot.val() as Habit;
       } else {
         console.log("No data available");
       }
