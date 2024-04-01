@@ -11,12 +11,18 @@ import {
   Typography,
 } from "@mui/material";
 import Cover from "../../components/Cover";
-import { Form, useLoaderData, useNavigate } from "react-router-dom";
+import { Form, redirect, useLoaderData, useNavigate } from "react-router-dom";
 import { Habit, fetchHabits } from "../../habitsModel";
 import { Add, Edit } from "@mui/icons-material";
 import { IconMap } from "../../utils/IconMap";
+import { getUser } from "../../firebase";
 
 async function loader() {
+  const user = await getUser();
+  if (!user) {
+    return redirect("/profile/signin");
+  }
+
   return {
     habits: await fetchHabits(),
   };
@@ -68,9 +74,10 @@ export default function MyHabitsIndex() {
           </List>
           <Box
             sx={{
-              position: "fixed",
-              bottom: 16,
-              right: 16,
+              position: "absolute",
+              bottom: -48,
+              right: 0,
+              transform: "translate(-50%, 50%)",
             }}
           >
             <Form action="/my-habits/new-habit" method="post">

@@ -1,5 +1,5 @@
-import { Outlet, useNavigation, NavLink, useRouteLoaderData } from "react-router-dom";
-import { useState } from "react";
+import { Outlet, useNavigation, NavLink, useRouteLoaderData, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
 import {
   Avatar,
   Box,
@@ -29,6 +29,7 @@ Root.loader = loader;
 export default function Root() {
   // Router
   const navigation = useNavigation();
+  const navigate = useNavigate();
   const loading = navigation.state === "loading";
   const user = useRouteLoaderData("root") as User | null;
 
@@ -50,6 +51,14 @@ export default function Root() {
     { text: "Overview", path: "/", icon: <Home /> },
     { text: "My Habits", path: "/my-habits", icon: <SelfImprovement /> },
   ];
+
+  useEffect(() => {
+    if (!loading && !user) {
+      console.log("FLAG");
+      
+      navigate("/profile/signin");
+    }
+  }, [loading, user]);
 
   return (
     <>
