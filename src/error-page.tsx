@@ -10,11 +10,13 @@ export default function ErrorPage() {
     >
       <Typography variant="h3">Oops!</Typography>
       <Typography variant="subtitle1">Sorry, an unexpected error has occurred.</Typography>
-      <Typography variant="body1">
-        <i>{error.statusText || error.message}</i>
-      </Typography>
+      {error && (error.statusText || error.message) ? (
+        <Typography variant="body1">
+          <i>{error.statusText || error.message}</i>
+        </Typography>
+      ) : null}
       <Link component={RouterLink} to="/">
-        Return to Safety
+        Return to Homepage
       </Link>
     </Container>
   );

@@ -7,28 +7,35 @@ import ReactDOM from "react-dom/client";
 import { createBrowserRouter, createRoutesFromElements, Outlet, Route, RouterProvider } from "react-router-dom";
 import Root from "./routes/root";
 import ErrorPage from "./error-page";
-import Contact, { loader as contactLoader } from "./routes/contact";
-import EditContact, { action as editAction, action as contactAction } from "./routes/edit";
-import Index from "./routes/Index/IndexController";
+import IndexLayout from "./routes/Index/IndexLayout";
 import { ThemeProvider } from "@emotion/react";
-import { CssBaseline, useTheme } from "@mui/material";
+import { CssBaseline } from "@mui/material";
 import "./firebase";
 import { Provider } from "jotai";
 import { signOut } from "./firebase";
-import SignedInView from "./routes/SignIn/SignedInView";
-import SignInView from "./routes/SignIn/SignInView";
+import AccountView from "./routes/Profile/AccountView";
+import SignInView from "./routes/Profile/SignInView";
 import { store } from "./store";
+import ProfileLayout from "./routes/Profile/ProfileLayout";
+import theme from "./theme";
+import SelectedHabit from "./routes/Index/SelectedHabit";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
     <Route element={<Root />}>
-      <Route path="/" element={<Outlet />} errorElement={<ErrorPage />} id="root" loader={Root.loader}>
-        <Route index element={<Index />} />
-        <Route path="profile" element={<SignedInView />} loader={SignedInView.loader} />
-        <Route path="profile/signin" element={<SignInView />} loader={SignInView.loader} />
-        <Route path="profile/signout" action={signOut} />
-        <Route path="contacts/:contactId" element={<Contact />} loader={contactLoader} action={contactAction} />
-        <Route path="contacts/:contactId/edit" element={<EditContact />} loader={contactLoader} action={editAction} />
+      <Route path="/" element={<Outlet />} id="root" loader={Root.loader}>
+        <Route path="overview">
+          <Route index element={<IndexLayout />} />
+          <Route path=":id" element={<SelectedHabit />} loader={SelectedHabit.loader} />
+        </Route>
+        <Route path="profile" element={<ProfileLayout />}>
+          <Route index element={<AccountView />} loader={AccountView.loader} />
+          <Route path="signout" action={signOut} />
+          <Route path="signin" element={<SignInView />} />
+        </Route>
+        {/* <Route path="contacts/:contactId" element={<Contact />} loader={contactLoader} action={contactAction} />
+        <Route path="contacts/:contactId/edit" element={<EditContact />} loader={contactLoader} action={editAction} /> */}
+        <Route path="*" element={<ErrorPage />} />
       </Route>
     </Route>
   )
@@ -37,7 +44,7 @@ const router = createBrowserRouter(
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <Provider store={store}>
-      <ThemeProvider theme={useTheme}>
+      <ThemeProvider theme={theme}>
         <CssBaseline />
         <RouterProvider router={router} />
       </ThemeProvider>

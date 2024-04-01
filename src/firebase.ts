@@ -27,14 +27,14 @@ export async function getUser() {
       auth,
       (user) => {
         unsubscribe();
-        setTimeout(() => {
-          if (user) {
-            // User is signed in
-            resolve(user);
-          } else {
-            resolve(null);
-          }
-        }, 500); // Delay of 2 seconds
+        // setTimeout(() => {
+        if (user) {
+          // User is signed in
+          resolve(user);
+        } else {
+          resolve(null);
+        }
+        // }, 300);
       },
       reject
     );
@@ -43,5 +43,5 @@ export async function getUser() {
 
 export async function signOut() {
   await auth.signOut();
-  return redirect("/profile/");
+  return redirect("/profile");
 }

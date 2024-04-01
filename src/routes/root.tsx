@@ -49,7 +49,7 @@ export default function Root() {
         <AccountCircle />
       ),
     },
-    { text: "Overview", path: "/", icon: <Home /> },
+    { text: "Overview", path: "/overview", icon: <Home /> },
     { text: "New Habit", path: "/add-habit", icon: <Add />, disabled: true },
   ];
 
@@ -113,12 +113,13 @@ export default function Root() {
                 component={NavLink}
                 to={page.path}
                 sx={{
-                  borderRadius: "30px",
                   "&.active": {
                     backgroundColor: "primary.main",
+                    boxShadow: "0 0 10px rgba(0, 0, 0, 0.5)",
                   },
                   "&.pending": {
                     backgroundColor: "primary.light",
+                    boxShadow: "0 0 4px rgba(0, 0, 0, 0.5)",
                   },
                 }}
                 onClick={() => setDrawerOpen(false)} // close mobile sidebar on click
