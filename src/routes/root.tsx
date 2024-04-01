@@ -1,4 +1,4 @@
-import { Outlet, useNavigation, NavLink, useRouteLoaderData, } from "react-router-dom";
+import { Outlet, useNavigation, NavLink, useRouteLoaderData } from "react-router-dom";
 import { useState } from "react";
 import {
   Avatar,
