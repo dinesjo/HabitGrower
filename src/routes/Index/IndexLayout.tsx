@@ -6,10 +6,12 @@ import {
   ListItemButton,
   ListItemText,
   Typography,
-  Button,
   Checkbox,
   LinearProgress,
   Box,
+  Fab,
+  Grow,
+  Divider,
 } from "@mui/material";
 import Cover from "../../components/Cover";
 import { Form, redirect, useLoaderData, useNavigation } from "react-router-dom";
@@ -44,84 +46,93 @@ export default function IndexLayout() {
 
   return (
     <Cover>
-      <Typography variant="h4" color="primary" align="center">
-        Good {new Date().getHours() < 10 ? "morning" : new Date().getHours() < 20 ? "day" : "evening"}!
-      </Typography>
-      <Typography variant="subtitle1" color="primary">
-        Have you kept up with your habits lately?
-      </Typography>
-      <Typography variant="subtitle2" color="text.secondary">
-        Register today's habits below:
-      </Typography>
-      <List
-        component={Form}
-        method="post"
-        sx={{
-          minWidth: 260,
-          maxHeight: "calc(100vh - 200px)",
-          overflow: "auto",
-        }}
-      >
-        {Object.keys(habits).map((key) => {
-          const habit = habits[key];
-          const isChecked = checked.includes(key);
-          return (
-            <Box key={key}>
-              <ListItem disablePadding>
-                <ListItemButton
-                  sx={{ p: 1 }}
-                  onClick={() => setChecked((prev) => (isChecked ? prev.filter((id) => id !== key) : [...prev, key]))}
-                >
-                  <ListItemAvatar sx={{ color: habit.color }}>
-                    <Avatar
-                      sx={{
-                        bgcolor: habit.color || "text.primary",
-                      }}
-                    >
-                      {IconMap[habit.icon || "default"]}
-                    </Avatar>
-                  </ListItemAvatar>
-                  <ListItemText
-                    primary={<Typography sx={{ color: habit.color }}>{habit.name}</Typography>}
-                    secondary={toFriendlyFrequency(habit)}
-                  />
-                  {isChecked && <input type="hidden" name="habitIds" value={key} />}
-                  {<Checkbox icon={<CheckBoxOutlineBlank />} checkedIcon={<CheckBox />} checked={isChecked} />}
-                </ListItemButton>
-              </ListItem>
-              <LinearProgress
-                variant="buffer"
-                valueBuffer={getProgressBuffer(habit)}
-                value={getProgress(habit)}
-                sx={{
-                  ".MuiLinearProgress-bar1Buffer": {
-                    backgroundColor: habit.color,
-                  },
-                  ".MuiLinearProgress-dashed": {
-                    display: "none",
-                  },
-                }}
-              />
-            </Box>
-          );
-        })}
-        {navigation.state === "submitting" ? (
-          <Button variant="contained" color="primary" startIcon={<Check />} disabled sx={{ mt: 2 }} type="submit">
-            Registering...
-          </Button>
-        ) : (
-          <Button
-            variant="contained"
-            color="primary"
-            startIcon={<Check />}
-            disabled={!checked.length}
-            sx={{ mt: 2 }}
-            type="submit"
-          >
-            Register
-          </Button>
-        )}
-      </List>
+      <Box component={Form} method="post" sx={{ position: "relative" }}>
+        <Typography variant="h4" color="primary" align="center">
+          Good {new Date().getHours() < 10 ? "morning" : new Date().getHours() < 20 ? "day" : "evening"}!
+        </Typography>
+        <Typography variant="subtitle1" color="primary">
+          Have you kept up with your habits lately?
+        </Typography>
+        <Divider sx={{ my: 1 }} />
+        <Typography variant="subtitle2" color="text.secondary">
+          Register today's habits below:
+        </Typography>
+        <List
+          sx={{
+            minWidth: 260,
+            maxHeight: "calc(100vh - 200px)",
+            overflow: "auto",
+            pb: 0,
+          }}
+        >
+          {Object.keys(habits).map((key) => {
+            const habit = habits[key];
+            const isChecked = checked.includes(key);
+            return (
+              <Box key={key}>
+                <ListItem disablePadding>
+                  <ListItemButton
+                    sx={{ p: 1 }}
+                    onClick={() => setChecked((prev) => (isChecked ? prev.filter((id) => id !== key) : [...prev, key]))}
+                  >
+                    <ListItemAvatar sx={{ color: habit.color }}>
+                      <Avatar
+                        sx={{
+                          bgcolor: habit.color || "text.primary",
+                        }}
+                      >
+                        {IconMap[habit.icon || "default"]}
+                      </Avatar>
+                    </ListItemAvatar>
+                    <ListItemText
+                      primary={<Typography sx={{ color: habit.color }}>{habit.name}</Typography>}
+                      secondary={toFriendlyFrequency(habit)}
+                    />
+                    {isChecked && <input type="hidden" name="habitIds" value={key} />}
+                    {<Checkbox icon={<CheckBoxOutlineBlank />} checkedIcon={<CheckBox />} checked={isChecked} />}
+                  </ListItemButton>
+                </ListItem>
+                <LinearProgress
+                  variant="buffer"
+                  valueBuffer={getProgressBuffer(habit)}
+                  value={getProgress(habit)}
+                  sx={{
+                    ".MuiLinearProgress-bar1Buffer": {
+                      backgroundColor: habit.color,
+                    },
+                    ".MuiLinearProgress-dashed": {
+                      display: "none",
+                    },
+                  }}
+                />
+              </Box>
+            );
+          })}
+        </List>
+        <Box
+          sx={{
+            position: "absolute",
+            width: "100%",
+            display: "flex",
+            justifyContent: "center",
+            bottom: "-2rem",
+          }}
+        >
+          {navigation.state === "submitting" ? (
+            <Fab variant="extended" color="primary" type="submit" disabled>
+              <Check sx={{ mr: 1 }} />
+              Registering...
+            </Fab>
+          ) : (
+            <Grow in={checked.length > 0}>
+              <Fab variant="extended" color="primary" type="submit" disabled={!checked.length}>
+                <Check sx={{ mr: 1 }} />
+                Register
+              </Fab>
+            </Grow>
+          )}
+        </Box>
+      </Box>
     </Cover>
   );
 }

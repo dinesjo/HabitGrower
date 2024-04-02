@@ -4,7 +4,6 @@ import {
   CircularProgress,
   Divider,
   Fab,
-  IconButton,
   List,
   ListItem,
   ListItemAvatar,
@@ -15,7 +14,7 @@ import {
 import Cover from "../../components/Cover";
 import { Form, useLoaderData, useNavigate, useNavigation } from "react-router-dom";
 import { Habit, fetchHabits } from "../../habitsModel";
-import { Add, Edit } from "@mui/icons-material";
+import { Add } from "@mui/icons-material";
 import { IconMap } from "../../utils/IconMap";
 
 async function loader() {
@@ -49,15 +48,7 @@ export default function MyHabitsIndex() {
             {Object.keys(habits).map((key) => {
               const habit = habits[key];
               return (
-                <ListItem
-                  disablePadding
-                  key={key}
-                  secondaryAction={
-                    <IconButton edge="end" onClick={() => navigate(`/my-habits/${key}/edit`)}>
-                      <Edit />
-                    </IconButton>
-                  }
-                >
+                <ListItem disablePadding key={key}>
                   <ListItemButton sx={{ p: 1 }} onClick={() => navigate(`/my-habits/${key}`)}>
                     <ListItemAvatar sx={{ color: habit.color }}>
                       <Avatar
@@ -77,19 +68,29 @@ export default function MyHabitsIndex() {
               );
             })}
           </List>
-          <Form action="/my-habits/new-habit" method="post">
-            {navigation.state === "submitting" ? (
-              <Fab type="submit" variant="extended" color="primary" disabled>
-                <CircularProgress size="2rem" sx={{ mr: 1 }} />
-                New Habit
-              </Fab>
-            ) : (
-              <Fab type="submit" variant="extended" color="primary">
-                <Add sx={{ mr: 1 }} />
-                New Habit
-              </Fab>
-            )}
-          </Form>
+          <Box
+            sx={{
+              position: "absolute",
+              width: "100%",
+              display: "flex",
+              justifyContent: "center",
+              bottom: "-2rem",
+            }}
+          >
+            <Form action="/my-habits/new-habit" method="post">
+              {navigation.state === "submitting" ? (
+                <Fab type="submit" variant="extended" color="primary" disabled>
+                  <CircularProgress size="2rem" sx={{ mr: 1 }} />
+                  New Habit
+                </Fab>
+              ) : (
+                <Fab type="submit" variant="extended" color="primary">
+                  <Add sx={{ mr: 1 }} />
+                  New Habit
+                </Fab>
+              )}
+            </Form>
+          </Box>
         </Box>
       </Cover>
     </>

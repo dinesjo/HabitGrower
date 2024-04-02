@@ -1,4 +1,4 @@
-import { Avatar, Button, CircularProgress, Divider, Stack, Typography } from "@mui/material";
+import { Avatar, Box, CircularProgress, Divider, Fab, Stack, Typography } from "@mui/material";
 import { User } from "firebase/auth";
 import { Logout } from "@mui/icons-material";
 import { Form, redirect, useLoaderData, useNavigation } from "react-router-dom";
@@ -24,7 +24,12 @@ export default function AccountView() {
   return loading ? (
     <CircularProgress />
   ) : (
-    <>
+    <Box
+      sx={{
+        position: "relative",
+        pb: 2,
+      }}
+    >
       <Stack direction="row" spacing={2} justifyContent="center" alignItems="center">
         <Typography variant="h6" mb={2} textAlign="center">
           Hi, {displayName || "there"}!
@@ -35,17 +40,30 @@ export default function AccountView() {
       <Typography variant="body2" mb={1} textAlign="center">
         You are logged in as <b>{email || "Unknown Email"}</b>.
       </Typography>
-      <Form method="post" action="signout">
+      <Box
+        component={Form}
+        method="post"
+        action="signout"
+        sx={{
+          position: "absolute",
+          width: "100%",
+          display: "flex",
+          justifyContent: "center",
+          bottom: "-2rem",
+        }}
+      >
         {navigation.state === "submitting" ? (
-          <Button variant="contained" startIcon={<Logout />} color="error" disabled>
+          <Fab variant="extended" color="error" disabled>
+            <Logout sx={{ mr: 1 }} />
             Logging out...
-          </Button>
+          </Fab>
         ) : (
-          <Button variant="contained" startIcon={<Logout />} color="error" type="submit">
+          <Fab variant="extended" color="error" type="submit">
+            <Logout sx={{ mr: 1 }} />
             Sign out
-          </Button>
+          </Fab>
         )}
-      </Form>
-    </>
+      </Box>
+    </Box>
   );
 }
