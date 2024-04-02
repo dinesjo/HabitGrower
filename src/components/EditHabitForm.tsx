@@ -39,16 +39,8 @@ export default function EditHabitForm() {
       <Typography variant="h5" align="center" gutterBottom>
         Edit Habit: <b>{habit.name}</b>
       </Typography>
-      <Container
-        maxWidth="xs"
-        component={Form}
-        autoComplete="off"
-        method="post"
-        sx={{
-          mt: 2,
-        }}
-      >
-        <Grid container spacing={2}>
+      <Container maxWidth="xs" component={Form} autoComplete="off" method="post">
+        <Grid container spacing={2} sx={{ py: 1 }}>
           <Grid item xs={12} sm={6}>
             <TextField required name="name" label="Habit Name" defaultValue={habit.name} fullWidth />
           </Grid>
@@ -61,10 +53,10 @@ export default function EditHabitForm() {
               fullWidth
             />
           </Grid>
-          <Grid item xs={6} sm={6}>
-            <FormControl fullWidth>
-              <InputLabel id="icon">Icon</InputLabel>
-              <Select name="icon" labelId="icon" label="Icon" defaultValue={habit.icon || ""}>
+          <Grid item xs={4}>
+            <FormControl required fullWidth>
+              <InputLabel>Icon</InputLabel>
+              <Select name="icon" label="Icon" defaultValue={habit.icon || ""}>
                 {Object.keys(IconMap).map((icon) => (
                   <MenuItem dense key={icon} value={icon}>
                     {IconMap[icon]}
@@ -73,10 +65,10 @@ export default function EditHabitForm() {
               </Select>
             </FormControl>
           </Grid>
-          <Grid item xs={6} sm={6}>
+          <Grid item xs={8}>
             <FormControl fullWidth>
-              <InputLabel id="color">Color</InputLabel>
-              <Select name="color" label="Color" labelId="color" defaultValue={habit.color || ""} fullWidth>
+              <InputLabel>Color</InputLabel>
+              <Select name="color" label="Color" defaultValue={habit.color || ""} fullWidth>
                 <MenuItem value="">None</MenuItem>
                 {colors.map((color) => (
                   <MenuItem key={color} value={color} sx={{ color: color }}>
@@ -86,7 +78,7 @@ export default function EditHabitForm() {
               </Select>
             </FormControl>
           </Grid>
-          <Grid item xs={6} sm={6}>
+          <Grid item xs={5}>
             <TextField
               name="frequency"
               label="Frequency"
@@ -95,7 +87,7 @@ export default function EditHabitForm() {
               fullWidth
             />
           </Grid>
-          <Grid item xs={6} sm={6}>
+          <Grid item xs={7}>
             <FormControl fullWidth>
               <InputLabel id="frequencyUnit">Frequency Unit</InputLabel>
               <Select
@@ -113,7 +105,7 @@ export default function EditHabitForm() {
             </FormControl>
           </Grid>
         </Grid>
-        <Stack direction={"row"} spacing={2} mt={2}>
+        <Stack direction={"row"} spacing={2} my={1}>
           <Button variant="contained" type="submit">
             Save
           </Button>

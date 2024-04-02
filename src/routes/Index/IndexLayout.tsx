@@ -12,14 +12,7 @@ async function loader() {
 IndexLayout.loader = loader;
 
 export default function IndexLayout() {
-  const { habits } = useLoaderData() as { habits: Record<string, Habit> };
-  if (!habits) {
-    return (
-      <Cover>
-        <Typography variant="h3">No habits found</Typography>
-      </Cover>
-    );
-  }
+  useLoaderData() as { habits: Record<string, Habit> }; //TODO: use this data to display the habits
 
   return (
     <Cover>

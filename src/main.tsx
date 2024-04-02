@@ -51,11 +51,13 @@ const router = createBrowserRouter(
               const formData = await request.formData();
               await updateHabit(params.id as string, {
                 name: formData.get("name") as string,
-                description: formData.get("description") as string,
+                description: (formData.get("description") as string) || null,
                 icon: formData.get("icon") as string,
-                color: formData.get("color") as string,
-                frequency: Number(formData.get("frequency")),
-                frequencyUnit: formData.get("frequencyUnit") as "day" | "week" | "month",
+                color: (formData.get("color") as string) || null,
+                frequency: Number(formData.get("frequency")) || null,
+                frequencyUnit: (formData.get("frequencyUnit") as "day" | "week" | "month") || null,
+                startDate: null,
+                endDate: null,
               });
               return redirect(`/my-habits/${params.id}`);
             }}

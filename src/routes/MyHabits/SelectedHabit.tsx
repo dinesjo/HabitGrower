@@ -9,9 +9,9 @@ import {
   Divider,
   Dialog,
   DialogTitle,
-  DialogContent,
-  DialogContentText,
   DialogActions,
+  Alert,
+  AlertTitle,
 } from "@mui/material";
 import { Form, LoaderFunctionArgs, useLoaderData, useNavigate, useParams } from "react-router-dom";
 import { Habit, fetchHabitById } from "../../habitsModel";
@@ -93,11 +93,12 @@ export default function SelectedHabit() {
                 year: "numeric",
               })}`}
           </Typography>
-          <Typography variant="body2" color="text.secondary">
-            You told yourself to <b>{habit.name}</b>{" "}
-            {habit.frequency != 0 &&
-              `${habit.frequency === 1 ? "once" : `${habit.frequency} times`} a ${habit.frequencyUnit}`}{" "}
-          </Typography>
+          {habit.frequency && habit.frequencyUnit && (
+            <Typography variant="body2" color="text.secondary">
+              You told yourself to <b>{habit.name}</b>{" "}
+              {`${habit.frequency === 1 ? "once" : `${habit.frequency} times`} a ${habit.frequencyUnit}`}{" "}
+            </Typography>
+          )}
         </CardContent>
         <CardActions>
           <Button color="primary" startIcon={<Edit />} onClick={() => navigate(`/my-habits/${id}/edit`)}>
@@ -111,15 +112,16 @@ export default function SelectedHabit() {
             onClose={() => setDeleteDialogOpen(false)}
             aria-labelledby={"delete-confirm-title"}
           >
-            <DialogTitle id={"delete-confirm-title"}>Delete habit "{habit.name}"?</DialogTitle>
-            <DialogContent>
-              <DialogContentText>This action cannot be undone.</DialogContentText>
-            </DialogContent>
+            <DialogTitle id={"delete-confirm-title"}>Delete habit?</DialogTitle>
+            <Alert severity="warning">
+              <AlertTitle>"{habit.name}" will be deleted</AlertTitle>
+              This action cannot be undone.
+            </Alert>
             <DialogActions>
               <Button onClick={() => setDeleteDialogOpen(false)}>Cancel</Button>
               <Form action={`/my-habits/${id}/delete`} method="post">
                 <Button type="submit" color="error">
-                  Delete
+                  Confirm
                 </Button>
               </Form>
             </DialogActions>

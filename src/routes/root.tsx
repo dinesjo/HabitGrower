@@ -36,7 +36,7 @@ export default function Root() {
   useEffect(() => {
     let timeoutId: NodeJS.Timeout;
     if (loading) {
-      timeoutId = setTimeout(() => setShowLoading(true), 200); // 200ms delay
+      timeoutId = setTimeout(() => setShowLoading(true), 200); // delay
     } else {
       setShowLoading(false);
     }

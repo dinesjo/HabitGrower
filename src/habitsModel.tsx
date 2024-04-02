@@ -2,15 +2,14 @@ import { get, push, ref, set } from "firebase/database";
 import { database, getUser } from "./firebase";
 
 export interface Habit {
-  id?: string;
   name: string;
-  description?: string;
+  description: string | null;
   icon: string;
-  frequency?: number;
-  frequencyUnit?: "day" | "week" | "month";
-  startDate?: Date;
-  endDate?: Date;
-  color?: string;
+  frequency: number | null;
+  frequencyUnit: "day" | "week" | "month" | null;
+  startDate: Date | null;
+  endDate: Date | null;
+  color: string | null;
 }
 
 export async function fetchHabits() {
