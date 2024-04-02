@@ -13,12 +13,13 @@ import {
   Alert,
   AlertTitle,
 } from "@mui/material";
-import { Form, LoaderFunctionArgs, useLoaderData, useNavigate, useParams } from "react-router-dom";
+import { Form, LoaderFunctionArgs, useLoaderData, useNavigate, useNavigation, useParams } from "react-router-dom";
 import { Habit, fetchHabitById } from "../../habitsModel";
 import Cover from "../../components/Cover";
 import { ChevronLeft, DeleteForever, Edit } from "@mui/icons-material";
 import { IconMap } from "../../utils/IconMap";
 import { useState } from "react";
+import { toFriendlyFrequency } from "../../utils/helpers.tsx";
 
 async function loader({ params }: LoaderFunctionArgs<{ id: string }>) {
   const { id } = params;
@@ -36,6 +37,7 @@ export default function SelectedHabit() {
   const { habit } = useLoaderData() as { habit: Habit };
   const { id } = useParams();
   const navigate = useNavigate();
+  const navigation = useNavigation();
 
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
@@ -95,8 +97,7 @@ export default function SelectedHabit() {
           </Typography>
           {habit.frequency && habit.frequencyUnit && (
             <Typography variant="body2" color="text.secondary">
-              You told yourself to <b>{habit.name}</b>{" "}
-              {`${habit.frequency === 1 ? "once" : `${habit.frequency} times`} a ${habit.frequencyUnit}`}{" "}
+              You told yourself to {habit.name} {toFriendlyFrequency(habit)}
             </Typography>
           )}
         </CardContent>
@@ -120,9 +121,15 @@ export default function SelectedHabit() {
             <DialogActions>
               <Button onClick={() => setDeleteDialogOpen(false)}>Cancel</Button>
               <Form action={`/my-habits/${id}/delete`} method="post">
-                <Button type="submit" color="error">
-                  Confirm
-                </Button>
+                {navigation.state === "submitting" ? (
+                  <Button color="error" disabled>
+                    Deleting...
+                  </Button>
+                ) : (
+                  <Button type="submit" color="error">
+                    Confirm
+                  </Button>
+                )}
               </Form>
             </DialogActions>
           </Dialog>

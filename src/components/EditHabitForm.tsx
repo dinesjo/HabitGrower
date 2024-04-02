@@ -1,4 +1,4 @@
-import { Form, LoaderFunctionArgs, useLoaderData, useNavigate } from "react-router-dom";
+import { Form, LoaderFunctionArgs, useLoaderData, useNavigate, useNavigation } from "react-router-dom";
 import { Habit, fetchHabitById } from "../habitsModel";
 import {
   Button,
@@ -14,7 +14,7 @@ import {
 } from "@mui/material";
 import Cover from "./Cover";
 import { IconMap } from "../utils/IconMap";
-import { toFriendlyString } from "../utils/helpers";
+import { toFriendlyString } from "../utils/helpers.tsx";
 
 async function loader({ params }: LoaderFunctionArgs<{ id: string }>) {
   const { id } = params;
@@ -33,6 +33,7 @@ const colors = ["blue", "red", "green", "purple", "orange", "magenta", "brown", 
 export default function EditHabitForm() {
   const { habit } = useLoaderData() as { habit: Habit };
   const navigate = useNavigate();
+  const navigation = useNavigation();
 
   return (
     <Cover>
@@ -106,9 +107,15 @@ export default function EditHabitForm() {
           </Grid>
         </Grid>
         <Stack direction={"row"} spacing={2} my={1}>
-          <Button variant="contained" type="submit">
-            Save
-          </Button>
+          {navigation.state === "submitting" ? (
+            <Button variant="contained" disabled>
+              Saving...
+            </Button>
+          ) : (
+            <Button variant="contained" type="submit">
+              Save
+            </Button>
+          )}
           <Button
             onClick={() => {
               navigate("/my-habits");

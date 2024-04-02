@@ -10,6 +10,7 @@ export interface Habit {
   startDate: Date | null;
   endDate: Date | null;
   color: string | null;
+  dates?: Record<string, number>;
 }
 
 export async function fetchHabits() {
@@ -83,7 +84,8 @@ export async function updateHabit(id: string, habit: Habit) {
   });
 
   const habitRef = ref(database, "users/" + userId + "/habits/" + id);
-  return await set(habitRef, habit);
+  const currentHabit = await get(habitRef).then((snapshot) => snapshot.val());
+  return await set(habitRef, { ...currentHabit, ...habit });
 }
 
 export async function deleteHabit(id: string) {
@@ -97,4 +99,22 @@ export async function deleteHabit(id: string) {
 
   const habitRef = ref(database, "users/" + userId + "/habits/" + id);
   return await set(habitRef, null);
+}
+
+export async function registerHabitsToday(ids: string[]) {
+  const userId = await getUser().then((user) => {
+    if (user) {
+      return user.uid;
+    } else {
+      throw new Error("User not found");
+    }
+  });
+
+  const today = new Date();
+  const todayString = today.toISOString().split("T")[0];
+  for (const id of ids) {
+    const habitRef = ref(database, "users/" + userId + "/habits/" + id + "/dates/" + todayString);
+    const currentCount = await get(habitRef).then((snapshot) => snapshot.val() || 0);
+    await set(habitRef, currentCount + 1);
+  }
 }

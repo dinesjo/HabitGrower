@@ -17,7 +17,8 @@ AccountView.loader = loader;
 
 export default function AccountView() {
   const user = useLoaderData() as User;
-  const loading = useNavigation().state === "loading";
+  const navigation = useNavigation();
+  const loading = navigation.state === "loading";
   const { displayName, email, photoURL } = user!;
 
   return loading ? (
@@ -35,9 +36,15 @@ export default function AccountView() {
         You are logged in as <b>{email || "Unknown Email"}</b>.
       </Typography>
       <Form method="post" action="signout">
-        <Button variant="contained" startIcon={<Logout />} color="error" type="submit">
-          Sign out
-        </Button>
+        {navigation.state === "submitting" ? (
+          <Button variant="contained" startIcon={<Logout />} color="error" disabled>
+            Logging out...
+          </Button>
+        ) : (
+          <Button variant="contained" startIcon={<Logout />} color="error" type="submit">
+            Sign out
+          </Button>
+        )}
       </Form>
     </>
   );
