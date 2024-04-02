@@ -8,8 +8,8 @@ import {
   Typography,
   Button,
   Checkbox,
-  Tooltip,
   LinearProgress,
+  Box,
 } from "@mui/material";
 import Cover from "../../components/Cover";
 import { Form, redirect, useLoaderData, useNavigation } from "react-router-dom";
@@ -39,14 +39,6 @@ export default function IndexLayout() {
   const { habits } = useLoaderData() as { habits: Record<string, Habit> };
   const navigation = useNavigation();
   const [checked, setChecked] = useState<string[]>([]);
-  const permanentChecked = Object.keys(habits)
-    .map((key) => {
-      const habit = habits[key];
-      if (!habit.dates) return "";
-      const habitDoneToday = Object.keys(habit.dates).includes(new Date().toISOString().slice(0, 10));
-      return habitDoneToday ? key : "";
-    })
-    .filter((id) => id !== "");
 
   useEffect(() => setChecked([]), [habits]);
 
@@ -74,41 +66,43 @@ export default function IndexLayout() {
           const habit = habits[key];
           const isChecked = checked.includes(key);
           return (
-            <Tooltip key={key} title={permanentChecked.includes(key) ? "Already done today!" : ""} placement="right">
-              <>
-                <ListItem disablePadding key={key}>
-                  <ListItemButton
-                    sx={{ p: 1 }}
-                    onClick={() => setChecked((prev) => (isChecked ? prev.filter((id) => id !== key) : [...prev, key]))}
-                    disabled={permanentChecked.includes(key)}
-                  >
-                    <ListItemAvatar sx={{ color: habit.color }}>
-                      <Avatar
-                        sx={{
-                          bgcolor: habit.color || "text.primary",
-                        }}
-                      >
-                        {IconMap[habit.icon || "default"]}
-                      </Avatar>
-                    </ListItemAvatar>
-                    <ListItemText
-                      primary={<Typography sx={{ color: habit.color }}>{habit.name}</Typography>}
-                      secondary={toFriendlyFrequency(habit)}
-                    />
-                    {isChecked && <input type="hidden" name="habitIds" value={key} />}
-                    {
-                      <Checkbox
-                        icon={<CheckBoxOutlineBlank />}
-                        checkedIcon={<CheckBox />}
-                        checked={permanentChecked.includes(key) || isChecked}
-                        disabled={permanentChecked.includes(key)}
-                      />
-                    }
-                  </ListItemButton>
-                </ListItem>
-                <LinearProgress variant="buffer" valueBuffer={getProgressBuffer(habit)} value={getProgress(habit)} />
-              </>
-            </Tooltip>
+            <Box key={key}>
+              <ListItem disablePadding>
+                <ListItemButton
+                  sx={{ p: 1 }}
+                  onClick={() => setChecked((prev) => (isChecked ? prev.filter((id) => id !== key) : [...prev, key]))}
+                >
+                  <ListItemAvatar sx={{ color: habit.color }}>
+                    <Avatar
+                      sx={{
+                        bgcolor: habit.color || "text.primary",
+                      }}
+                    >
+                      {IconMap[habit.icon || "default"]}
+                    </Avatar>
+                  </ListItemAvatar>
+                  <ListItemText
+                    primary={<Typography sx={{ color: habit.color }}>{habit.name}</Typography>}
+                    secondary={toFriendlyFrequency(habit)}
+                  />
+                  {isChecked && <input type="hidden" name="habitIds" value={key} />}
+                  {<Checkbox icon={<CheckBoxOutlineBlank />} checkedIcon={<CheckBox />} checked={isChecked} />}
+                </ListItemButton>
+              </ListItem>
+              <LinearProgress
+                variant="buffer"
+                valueBuffer={getProgressBuffer(habit)}
+                value={getProgress(habit)}
+                sx={{
+                  ".MuiLinearProgress-bar1Buffer": {
+                    backgroundColor: habit.color,
+                  },
+                  ".MuiLinearProgress-dashed": {
+                    display: "none",
+                  },
+                }}
+              />
+            </Box>
           );
         })}
         {navigation.state === "submitting" ? (

@@ -1,4 +1,4 @@
-import { get, push, ref, set } from "firebase/database";
+import { DataSnapshot, get, push, ref, set } from "firebase/database";
 import { database, getUser } from "./firebase";
 
 export interface Habit {
@@ -10,7 +10,7 @@ export interface Habit {
   startDate: Date | null;
   endDate: Date | null;
   color: string | null;
-  dates?: Record<string, boolean>;
+  dates?: Record<string, number>;
 }
 
 export async function fetchHabits() {
@@ -84,7 +84,8 @@ export async function updateHabit(id: string, habit: Habit) {
   });
 
   const habitRef = ref(database, "users/" + userId + "/habits/" + id);
-  return await set(habitRef, habit);
+  const currentHabit = await get(habitRef).then((snapshot) => snapshot.val());
+  return await set(habitRef, { ...currentHabit, ...habit });
 }
 
 export async function deleteHabit(id: string) {
@@ -113,6 +114,7 @@ export async function registerHabitsToday(ids: string[]) {
   const todayString = today.toISOString().split("T")[0];
   for (const id of ids) {
     const habitRef = ref(database, "users/" + userId + "/habits/" + id + "/dates/" + todayString);
-    await set(habitRef, true);
+    const currentCount = await get(habitRef).then((snapshot) => snapshot.val() || 0);
+    await set(habitRef, currentCount + 1);
   }
 }
