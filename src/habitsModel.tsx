@@ -10,6 +10,7 @@ export interface Habit {
   startDate: Date | null;
   endDate: Date | null;
   color: string | null;
+  dates?: Record<string, boolean>;
 }
 
 export async function fetchHabits() {
@@ -97,4 +98,21 @@ export async function deleteHabit(id: string) {
 
   const habitRef = ref(database, "users/" + userId + "/habits/" + id);
   return await set(habitRef, null);
+}
+
+export async function registerHabitsToday(ids: string[]) {
+  const userId = await getUser().then((user) => {
+    if (user) {
+      return user.uid;
+    } else {
+      throw new Error("User not found");
+    }
+  });
+
+  const today = new Date();
+  const todayString = today.toISOString().split("T")[0];
+  for (const id of ids) {
+    const habitRef = ref(database, "users/" + userId + "/habits/" + id + "/dates/" + todayString);
+    await set(habitRef, true);
+  }
 }

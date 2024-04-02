@@ -19,6 +19,7 @@ import Cover from "../../components/Cover";
 import { ChevronLeft, DeleteForever, Edit } from "@mui/icons-material";
 import { IconMap } from "../../utils/IconMap";
 import { useState } from "react";
+import { toFriendlyFrequency } from "../../utils/helpers.tsx";
 
 async function loader({ params }: LoaderFunctionArgs<{ id: string }>) {
   const { id } = params;
@@ -95,8 +96,7 @@ export default function SelectedHabit() {
           </Typography>
           {habit.frequency && habit.frequencyUnit && (
             <Typography variant="body2" color="text.secondary">
-              You told yourself to <b>{habit.name}</b>{" "}
-              {`${habit.frequency === 1 ? "once" : `${habit.frequency} times`} a ${habit.frequencyUnit}`}{" "}
+              You told yourself to {habit.name} {toFriendlyFrequency(habit)}
             </Typography>
           )}
         </CardContent>

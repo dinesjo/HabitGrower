@@ -14,7 +14,7 @@ import {
 } from "@mui/material";
 import Cover from "./Cover";
 import { IconMap } from "../utils/IconMap";
-import { toFriendlyString } from "../utils/helpers";
+import { toFriendlyString } from "../utils/helpers.tsx";
 
 async function loader({ params }: LoaderFunctionArgs<{ id: string }>) {
   const { id } = params;
