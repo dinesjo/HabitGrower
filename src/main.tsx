@@ -27,12 +27,13 @@ import SelectedHabit from "./routes/MyHabits/SelectedHabit";
 import MyHabitsIndex from "./routes/MyHabits/MyHabitsIndex";
 import EditHabitForm from "./components/EditHabitForm";
 import { createEmptyHabit, deleteHabit, updateHabit } from "./habitsModel";
+import { requireAuth } from "./utils/requireAuth";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
     <Route element={<Root />}>
       <Route path="/" element={<Outlet />} id="root" loader={Root.loader}>
-        <Route index element={<IndexLayout />} loader={IndexLayout.loader} />
+        <Route index element={<IndexLayout />} loader={requireAuth(IndexLayout.loader)} />
         <Route path="profile" element={<ProfileLayout />}>
           <Route index element={<AccountView />} loader={AccountView.loader} />
           <Route path="signout" action={signOut} />
@@ -40,12 +41,12 @@ const router = createBrowserRouter(
         </Route>
 
         <Route path="my-habits">
-          <Route index element={<MyHabitsIndex />} loader={MyHabitsIndex.loader} />
-          <Route path=":id" element={<SelectedHabit />} loader={SelectedHabit.loader} />
+          <Route index element={<MyHabitsIndex />} loader={requireAuth(MyHabitsIndex.loader)} />
+          <Route path=":id" element={<SelectedHabit />} loader={requireAuth(SelectedHabit.loader)} />
           <Route
             path=":id/edit"
             element={<EditHabitForm />}
-            loader={EditHabitForm.loader}
+            loader={requireAuth(EditHabitForm.loader)}
             action={async ({ params, request }) => {
               const formData = await request.formData();
               await updateHabit(params.id as string, {

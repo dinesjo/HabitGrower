@@ -11,18 +11,12 @@ import {
   Typography,
 } from "@mui/material";
 import Cover from "../../components/Cover";
-import { Form, redirect, useLoaderData, useNavigate } from "react-router-dom";
+import { Form, useLoaderData, useNavigate } from "react-router-dom";
 import { Habit, fetchHabits } from "../../habitsModel";
 import { Add, Edit } from "@mui/icons-material";
 import { IconMap } from "../../utils/IconMap";
-import { getUser } from "../../firebase";
 
 async function loader() {
-  const user = await getUser();
-  if (!user) {
-    return redirect("/profile/signin");
-  }
-
   return {
     habits: await fetchHabits(),
   };

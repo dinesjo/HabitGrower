@@ -18,6 +18,7 @@ import {
 import { AccountCircle, Home, Menu, SelfImprovement } from "@mui/icons-material";
 import { getUser } from "../firebase";
 import { User } from "firebase/auth";
+import AuthorizedOutlet from "../components/AuthorizedOutlet";
 
 async function loader() {
   const user = await getUser();
