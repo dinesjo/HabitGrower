@@ -95,7 +95,7 @@ export default function SelectedHabit() {
           </Typography>
           <Typography variant="body2" color="text.secondary">
             You told yourself to <b>{habit.name}</b>{" "}
-            {habit.frequency &&
+            {habit.frequency != 0 &&
               `${habit.frequency === 1 ? "once" : `${habit.frequency} times`} a ${habit.frequencyUnit}`}{" "}
           </Typography>
         </CardContent>

@@ -5,7 +5,7 @@ export interface Habit {
   id?: string;
   name: string;
   description?: string;
-  icon?: string;
+  icon: string;
   frequency?: number;
   frequencyUnit?: "day" | "week" | "month";
   startDate?: Date;
@@ -69,6 +69,7 @@ export async function createEmptyHabit() {
   const newHabitRef = push(ref(database, "users/" + userId + "/habits"));
   await set(newHabitRef, {
     name: "New Habit",
+    icon: "Default",
   });
   return newHabitRef.key;
 }

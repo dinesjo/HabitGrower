@@ -14,6 +14,7 @@ import {
 } from "@mui/material";
 import Cover from "./Cover";
 import { IconMap } from "../utils/IconMap";
+import { toFriendlyString } from "../utils/helpers";
 
 async function loader({ params }: LoaderFunctionArgs<{ id: string }>) {
   const { id } = params;
@@ -26,6 +27,8 @@ async function loader({ params }: LoaderFunctionArgs<{ id: string }>) {
 }
 
 EditHabitForm.loader = loader;
+
+const colors = ["blue", "red", "green", "purple", "orange", "magenta", "brown", "teal", "grey"];
 
 export default function EditHabitForm() {
   const { habit } = useLoaderData() as { habit: Habit };
@@ -62,7 +65,6 @@ export default function EditHabitForm() {
             <FormControl fullWidth>
               <InputLabel id="icon">Icon</InputLabel>
               <Select name="icon" labelId="icon" label="Icon" defaultValue={habit.icon || ""}>
-                <MenuItem value="">None</MenuItem>
                 {Object.keys(IconMap).map((icon) => (
                   <MenuItem dense key={icon} value={icon}>
                     {IconMap[icon]}
@@ -72,7 +74,17 @@ export default function EditHabitForm() {
             </FormControl>
           </Grid>
           <Grid item xs={6} sm={6}>
-            <TextField name="color" label="Color" defaultValue={habit.color || ""} fullWidth />
+            <FormControl fullWidth>
+              <InputLabel id="color">Color</InputLabel>
+              <Select name="color" label="Color" labelId="color" defaultValue={habit.color || ""} fullWidth>
+                <MenuItem value="">None</MenuItem>
+                {colors.map((color) => (
+                  <MenuItem key={color} value={color} sx={{ color: color }}>
+                    {toFriendlyString(color)}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
           </Grid>
           <Grid item xs={6} sm={6}>
             <TextField
