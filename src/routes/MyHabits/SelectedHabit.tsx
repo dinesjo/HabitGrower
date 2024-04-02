@@ -13,7 +13,7 @@ import {
   Alert,
   AlertTitle,
 } from "@mui/material";
-import { Form, LoaderFunctionArgs, useLoaderData, useNavigate, useParams } from "react-router-dom";
+import { Form, LoaderFunctionArgs, useLoaderData, useNavigate, useNavigation, useParams } from "react-router-dom";
 import { Habit, fetchHabitById } from "../../habitsModel";
 import Cover from "../../components/Cover";
 import { ChevronLeft, DeleteForever, Edit } from "@mui/icons-material";
@@ -37,6 +37,7 @@ export default function SelectedHabit() {
   const { habit } = useLoaderData() as { habit: Habit };
   const { id } = useParams();
   const navigate = useNavigate();
+  const navigation = useNavigation();
 
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
@@ -120,9 +121,15 @@ export default function SelectedHabit() {
             <DialogActions>
               <Button onClick={() => setDeleteDialogOpen(false)}>Cancel</Button>
               <Form action={`/my-habits/${id}/delete`} method="post">
-                <Button type="submit" color="error">
-                  Confirm
-                </Button>
+                {navigation.state === "submitting" ? (
+                  <Button color="error" disabled>
+                    Deleting...
+                  </Button>
+                ) : (
+                  <Button type="submit" color="error">
+                    Confirm
+                  </Button>
+                )}
               </Form>
             </DialogActions>
           </Dialog>

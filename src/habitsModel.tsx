@@ -1,4 +1,4 @@
-import { DataSnapshot, get, push, ref, set } from "firebase/database";
+import { get, push, ref, set } from "firebase/database";
 import { database, getUser } from "./firebase";
 
 export interface Habit {
