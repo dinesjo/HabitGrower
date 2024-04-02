@@ -12,8 +12,8 @@ import {
   Typography,
 } from "@mui/material";
 import Cover from "../../components/Cover";
-import { Form, redirect, useLoaderData, useNavigate, useNavigation } from "react-router-dom";
-import { Habit, createEmptyHabit, fetchHabits } from "../../habitsModel";
+import { Form, useLoaderData, useNavigate, useNavigation } from "react-router-dom";
+import { Habit, fetchHabits } from "../../habitsModel";
 import { Add, Edit } from "@mui/icons-material";
 import { IconMap } from "../../utils/IconMap";
 
@@ -29,7 +29,6 @@ export default function MyHabitsIndex() {
   const { habits } = useLoaderData() as { habits: Record<string, Habit> };
   const navigate = useNavigate();
   const navigation = useNavigation();
-  console.log(navigation.state);
 
   return (
     <>
