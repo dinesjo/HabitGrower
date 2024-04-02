@@ -32,7 +32,7 @@ import { requireAuth } from "./utils/requireAuth";
 const router = createBrowserRouter(
   createRoutesFromElements(
     <Route element={<Root />}>
-      <Route path="/" element={<Outlet />} id="root" loader={Root.loader}>
+      <Route path="/" element={<Outlet />} id="root" loader={Root.loader} errorElement={<ErrorPage />}>
         <Route index element={<IndexLayout />} loader={requireAuth(IndexLayout.loader)} />
         <Route path="profile" element={<ProfileLayout />}>
           <Route index element={<AccountView />} loader={AccountView.loader} />

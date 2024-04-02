@@ -1,4 +1,4 @@
-import { Outlet, useNavigation, NavLink, useRouteLoaderData, useNavigate } from "react-router-dom";
+import { Outlet, useNavigation, NavLink, useRouteLoaderData } from "react-router-dom";
 import { useEffect, useState } from "react";
 import {
   Avatar,
@@ -6,6 +6,7 @@ import {
   CircularProgress,
   Drawer,
   IconButton,
+  LinearProgress,
   List,
   ListItemButton,
   ListItemIcon,
@@ -18,7 +19,6 @@ import {
 import { AccountCircle, Home, Menu, SelfImprovement } from "@mui/icons-material";
 import { getUser } from "../firebase";
 import { User } from "firebase/auth";
-import AuthorizedOutlet from "../components/AuthorizedOutlet";
 
 async function loader() {
   const user = await getUser();
@@ -30,8 +30,18 @@ Root.loader = loader;
 export default function Root() {
   // Router
   const navigation = useNavigation();
-  const navigate = useNavigate();
   const loading = navigation.state === "loading";
+  const [showLoading, setShowLoading] = useState(false);
+
+  useEffect(() => {
+    let timeoutId: NodeJS.Timeout;
+    if (loading) {
+      timeoutId = setTimeout(() => setShowLoading(true), 200); // 200ms delay
+    } else {
+      setShowLoading(false);
+    }
+    return () => clearTimeout(timeoutId); // clear timeout on unmount or when loading changes
+  }, [loading]);
   const user = useRouteLoaderData("root") as User | null;
 
   const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("md"));
@@ -41,25 +51,18 @@ export default function Root() {
     {
       text: "Profile",
       path: "/profile",
-      icon: loading ? (
-        <CircularProgress sx={{ color: "primary.contrastText" }} />
-      ) : user?.photoURL ? (
-        <Avatar src={user.photoURL} alt={user.displayName || "Profile Picture"} />
-      ) : (
-        <AccountCircle />
-      ),
+      icon:
+        loading && !user ? (
+          <CircularProgress sx={{ color: "primary.contrastText" }} />
+        ) : user?.photoURL ? (
+          <Avatar src={user.photoURL} alt={user.displayName || "Profile Picture"} />
+        ) : (
+          <AccountCircle />
+        ),
     },
     { text: "Overview", path: "/", icon: <Home /> },
     { text: "My Habits", path: "/my-habits", icon: <SelfImprovement /> },
   ];
-
-  useEffect(() => {
-    if (!loading && !user) {
-      console.log("FLAG");
-      
-      navigate("/profile/signin");
-    }
-  }, [loading, user]);
 
   return (
     <>
@@ -139,6 +142,7 @@ export default function Root() {
           </List>
         </Drawer>
         <Box sx={{ width: "100%", height: "100vh" }}>
+          {showLoading && <LinearProgress sx={{ position: "fixed", top: 0, left: 0, width: "100%" }} />}
           <Outlet />
         </Box>
       </Box>
