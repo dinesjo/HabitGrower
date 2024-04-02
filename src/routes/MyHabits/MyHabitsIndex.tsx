@@ -1,4 +1,5 @@
 import {
+  Avatar,
   Box,
   CircularProgress,
   Divider,
@@ -58,7 +59,15 @@ export default function MyHabitsIndex() {
                   }
                 >
                   <ListItemButton sx={{ p: 1 }} onClick={() => navigate(`/my-habits/${key}`)}>
-                    <ListItemAvatar sx={{ color: habit.color }}>{IconMap[habit.icon || "Default"]}</ListItemAvatar>
+                    <ListItemAvatar sx={{ color: habit.color }}>
+                      <Avatar
+                        sx={{
+                          bgcolor: habit.color || "text.primary",
+                        }}
+                      >
+                        {IconMap[habit.icon || "default"]}
+                      </Avatar>
+                    </ListItemAvatar>
                     <ListItemText
                       primary={<Typography sx={{ color: habit.color }}>{habit.name}</Typography>}
                       secondary={habit.description}

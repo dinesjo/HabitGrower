@@ -50,7 +50,7 @@ export default function SelectedHabit() {
   return (
     <Cover>
       <CardActions>
-        <Button startIcon={<ChevronLeft />} aria-label="back" onClick={() => navigate(-1)}>
+        <Button startIcon={<ChevronLeft />} aria-label="back" onClick={() => navigate("/my-habits")}>
           Back
         </Button>
       </CardActions>
@@ -95,7 +95,8 @@ export default function SelectedHabit() {
           </Typography>
           <Typography variant="body2" color="text.secondary">
             You told yourself to <b>{habit.name}</b>{" "}
-            {habit.frequency && `${habit.frequency} times a ${habit.frequencyUnit}`}{" "}
+            {habit.frequency &&
+              `${habit.frequency === 1 ? "once" : `${habit.frequency} times`} a ${habit.frequencyUnit}`}{" "}
           </Typography>
         </CardContent>
         <CardActions>
