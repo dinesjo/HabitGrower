@@ -16,7 +16,7 @@ import {
 import Cover from "../../components/Cover";
 import { Form, redirect, useLoaderData, useNavigation } from "react-router-dom";
 import { Habit, fetchHabits, registerHabitsToday } from "../../habitsModel";
-import { Check, CheckBox, CheckBoxOutlineBlank } from "@mui/icons-material";
+import { Check, CheckBox, CheckBoxOutlineBlank, DoneAll } from "@mui/icons-material";
 import { IconMap } from "../../utils/IconMap";
 import { toFriendlyFrequency, getProgress, getProgressBuffer } from "../../utils/helpers.tsx";
 import { useEffect, useState } from "react";
@@ -126,7 +126,7 @@ export default function IndexLayout() {
           ) : (
             <Grow in={checked.length > 0}>
               <Fab variant="extended" color="primary" type="submit" disabled={!checked.length}>
-                <Check sx={{ mr: 1 }} />
+                {checked.length === 1 ? <Check sx={{ mr: 1 }} /> : <DoneAll sx={{ mr: 1 }} />}
                 Register
               </Fab>
             </Grow>
