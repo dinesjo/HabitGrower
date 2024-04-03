@@ -6,6 +6,8 @@ import "firebaseui/dist/firebaseui.css";
 import { useEffect } from "react";
 import { getUser } from "../../firebase";
 import { redirect } from "react-router-dom";
+import { getDefaultStore } from "jotai";
+import { router, snackbarMessageAtom, snackbarSeverityAtom } from "../../main";
 
 async function loader() {
   const user = await getUser();
@@ -27,7 +29,11 @@ export default function SignInView() {
         // User successfully signed in.
         // Return type determines whether we continue the redirect automatically
         // or whether we leave that to developer to handle.
-        return true;
+        const defaultStore = getDefaultStore();
+        defaultStore.set(snackbarMessageAtom, "Sign in successful, welcome!");
+        defaultStore.set(snackbarSeverityAtom, "success");
+        router.navigate("/");
+        return false;
       },
       uiShown: function () {
         // The widget is rendered, hide the loader.
@@ -37,7 +43,7 @@ export default function SignInView() {
     },
     // Will use popup for IDP Providers sign-in flow instead of the default, redirect.
     signInFlow: "popup",
-    signInSuccessUrl: "/profile/",
+    // signInSuccessUrl: "/",
     signInOptions: [
       // Leave the lines as is for the providers you want to offer your users.
       firebase.auth.GoogleAuthProvider.PROVIDER_ID,

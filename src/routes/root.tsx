@@ -1,6 +1,7 @@
 import { Outlet, useNavigation, NavLink, useRouteLoaderData } from "react-router-dom";
 import { useEffect, useState } from "react";
 import {
+  Alert,
   Avatar,
   BottomNavigation,
   BottomNavigationAction,
@@ -8,10 +9,13 @@ import {
   CircularProgress,
   LinearProgress,
   Paper,
+  Snackbar,
 } from "@mui/material";
 import { AccountCircle, ChecklistRtl, FormatListBulleted } from "@mui/icons-material";
 import { getUser } from "../firebase";
 import { User } from "firebase/auth";
+import { useAtom } from "jotai";
+import { snackbarMessageAtom, snackbarOpenAtom, snackbarSeverityAtom } from "../main";
 
 async function loader() {
   const user = await getUser();
@@ -25,6 +29,11 @@ export default function Root() {
   const navigation = useNavigation();
   const loading = navigation.state === "loading";
   const [showLoading, setShowLoading] = useState(false);
+
+  // Snackbar
+  const [snackbarOpen] = useAtom(snackbarOpenAtom);
+  const [snackbarMessage, setSnackbarMessage] = useAtom(snackbarMessageAtom);
+  const [snackbarSeverity] = useAtom(snackbarSeverityAtom);
 
   useEffect(() => {
     let timeoutId: NodeJS.Timeout;
@@ -58,6 +67,16 @@ export default function Root() {
     <>
       <Box sx={{ width: "100%", height: "calc(100vh - 56px)" }}>
         <Outlet />
+        <Snackbar open={snackbarOpen} autoHideDuration={6000} onClose={() => setSnackbarMessage("")}>
+          <Alert
+            onClose={() => setSnackbarMessage("")}
+            severity={snackbarSeverity}
+            variant="filled"
+            sx={{ width: "100%" }}
+          >
+            {snackbarMessage}
+          </Alert>
+        </Snackbar>
       </Box>
       <Paper
         sx={{

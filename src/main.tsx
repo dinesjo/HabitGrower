@@ -27,10 +27,10 @@ import MyHabitsIndex from "./routes/MyHabits/MyHabitsIndex";
 import EditHabitForm from "./components/EditHabitForm";
 import { createEmptyHabit, deleteHabit, updateHabit } from "./habitsModel";
 import { requireAuth } from "./utils/requireAuth";
-import { useAtom } from "jotai";
+import { atom, useAtom } from "jotai";
 import { atomWithStorage } from "jotai/utils";
 
-const router = createBrowserRouter(
+export const router = createBrowserRouter(
   createRoutesFromElements(
     <Route element={<Root />}>
       <Route path="/" element={<Outlet />} id="root" loader={Root.loader} errorElement={<ErrorPage />}>
@@ -84,8 +84,23 @@ const router = createBrowserRouter(
   )
 );
 
-// Create a separate atom to hold the value
 export const themeAtom = atomWithStorage<PaletteMode>("theme", "light");
+
+const snackbarMessagePrimitiveAtom = atom<string>("");
+export const snackbarMessageAtom = atom(
+  (get) => get(snackbarMessagePrimitiveAtom),
+  (_, set, message: string) => {
+    set(snackbarMessagePrimitiveAtom, message);
+  }
+);
+const snackbarSeverityPrimitiveAtom = atom<"success" | "error" | "warning" | "info">("info");
+export const snackbarSeverityAtom = atom(
+  (get) => get(snackbarSeverityPrimitiveAtom),
+  (_, set, severity: "success" | "error" | "warning" | "info") => {
+    set(snackbarSeverityPrimitiveAtom, severity);
+  }
+);
+export const snackbarOpenAtom = atom<boolean>((get) => !!get(snackbarMessageAtom));
 
 function Main() {
   const [darkMode] = useAtom<PaletteMode>(themeAtom);
