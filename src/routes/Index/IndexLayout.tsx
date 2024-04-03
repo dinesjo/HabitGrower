@@ -47,12 +47,10 @@ export default function IndexLayout() {
   return (
     <Cover>
       <Box component={Form} method="post" sx={{ position: "relative" }}>
-        <Typography variant="h4" color="primary" align="center">
+        <Typography variant="h4" align="center">
           Good {new Date().getHours() < 10 ? "morning" : new Date().getHours() < 20 ? "day" : "evening"}!
         </Typography>
-        <Typography variant="subtitle1" color="primary">
-          Have you kept up with your habits lately?
-        </Typography>
+        <Typography variant="subtitle1">Have you kept up with your habits lately?</Typography>
         <Divider sx={{ my: 1 }} />
         <Typography variant="subtitle2" color="text.secondary">
           Register today's habits below:
