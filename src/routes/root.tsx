@@ -56,7 +56,7 @@ export default function Root() {
 
   return (
     <>
-      <Box sx={{ width: "100%", height: "100vh" }}>
+      <Box sx={{ width: "100%", height: "calc(100vh - 56px)" }}>
         <Outlet />
       </Box>
       <Paper
@@ -65,7 +65,7 @@ export default function Root() {
           bottom: 0,
           left: 0,
           right: 0,
-          zIndex: 10000,
+          zIndex: 1001,
         }}
       >
         {showLoading && <LinearProgress />}

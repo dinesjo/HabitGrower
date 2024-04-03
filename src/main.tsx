@@ -2,7 +2,7 @@ import "@fontsource/roboto/300.css";
 import "@fontsource/roboto/400.css";
 import "@fontsource/roboto/500.css";
 import "@fontsource/roboto/700.css";
-import React from "react";
+import React, { useMemo } from "react";
 import ReactDOM from "react-dom/client";
 import {
   createBrowserRouter,
@@ -16,18 +16,19 @@ import Root from "./routes/root";
 import ErrorPage from "./error-page";
 import IndexLayout from "./routes/Index/IndexLayout";
 import { ThemeProvider } from "@emotion/react";
-import { CssBaseline } from "@mui/material";
+import { CssBaseline, PaletteMode, createTheme } from "@mui/material";
 import "./firebase";
 import { signOut } from "./firebase";
 import AccountView from "./routes/Profile/AccountView";
 import SignInView from "./routes/Profile/SignInView";
 import ProfileLayout from "./routes/Profile/ProfileLayout";
-import theme from "./theme";
 import SelectedHabit from "./routes/MyHabits/SelectedHabit";
 import MyHabitsIndex from "./routes/MyHabits/MyHabitsIndex";
 import EditHabitForm from "./components/EditHabitForm";
 import { createEmptyHabit, deleteHabit, updateHabit } from "./habitsModel";
 import { requireAuth } from "./utils/requireAuth";
+import { useAtom } from "jotai";
+import { atomWithStorage } from "jotai/utils";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -59,7 +60,7 @@ const router = createBrowserRouter(
                 startDate: null,
                 endDate: null,
               });
-              return redirect(`/my-habits/${params.id}`);
+              return redirect(`/my-habits/`);
             }}
           />
           <Route
@@ -83,11 +84,32 @@ const router = createBrowserRouter(
   )
 );
 
-ReactDOM.createRoot(document.getElementById("root")!).render(
-  <React.StrictMode>
+// Create a separate atom to hold the value
+export const themeAtom = atomWithStorage<PaletteMode>("theme", "light");
+
+function Main() {
+  const [darkMode] = useAtom<PaletteMode>(themeAtom);
+
+  const theme = useMemo(
+    () =>
+      createTheme({
+        palette: {
+          mode: darkMode,
+        },
+      }),
+    [darkMode]
+  );
+
+  return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <RouterProvider router={router} />
     </ThemeProvider>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")!).render(
+  <React.StrictMode>
+    <Main />
   </React.StrictMode>
 );

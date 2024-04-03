@@ -60,7 +60,6 @@ export default function IndexLayout() {
             minWidth: 260,
             maxHeight: "calc(100vh - 200px)",
             overflow: "auto",
-            pb: 0,
           }}
         >
           {Object.keys(habits).map((key) => {
