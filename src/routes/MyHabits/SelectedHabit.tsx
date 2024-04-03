@@ -1,25 +1,11 @@
-import {
-  Card,
-  CardHeader,
-  Typography,
-  Avatar,
-  CardActions,
-  Button,
-  CardContent,
-  Divider,
-  Dialog,
-  DialogTitle,
-  DialogActions,
-  Alert,
-  AlertTitle,
-} from "@mui/material";
-import { Form, LoaderFunctionArgs, useLoaderData, useNavigate, useNavigation, useParams } from "react-router-dom";
+import { CardHeader, Typography, Avatar, CardActions, Button, CardContent, Divider, Box } from "@mui/material";
+import { LoaderFunctionArgs, useLoaderData, useNavigate, useParams } from "react-router-dom";
 import { Habit, fetchHabitById } from "../../habitsModel";
 import Cover from "../../components/Cover";
-import { ChevronLeft, DeleteForever, Edit } from "@mui/icons-material";
+import { ChevronLeft, Edit } from "@mui/icons-material";
 import { IconMap } from "../../utils/IconMap";
-import { useState } from "react";
 import { toFriendlyFrequency } from "../../utils/helpers.tsx";
+import DeleteWithConfirm from "../../components/DeleteWithConfirm.tsx";
 
 async function loader({ params }: LoaderFunctionArgs<{ id: string }>) {
   const { id } = params;
@@ -37,9 +23,6 @@ export default function SelectedHabit() {
   const { habit } = useLoaderData() as { habit: Habit };
   const { id } = useParams();
   const navigate = useNavigate();
-  const navigation = useNavigation();
-
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
   if (!habit) {
     return (
@@ -56,7 +39,7 @@ export default function SelectedHabit() {
           Back
         </Button>
       </CardActions>
-      <Card sx={{ p: 0 }}>
+      <Box>
         <CardHeader
           avatar={
             <Avatar
@@ -105,36 +88,9 @@ export default function SelectedHabit() {
           <Button color="primary" startIcon={<Edit />} onClick={() => navigate(`/my-habits/${id}/edit`)}>
             Edit
           </Button>
-          <Button color="error" startIcon={<DeleteForever />} onClick={() => setDeleteDialogOpen(true)}>
-            Delete
-          </Button>
-          <Dialog
-            open={deleteDialogOpen}
-            onClose={() => setDeleteDialogOpen(false)}
-            aria-labelledby={"delete-confirm-title"}
-          >
-            <DialogTitle id={"delete-confirm-title"}>Delete habit?</DialogTitle>
-            <Alert severity="warning">
-              <AlertTitle>"{habit.name}" will be deleted</AlertTitle>
-              This action cannot be undone.
-            </Alert>
-            <DialogActions>
-              <Button onClick={() => setDeleteDialogOpen(false)}>Cancel</Button>
-              <Form action={`/my-habits/${id}/delete`} method="post">
-                {navigation.state === "submitting" ? (
-                  <Button color="error" disabled>
-                    Deleting...
-                  </Button>
-                ) : (
-                  <Button type="submit" color="error">
-                    Confirm
-                  </Button>
-                )}
-              </Form>
-            </DialogActions>
-          </Dialog>
+          <DeleteWithConfirm habit={habit} id={id!} />
         </CardActions>
-      </Card>
+      </Box>
     </Cover>
   );
 }

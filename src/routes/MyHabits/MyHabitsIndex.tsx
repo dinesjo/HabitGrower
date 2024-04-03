@@ -76,7 +76,7 @@ export default function MyHabitsIndex() {
                 width: "100%",
                 display: "flex",
                 justifyContent: "center",
-                bottom: "-2rem",
+                bottom: "-4rem",
               }}
             >
               {navigation.state === "submitting" ? (

@@ -21,6 +21,8 @@ import { Check, CheckBox, CheckBoxOutlineBlank, DoneAll } from "@mui/icons-mater
 import { IconMap } from "../../utils/IconMap";
 import { toFriendlyFrequency, getProgress, getProgressBuffer } from "../../utils/helpers.tsx";
 import { useEffect, useState } from "react";
+import { getDefaultStore } from "jotai";
+import { snackbarMessageAtom, snackbarSeverityAtom } from "../../main.tsx";
 
 async function loader() {
   return {
@@ -32,6 +34,9 @@ async function action({ request }: { request: Request }) {
   const formData = await request.formData();
   const habitIds = formData.getAll("habitIds") as string[];
   await registerHabitsToday(habitIds);
+  const store = getDefaultStore();
+  store.set(snackbarMessageAtom, "Habits registered successfully!");
+  store.set(snackbarSeverityAtom, "success");
   return redirect("/");
 }
 
@@ -97,7 +102,7 @@ export default function IndexLayout() {
                     <LinearProgress
                       variant="buffer"
                       valueBuffer={getProgressBuffer(habit)}
-                      value={getProgress(habit)}
+                      value={getProgress(habit, isChecked)}
                       sx={{
                         ".MuiLinearProgress-bar1Buffer": {
                           backgroundColor: habit.color,
@@ -117,7 +122,7 @@ export default function IndexLayout() {
                 width: "100%",
                 display: "flex",
                 justifyContent: "center",
-                bottom: "-2rem",
+                bottom: "-4rem",
               }}
             >
               {navigation.state === "submitting" ? (

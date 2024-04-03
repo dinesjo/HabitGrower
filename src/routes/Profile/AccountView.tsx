@@ -2,6 +2,7 @@ import {
   Avatar,
   Box,
   CircularProgress,
+  Container,
   Divider,
   Fab,
   FormControlLabel,
@@ -49,7 +50,9 @@ export default function AccountView() {
         </Typography>
         {photoURL && <Avatar alt={"Profile Picture"} src={photoURL} />}
       </Stack>
-      <DarkModeToggle />
+      <Container>
+        <DarkModeToggle />
+      </Container>
       <Divider sx={{ my: 1 }} />
       <Typography variant="body2" mb={1} textAlign="center">
         You are logged in as <b>{email || "Unknown Email"}</b>.
@@ -63,7 +66,7 @@ export default function AccountView() {
           width: "100%",
           display: "flex",
           justifyContent: "center",
-          bottom: "-2rem",
+          bottom: "-4rem",
         }}
       >
         {navigation.state === "submitting" ? (

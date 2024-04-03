@@ -67,7 +67,14 @@ export default function Root() {
     <>
       <Box sx={{ width: "100%", height: "calc(100vh - 56px)" }}>
         <Outlet />
-        <Snackbar open={snackbarOpen} autoHideDuration={6000} onClose={() => setSnackbarMessage("")}>
+        <Snackbar
+          open={snackbarOpen}
+          autoHideDuration={6000}
+          onClose={() => setSnackbarMessage("")}
+          sx={{
+            bottom: "calc(56px + 0.5rem)",
+          }}
+        >
           <Alert
             onClose={() => setSnackbarMessage("")}
             severity={snackbarSeverity}
@@ -99,12 +106,10 @@ export default function Root() {
               icon={page.icon}
               sx={{
                 "&.active": {
-                  bgcolor: "primary.main",
-                  color: "primary.contrastText",
+                  color: "primary.main",
                 },
                 "&.pending": {
-                  bgcolor: "primary.light",
-                  color: "primary.contrastText",
+                  color: "primary.light",
                 },
               }}
             />

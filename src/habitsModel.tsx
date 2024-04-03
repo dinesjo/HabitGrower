@@ -117,4 +117,5 @@ export async function registerHabitsToday(ids: string[]) {
     const currentCount = await get(habitRef).then((snapshot) => snapshot.val() || 0);
     await set(habitRef, currentCount + 1);
   }
+  return new Response();
 }

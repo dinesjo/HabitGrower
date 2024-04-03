@@ -73,21 +73,26 @@ function maxDaysFromFrequencyUnit(frequencyUnit: string) {
 /**
  * Calculates the progress of a habit based on its dates property.
  * @param habit - The habit object.
+ * @param isChecked - Whether the habit is checked or not (+1 date).
  * @returns The progress percentage of the habit.
  */
-export function getProgress(habit: Habit) {
-  if (!habit.frequency || !habit.frequencyUnit || !habit.dates) {
+export function getProgress(habit: Habit, isChecked: boolean) {
+  if (!habit.frequency || !habit.frequencyUnit) {
     return 0;
   }
 
   const chosenStartString = getChosenStartString(habit.frequencyUnit);
   // Count the number of completed dates after the chosen start date
-  const completedDates: number = Object.keys(habit.dates).reduce((acc, date) => {
-    if (new Date(date) >= new Date(chosenStartString)) {
-      return acc + habit.dates![date];
-    }
-    return acc;
-  }, 0);
+  let completedDates = Number(isChecked);
+  if (habit.dates) {
+    completedDates += Object.keys(habit.dates).reduce((acc, date) => {
+      if (new Date(date) >= new Date(chosenStartString)) {
+        return acc + habit.dates![date];
+      }
+      return acc;
+    }, 0);
+  }
+
   return Math.min((completedDates / habit.frequency) * 100, 100);
 }
 

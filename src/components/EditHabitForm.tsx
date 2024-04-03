@@ -1,4 +1,4 @@
-import { Form, LoaderFunctionArgs, useLoaderData, useNavigate, useNavigation } from "react-router-dom";
+import { Form, LoaderFunctionArgs, useLoaderData, useNavigate, useNavigation, useParams } from "react-router-dom";
 import { Habit, fetchHabitById } from "../habitsModel";
 import {
   Button,
@@ -15,6 +15,7 @@ import {
 import Cover from "./Cover";
 import { IconMap } from "../utils/IconMap";
 import { toFriendlyString } from "../utils/helpers.tsx";
+import DeleteWithConfirm from "./DeleteWithConfirm.tsx";
 
 async function loader({ params }: LoaderFunctionArgs<{ id: string }>) {
   const { id } = params;
@@ -43,6 +44,7 @@ const colors = [
 
 export default function EditHabitForm() {
   const { habit } = useLoaderData() as { habit: Habit };
+  const { id } = useParams();
   const navigate = useNavigate();
   const navigation = useNavigation();
 
@@ -142,6 +144,7 @@ export default function EditHabitForm() {
           >
             Cancel
           </Button>
+          <DeleteWithConfirm habit={habit} id={id!} />
         </Stack>
       </Container>
     </Cover>
