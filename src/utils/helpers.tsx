@@ -107,6 +107,8 @@ export function getProgressBuffer(habit: Habit) {
   }
 
   const chosenStartString = getChosenStartString(habit.frequencyUnit);
-  const daysSinceStart = Math.floor((Date.now() - new Date(chosenStartString).getTime()) / (1000 * 60 * 60 * 24));
-  return (daysSinceStart / maxDaysFromFrequencyUnit(habit.frequencyUnit)) * 100;
+  const daysSinceStart = (Date.now() - new Date(chosenStartString).getTime()) / (1000 * 60 * 60 * 24);
+  // - 1 below is to prevent the progress buffer from reaching 100% before the end of the day,
+  // so it's accurate throughout the day.
+  return Math.min((daysSinceStart - 1 / maxDaysFromFrequencyUnit(habit.frequencyUnit)) * 100, 100);
 }
