@@ -1,13 +1,43 @@
-import { Abc, AutoStories, FitnessCenter, SelfImprovement, WaterDrop } from "@mui/icons-material";
+import {
+  Abc,
+  AutoStories,
+  Bed,
+  DirectionsBike,
+  FitnessCenter,
+  Group,
+  House,
+  LocalLaundryService,
+  Medication,
+  MusicNote,
+  NordicWalking,
+  Savings,
+  SelfImprovement,
+  SoupKitchen,
+  WaterDrop,
+  Work,
+  Yard,
+} from "@mui/icons-material";
 
 export interface IconMap {
   [key: string]: JSX.Element;
 }
 
 export const IconMap: IconMap = {
+  Default: <Abc />,
   WaterDrop: <WaterDrop />,
+  House: <House />,
   FitnessCenter: <FitnessCenter />,
   AutoStories: <AutoStories />,
   SelfImprovement: <SelfImprovement />,
-  Default: <Abc />,
+  Music: <MusicNote />,
+  Medication: <Medication />,
+  SoupKitchen: <SoupKitchen />,
+  Bed: <Bed />,
+  Work: <Work />,
+  NordicWalking: <NordicWalking />,
+  DirectionsBike: <DirectionsBike />,
+  Yard: <Yard />,
+  LocalLaundryService: <LocalLaundryService />,
+  Savings: <Savings />,
+  Group: <Group />,
 };

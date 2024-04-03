@@ -28,7 +28,18 @@ async function loader({ params }: LoaderFunctionArgs<{ id: string }>) {
 
 EditHabitForm.loader = loader;
 
-const colors = ["blue", "red", "green", "purple", "orange", "magenta", "brown", "teal", "grey"];
+const colors = [
+  "slategray",
+  "steelblue",
+  "limegreen",
+  "mediumseagreen",
+  "tomato",
+  "orange",
+  "palevioletred",
+  "magenta",
+  "brown",
+  "sandybrown",
+];
 
 export default function EditHabitForm() {
   const { habit } = useLoaderData() as { habit: Habit };
@@ -59,7 +70,7 @@ export default function EditHabitForm() {
               <InputLabel>Icon</InputLabel>
               <Select name="icon" label="Icon" defaultValue={habit.icon || ""}>
                 {Object.keys(IconMap).map((icon) => (
-                  <MenuItem dense key={icon} value={icon}>
+                  <MenuItem key={icon} value={icon}>
                     {IconMap[icon]}
                   </MenuItem>
                 ))}
@@ -69,7 +80,15 @@ export default function EditHabitForm() {
           <Grid item xs={8}>
             <FormControl fullWidth>
               <InputLabel>Color</InputLabel>
-              <Select name="color" label="Color" defaultValue={habit.color || ""} fullWidth>
+              <Select
+                name="color"
+                label="Color"
+                defaultValue={habit.color || ""}
+                renderValue={(value) => {
+                  return <Typography sx={{ color: value }}>{toFriendlyString(value)}</Typography>;
+                }}
+                fullWidth
+              >
                 <MenuItem value="">None</MenuItem>
                 {colors.map((color) => (
                   <MenuItem key={color} value={color} sx={{ color: color }}>

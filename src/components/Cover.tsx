@@ -19,9 +19,7 @@ export default function Cover({ children }: Props): React.ReactNode {
         backgroundSize: "cover",
       }}
     >
-      <Paper elevation={12} sx={{ padding: 1, borderRadius: 2 }}>
-        {children}
-      </Paper>
+      <Paper sx={{ padding: 1, borderRadius: 2 }}>{children}</Paper>
     </Box>
   );
 }

@@ -56,7 +56,7 @@ export default function SelectedHabit() {
           Back
         </Button>
       </CardActions>
-      <Card sx={{ p: 0 }} elevation={0}>
+      <Card sx={{ p: 0 }}>
         <CardHeader
           avatar={
             <Avatar
