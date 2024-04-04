@@ -111,7 +111,7 @@ export async function registerHabitsToday(ids: string[]) {
   });
 
   const today = new Date();
-  const todayString = today.toISOString().split("T")[0];
+  const todayString = today.toISOString().split(".")[0] + "Z";
   for (const id of ids) {
     const habitRef = ref(database, "users/" + userId + "/habits/" + id + "/dates/" + todayString);
     const currentCount = await get(habitRef).then((snapshot) => snapshot.val() || 0);

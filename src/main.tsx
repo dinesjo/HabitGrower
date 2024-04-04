@@ -84,7 +84,7 @@ export const router = createBrowserRouter(
   )
 );
 
-export const themeAtom = atomWithStorage<PaletteMode>("theme", "light");
+export const themeAtom = atomWithStorage<PaletteMode>("theme", "dark");
 
 const snackbarMessagePrimitiveAtom = atom<string>("");
 export const snackbarMessageAtom = atom(

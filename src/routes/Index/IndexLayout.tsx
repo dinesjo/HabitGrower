@@ -127,7 +127,7 @@ export default function IndexLayout() {
             >
               {navigation.state === "submitting" ? (
                 <Fab variant="extended" color="primary" type="submit" disabled>
-                  <Check sx={{ mr: 1 }} />
+                  {checked.length === 1 ? <Check sx={{ mr: 1 }} /> : <DoneAll sx={{ mr: 1 }} />}
                   Registering...
                 </Fab>
               ) : (

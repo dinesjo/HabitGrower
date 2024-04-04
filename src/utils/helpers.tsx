@@ -36,16 +36,17 @@ function firstDayOfWeek(dateObject: Date, firstDayOfWeekIndex: number = 0) {
 }
 
 function getChosenStartString(frequencyUnit: string) {
-  // Day
+  // Day, should be todays date in UTC
   const todayStart = new Date();
   todayStart.setHours(0, 0, 0, 0);
-  const todayStartString = todayStart.toISOString().split("T")[0];
+  const todayStartString = todayStart.toISOString();
+
   // Week
-  const weekStartString = firstDayOfWeek(new Date(), 1).toISOString().split("T")[0];
+  const weekStartString = firstDayOfWeek(new Date(), 1).toISOString();
   // Month
   const monthStart = new Date(todayStart);
   monthStart.setDate(1);
-  const monthStartString = monthStart.toISOString().split("T")[0];
+  const monthStartString = monthStart.toISOString();
 
   let chosenStartString = "";
   if (frequencyUnit === "day") {
@@ -82,6 +83,7 @@ export function getProgress(habit: Habit, isChecked: boolean) {
   }
 
   const chosenStartString = getChosenStartString(habit.frequencyUnit);
+
   // Count the number of completed dates after the chosen start date
   let completedDates = Number(isChecked);
   if (habit.dates) {
@@ -108,7 +110,5 @@ export function getProgressBuffer(habit: Habit) {
 
   const chosenStartString = getChosenStartString(habit.frequencyUnit);
   const daysSinceStart = (Date.now() - new Date(chosenStartString).getTime()) / (1000 * 60 * 60 * 24);
-  // - 1 below is to prevent the progress buffer from reaching 100% before the end of the day,
-  // so it's accurate throughout the day.
-  return Math.min(((daysSinceStart - 1) / maxDaysFromFrequencyUnit(habit.frequencyUnit)) * 100, 100);
+  return Math.min((daysSinceStart / maxDaysFromFrequencyUnit(habit.frequencyUnit)) * 100, 100);
 }
