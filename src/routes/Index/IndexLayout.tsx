@@ -107,6 +107,10 @@ export default function IndexLayout() {
                         ".MuiLinearProgress-bar1Buffer": {
                           backgroundColor: habit.color,
                         },
+                        ".MuiLinearProgress-bar2Buffer": {
+                          backgroundColor: habit.color,
+                          opacity: 0.3,
+                        },
                         ".MuiLinearProgress-dashed": {
                           display: "none",
                         },
