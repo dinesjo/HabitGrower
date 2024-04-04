@@ -11,7 +11,7 @@ import {
   Paper,
   Snackbar,
 } from "@mui/material";
-import { AccountCircle, ChecklistRtl, FormatListBulleted } from "@mui/icons-material";
+import { AccountCircle, ChecklistRtl, EditNote } from "@mui/icons-material";
 import { getUser } from "../firebase";
 import { User } from "firebase/auth";
 import { useAtom } from "jotai";
@@ -60,7 +60,7 @@ export default function Root() {
         ),
     },
     { text: "Overview", path: "/", icon: <ChecklistRtl /> },
-    { text: "My Habits", path: "/my-habits", icon: <FormatListBulleted /> },
+    { text: "My Habits", path: "/my-habits", icon: <EditNote /> },
   ];
 
   return (
