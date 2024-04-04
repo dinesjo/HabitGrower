@@ -13,6 +13,7 @@ import {
   Grow,
   Divider,
   Link,
+  Button,
 } from "@mui/material";
 import Cover from "../../components/Cover";
 import { Form, redirect, useLoaderData, useNavigation, Link as RouterLink } from "react-router-dom";
@@ -145,13 +146,15 @@ export default function IndexLayout() {
             </Box>
           </>
         ) : (
-          <Typography variant="body2" align="center">
-            No habits found.{" "}
-            <Link component={RouterLink} to="/my-habits">
-              Go
-            </Link>{" "}
-            create one!
-          </Typography>
+          <>
+            <Typography variant="body2" align="center" color="text.secondary">
+              No habits found.
+              <br />
+              <Button component={RouterLink} to="/my-habits">
+                Go create one!
+              </Button>
+            </Typography>
+          </>
         )}
       </Box>
     </Cover>

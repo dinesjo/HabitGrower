@@ -4,7 +4,6 @@ import {
   CircularProgress,
   Divider,
   Fab,
-  Link,
   List,
   ListItem,
   ListItemAvatar,
@@ -70,37 +69,33 @@ export default function MyHabitsIndex() {
                 );
               })}
             </List>
-            <Box
-              sx={{
-                position: "absolute",
-                width: "100%",
-                display: "flex",
-                justifyContent: "center",
-                bottom: "-4rem",
-              }}
-            >
-              {navigation.state === "submitting" ? (
-                <Fab type="submit" variant="extended" color="primary" disabled>
-                  <CircularProgress size="2rem" sx={{ mr: 1 }} />
-                  New Habit
-                </Fab>
-              ) : (
-                <Fab type="submit" variant="extended" color="primary">
-                  <Add sx={{ mr: 1 }} />
-                  New Habit
-                </Fab>
-              )}
-            </Box>
           </>
         ) : (
-          <Typography variant="body2" align="center">
-            No habits found. Create one{" "}
-            <Link component="button" type="submit">
-              here
-            </Link>
-            .
+          <Typography variant="body2" align="center" color="text.secondary">
+            No habits found. Create a new habit to get started.
           </Typography>
         )}
+        <Box
+          sx={{
+            position: "absolute",
+            width: "100%",
+            display: "flex",
+            justifyContent: "center",
+            bottom: "-4rem",
+          }}
+        >
+          {navigation.state === "submitting" ? (
+            <Fab type="submit" variant="extended" color="primary" disabled>
+              <CircularProgress size="2rem" sx={{ mr: 1 }} />
+              New Habit
+            </Fab>
+          ) : (
+            <Fab type="submit" variant="extended" color="primary">
+              <Add sx={{ mr: 1 }} />
+              New Habit
+            </Fab>
+          )}
+        </Box>
       </Box>
     </Cover>
   );
