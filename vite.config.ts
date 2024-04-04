@@ -9,10 +9,11 @@ export default defineConfig({
     VitePWA({
       includeAssets: ["favicon.ico", "apple-touch-icon.png", "mask-icon.svg"],
       manifest: {
-        name: "My Awesome App",
-        short_name: "MyApp",
-        description: "My Awesome App description",
-        theme_color: "#ffffff",
+        name: "HabitGrower",
+        short_name: "HabitGrower",
+        description: "Grow your habits!",
+        theme_color: "#4682b4",
+        background_color: "#091e31",
         icons: [
           {
             src: "android-chrome-192x192.png",
