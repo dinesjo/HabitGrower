@@ -16,8 +16,8 @@ import {
 } from "@mui/material";
 import Cover from "../../components/Cover";
 import { Form, redirect, useLoaderData, useNavigation, Link as RouterLink } from "react-router-dom";
-import { Habit, fetchHabits, registerHabitsToday } from "../../habitsModel";
-import { Check, CheckBox, CheckBoxOutlineBlank, DoneAll } from "@mui/icons-material";
+import { Habit, fetchHabits, registerHabitsNow } from "../../habitsModel";
+import { Check, DoneAll } from "@mui/icons-material";
 import { IconMap } from "../../utils/IconMap";
 import { toFriendlyFrequency, getProgress, getProgressBuffer } from "../../utils/helpers.tsx";
 import { useEffect, useState } from "react";
@@ -31,12 +31,16 @@ async function loader() {
 }
 
 async function action({ request }: { request: Request }) {
+  // Get IDs from formData and register
   const formData = await request.formData();
   const habitIds = formData.getAll("habitIds") as string[];
-  await registerHabitsToday(habitIds);
+  await registerHabitsNow(habitIds);
+
+  // Show confirmation snackbar
   const store = getDefaultStore();
-  store.set(snackbarMessageAtom, "Habits registered successfully!");
+  store.set(snackbarMessageAtom, "Habit(s) registered successfully!");
   store.set(snackbarSeverityAtom, "success");
+
   return redirect("/");
 }
 
@@ -50,22 +54,26 @@ export default function IndexLayout() {
 
   useEffect(() => setChecked([]), [habits]);
 
+  let greeting = "Good ";
+  if (new Date().getHours() < 10) greeting += "morning!☀️";
+  else if (new Date().getHours() < 19) greeting += "day!👋";
+  else greeting += "evening!🌃";
+
   return (
-    <Cover>
+    <Cover sx={{ p: 1, minWidth: 300 }}>
       <Box component={Form} method="post" sx={{ position: "relative" }}>
         <Typography variant="h4" align="center">
-          Good {new Date().getHours() < 10 ? "morning" : new Date().getHours() < 20 ? "day" : "evening"}!
+          {greeting}
         </Typography>
         <Typography variant="subtitle1">Have you kept up with your habits lately?</Typography>
         <Divider sx={{ my: 1 }} />
         {habits ? (
           <>
             <Typography variant="subtitle2" color="text.secondary">
-              Register today's habits below:
+              Register your habits below:
             </Typography>
             <List
               sx={{
-                minWidth: 260,
                 maxHeight: "calc(100vh - 200px)",
                 overflow: "auto",
               }}
@@ -96,7 +104,7 @@ export default function IndexLayout() {
                           secondary={toFriendlyFrequency(habit)}
                         />
                         {isChecked && <input type="hidden" name="habitIds" value={key} />}
-                        {<Checkbox icon={<CheckBoxOutlineBlank />} checkedIcon={<CheckBox />} checked={isChecked} />}
+                        {<Checkbox checked={isChecked} />}
                       </ListItemButton>
                     </ListItem>
                     <LinearProgress

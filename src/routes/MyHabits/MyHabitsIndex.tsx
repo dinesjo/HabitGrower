@@ -31,17 +31,16 @@ export default function MyHabitsIndex() {
   const navigation = useNavigation();
 
   return (
-    <Cover>
+    <Cover sx={{ p: 1, minWidth: 300 }}>
       <Box component={Form} action="/my-habits/new-habit" method="post" sx={{ position: "relative" }}>
-        <Typography variant="h5" align="center" gutterBottom>
+        <Typography variant="h5" align="center">
           My Habits
         </Typography>
-        <Divider sx={{ my: 1 }} />
+        <Divider sx={{ mt: 1 }} />
         {habits ? (
           <>
             <List
               sx={{
-                minWidth: 260,
                 maxHeight: "calc(100vh - 200px)",
                 overflow: "auto",
               }}

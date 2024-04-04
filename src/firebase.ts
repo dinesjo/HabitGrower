@@ -29,14 +29,12 @@ export async function getUser() {
       auth,
       (user) => {
         unsubscribe();
-        // setTimeout(() => {
         if (user) {
           // User is signed in
           resolve(user);
         } else {
           resolve(null);
         }
-        // }, 300);
       },
       reject
     );

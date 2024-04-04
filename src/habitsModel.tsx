@@ -7,108 +7,66 @@ export interface Habit {
   icon: string;
   frequency: number | null;
   frequencyUnit: "day" | "week" | "month" | null;
-  startDate: Date | null;
-  endDate: Date | null;
   color: string | null;
   dates?: Record<string, number>;
 }
 
-export async function fetchHabits() {
-  const userId = await getUser().then((user) => {
-    if (user) {
-      return user.uid;
-    } else {
-      throw new Error("User not found");
-    }
-  });
-
-  return await get(ref(database, "users/" + userId + "/habits"))
-    .then((snapshot) => {
-      if (snapshot.exists()) {
-        return snapshot.val() as { [key: string]: Habit };
-      } else {
-        console.log("No data available");
-      }
-    })
-    .catch((error) => {
-      console.error(error);
-    });
+async function getUserIdOrThrow(): Promise<string> {
+  const user = await getUser();
+  if (!user) {
+    throw new Error("User not found");
+  }
+  return user.uid;
 }
 
-export async function fetchHabitById(id: string) {
-  const userId = await getUser().then((user) => {
-    if (user) {
-      return user.uid;
-    } else {
-      throw new Error("User not found");
+export async function fetchHabits(): Promise<{ [key: string]: Habit } | undefined> {
+  const userId = await getUserIdOrThrow();
+
+  return await get(ref(database, "users/" + userId + "/habits")).then((snapshot) => {
+    if (snapshot.exists()) {
+      return snapshot.val() as { [key: string]: Habit };
     }
   });
-
-  return await get(ref(database, "users/" + userId + "/habits/" + id))
-    .then((snapshot) => {
-      if (snapshot.exists()) {
-        return snapshot.val() as Habit;
-      } else {
-        console.log("No data available");
-      }
-    })
-    .catch((error) => {
-      console.error(error);
-    });
 }
 
-export async function createEmptyHabit() {
-  const userId = await getUser().then((user) => {
-    if (user) {
-      return user.uid;
-    } else {
-      throw new Error("User not found");
+export async function fetchHabitById(id: string): Promise<Habit | undefined> {
+  const userId = await getUserIdOrThrow();
+
+  return await get(ref(database, "users/" + userId + "/habits/" + id)).then((snapshot) => {
+    if (snapshot.exists()) {
+      return snapshot.val() as Habit;
     }
   });
+}
+
+export async function createEmptyHabit(): Promise<string> {
+  const userId = await getUserIdOrThrow();
   // Push a new habit to the database
   const newHabitRef = push(ref(database, "users/" + userId + "/habits"));
   await set(newHabitRef, {
     name: "New Habit",
     icon: "Default",
   });
-  return newHabitRef.key;
+  return newHabitRef.key!;
 }
 
-export async function updateHabit(id: string, habit: Habit) {
-  const userId = await getUser().then((user) => {
-    if (user) {
-      return user.uid;
-    } else {
-      throw new Error("User not found");
-    }
-  });
+export async function updateHabit(id: string, habit: Habit): Promise<void> {
+  const userId = await getUserIdOrThrow();
 
   const habitRef = ref(database, "users/" + userId + "/habits/" + id);
   const currentHabit = await get(habitRef).then((snapshot) => snapshot.val());
-  return await set(habitRef, { ...currentHabit, ...habit });
+  await set(habitRef, { ...currentHabit, ...habit });
 }
 
-export async function deleteHabit(id: string) {
-  const userId = await getUser().then((user) => {
-    if (user) {
-      return user.uid;
-    } else {
-      throw new Error("User not found");
-    }
-  });
+export async function deleteHabit(id: string): Promise<void> {
+  const userId = await getUserIdOrThrow();
 
   const habitRef = ref(database, "users/" + userId + "/habits/" + id);
-  return await set(habitRef, null);
+  await set(habitRef, null);
 }
 
-export async function registerHabitsToday(ids: string[]) {
-  const userId = await getUser().then((user) => {
-    if (user) {
-      return user.uid;
-    } else {
-      throw new Error("User not found");
-    }
-  });
+export async function registerHabitsNow(ids: string[]): Promise<void> {
+  const userId = await getUserIdOrThrow();
 
   const today = new Date();
   const todayString = today.toISOString().split(".")[0] + "Z";
@@ -117,5 +75,4 @@ export async function registerHabitsToday(ids: string[]) {
     const currentCount = await get(habitRef).then((snapshot) => snapshot.val() || 0);
     await set(habitRef, currentCount + 1);
   }
-  return new Response();
 }

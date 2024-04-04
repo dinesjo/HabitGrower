@@ -25,7 +25,7 @@ import ProfileLayout from "./routes/Profile/ProfileLayout";
 import SelectedHabit from "./routes/MyHabits/SelectedHabit";
 import MyHabitsIndex from "./routes/MyHabits/MyHabitsIndex";
 import EditHabitForm from "./components/EditHabitForm";
-import { createEmptyHabit, deleteHabit, updateHabit } from "./habitsModel";
+import { createEmptyHabit, deleteHabit, Habit, updateHabit } from "./habitsModel";
 import { requireAuth } from "./utils/requireAuth";
 import { atom, useAtom } from "jotai";
 import { atomWithStorage } from "jotai/utils";
@@ -49,17 +49,11 @@ export const router = createBrowserRouter(
             element={<EditHabitForm />}
             loader={requireAuth(EditHabitForm.loader)}
             action={async ({ params, request }) => {
-              const formData = await request.formData();
-              await updateHabit(params.id as string, {
-                name: formData.get("name") as string,
-                description: (formData.get("description") as string) || null,
-                icon: formData.get("icon") as string,
-                color: (formData.get("color") as string) || null,
-                frequency: Number(formData.get("frequency")) || null,
-                frequencyUnit: (formData.get("frequencyUnit") as "day" | "week" | "month") || null,
-                startDate: null,
-                endDate: null,
-              });
+              if (!params.id) {
+                return redirect("/my-habits");
+              }
+              const formData = Object.fromEntries(await request.formData());
+              await updateHabit(params.id, formData as unknown as Habit);
               return redirect(`/my-habits/`);
             }}
           />

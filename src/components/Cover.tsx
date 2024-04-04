@@ -1,11 +1,7 @@
-import { Box, Paper } from "@mui/material";
-import React from "react";
+import { Box, Paper, SxProps } from "@mui/material";
+import { ReactNode } from "react";
 
-type Props = {
-  children?: React.ReactNode;
-};
-
-export default function Cover({ children }: Props): React.ReactNode {
+export default function Cover({ children, sx }: { children: ReactNode; sx?: SxProps | undefined }) {
   return (
     <Box
       sx={{
@@ -19,7 +15,7 @@ export default function Cover({ children }: Props): React.ReactNode {
         backgroundSize: "cover",
       }}
     >
-      <Paper sx={{ padding: 1, borderRadius: 2 }}>{children}</Paper>
+      <Paper sx={{ ...sx }}>{children}</Paper>
     </Box>
   );
 }

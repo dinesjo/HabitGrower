@@ -3,7 +3,7 @@ import Cover from "../../components/Cover";
 
 export default function ProfileLayout() {
   return (
-    <Cover>
+    <Cover sx={{ p: 1, minWidth: 300 }}>
       <Outlet />
     </Cover>
   );

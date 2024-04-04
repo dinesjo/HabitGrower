@@ -1,4 +1,14 @@
-import { CardHeader, Typography, Avatar, CardActions, Button, CardContent, Divider, Box } from "@mui/material";
+import {
+  CardHeader,
+  Typography,
+  Avatar,
+  CardActions,
+  Button,
+  CardContent,
+  Card,
+  Alert,
+  AlertTitle,
+} from "@mui/material";
 import { LoaderFunctionArgs, useLoaderData, useNavigate, useParams } from "react-router-dom";
 import { Habit, fetchHabitById } from "../../habitsModel";
 import Cover from "../../components/Cover";
@@ -24,73 +34,58 @@ export default function SelectedHabit() {
   const { id } = useParams();
   const navigate = useNavigate();
 
-  if (!habit) {
-    return (
-      <Cover>
-        <Typography variant="h3">Habit not found</Typography>
-      </Cover>
-    );
-  }
-
   return (
-    <Cover>
-      <CardActions>
-        <Button startIcon={<ChevronLeft />} aria-label="back" onClick={() => navigate("/my-habits")}>
-          Back
-        </Button>
-      </CardActions>
-      <Box>
-        <CardHeader
-          avatar={
-            <Avatar
-              sx={{
-                bgcolor: habit.color || "text.primary",
-              }}
-            >
-              {IconMap[habit.icon || "default"]}
-            </Avatar>
-          }
-          title={
-            <Typography
-              variant="h5"
-              sx={{
-                color: habit.color || "text.primary",
-              }}
-            >
-              {habit.name}
-            </Typography>
-          }
-          subheader={habit.description}
-        />
-        <Divider />
-        <CardContent>
-          <Typography variant="subtitle1">
-            {habit.startDate &&
-              `${habit.startDate.toLocaleDateString(undefined, {
-                day: "numeric",
-                month: "short",
-                year: "numeric",
-              })}`}
-            {habit.endDate &&
-              ` - ${habit.endDate.toLocaleDateString(undefined, {
-                day: "numeric",
-                month: "short",
-                year: "numeric",
-              })}`}
-          </Typography>
-          {habit.frequency && habit.frequencyUnit && (
-            <Typography variant="body2" color="text.secondary">
-              You told yourself to {habit.name} {toFriendlyFrequency(habit)}
-            </Typography>
-          )}
-        </CardContent>
+    <Cover sx={{ minWidth: 300 }}>
+      <Card>
         <CardActions>
-          <Button color="primary" startIcon={<Edit />} onClick={() => navigate(`/my-habits/${id}/edit`)}>
-            Edit
+          <Button startIcon={<ChevronLeft />} aria-label="back" onClick={() => navigate("/my-habits")}>
+            Back
           </Button>
-          <DeleteWithConfirm habit={habit} id={id!} />
         </CardActions>
-      </Box>
+        {!habit ? (
+          <Alert severity="error">
+            <AlertTitle>Habit not found!</AlertTitle>
+          </Alert>
+        ) : (
+          <>
+            <CardHeader
+              avatar={
+                <Avatar
+                  sx={{
+                    bgcolor: habit.color || "text.primary",
+                  }}
+                >
+                  {IconMap[habit.icon || "default"]}
+                </Avatar>
+              }
+              title={
+                <Typography
+                  variant="h5"
+                  sx={{
+                    color: habit.color || "text.primary",
+                  }}
+                >
+                  {habit.name}
+                </Typography>
+              }
+              subheader={habit.description}
+            />
+            <CardContent>
+              {habit.frequency && habit.frequencyUnit && (
+                <Typography variant="body2" color="text.secondary">
+                  You told yourself to {habit.name} {toFriendlyFrequency(habit)}.
+                </Typography>
+              )}
+            </CardContent>
+            <CardActions>
+              <Button color="primary" startIcon={<Edit />} onClick={() => navigate(`/my-habits/${id}/edit`)}>
+                Edit
+              </Button>
+              <DeleteWithConfirm habit={habit} id={id!} />
+            </CardActions>
+          </>
+        )}
+      </Card>
     </Cover>
   );
 }

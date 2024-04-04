@@ -1,16 +1,4 @@
-import {
-  Avatar,
-  Box,
-  CircularProgress,
-  Container,
-  Divider,
-  Fab,
-  FormControlLabel,
-  FormGroup,
-  Stack,
-  Switch,
-  Typography,
-} from "@mui/material";
+import { Avatar, Box, Divider, Fab, FormControlLabel, FormGroup, Stack, Switch, Typography } from "@mui/material";
 import { User } from "firebase/auth";
 import { Logout } from "@mui/icons-material";
 import { Form, redirect, useLoaderData, useNavigation } from "react-router-dom";
@@ -32,31 +20,21 @@ AccountView.loader = loader;
 export default function AccountView() {
   const user = useLoaderData() as User;
   const navigation = useNavigation();
-  const loading = navigation.state === "loading";
   const { displayName, email, photoURL } = user!;
 
-  return loading ? (
-    <CircularProgress />
-  ) : (
-    <Box
-      sx={{
-        position: "relative",
-        pb: 2,
-      }}
-    >
+  return (
+    <Box sx={{ position: "relative" }}>
       <Stack direction="row" spacing={2} justifyContent="center" alignItems="center">
         <Typography variant="h6" mb={2} textAlign="center">
           Hi, {displayName || "there"}!
         </Typography>
         {photoURL && <Avatar alt={"Profile Picture"} src={photoURL} />}
       </Stack>
-      <Container>
-        <DarkModeToggle />
-      </Container>
-      <Divider sx={{ my: 1 }} />
-      <Typography variant="body2" mb={1} textAlign="center">
+      <Typography variant="body2" textAlign="center">
         You are logged in as <b>{email || "Unknown Email"}</b>.
       </Typography>
+      <Divider sx={{ my: 1 }} />
+      <DarkModeToggle />
       <Box
         component={Form}
         method="post"
