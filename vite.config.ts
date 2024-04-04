@@ -12,8 +12,8 @@ export default defineConfig({
         name: "HabitGrower",
         short_name: "HabitGrower",
         description: "Grow your habits!",
-        theme_color: "#4682b4",
-        background_color: "#091e31",
+        theme_color: "#478523",
+        background_color: "#101e26",
         icons: [
           {
             src: "pwa-maskable-192x192.png",
