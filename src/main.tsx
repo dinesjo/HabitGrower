@@ -103,16 +103,22 @@ export const snackbarSeverityAtom = atom(
 export const snackbarOpenAtom = atom<boolean>((get) => !!get(snackbarMessageAtom));
 
 function Main() {
-  const [darkMode] = useAtom<PaletteMode>(themeAtom);
+  const [themeAtomValue] = useAtom<PaletteMode>(themeAtom);
 
   const theme = useMemo(
     () =>
       createTheme({
         palette: {
-          mode: darkMode,
+          mode: themeAtomValue,
+          primary: {
+            main: themeAtomValue === "dark" ? "#90c65b" : "#478523",
+          },
+          secondary: {
+            main: "#7d3dbc",
+          },
         },
       }),
-    [darkMode]
+    [themeAtomValue]
   );
 
   return (
