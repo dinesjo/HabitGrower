@@ -110,6 +110,12 @@ function Main() {
       createTheme({
         palette: {
           mode: darkMode,
+          primary: {
+            main: "#7dbc3d",
+          },
+          secondary: {
+            main: "#7d3dbc",
+          },
         },
       }),
     [darkMode]
