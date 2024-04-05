@@ -23,6 +23,7 @@ import { toFriendlyFrequency, getProgress, getProgressBuffer } from "../../utils
 import { useEffect, useState } from "react";
 import { getDefaultStore } from "jotai";
 import { snackbarMessageAtom, snackbarSeverityAtom } from "../../main.tsx";
+import dayjs from "dayjs";
 
 async function loader() {
   return {
@@ -55,8 +56,8 @@ export default function IndexLayout() {
   useEffect(() => setChecked([]), [habits]);
 
   let greeting = "Good ";
-  if (new Date().getHours() < 10) greeting += "morning! ☀️";
-  else if (new Date().getHours() < 19) greeting += "day! 👋";
+  if (dayjs().hour() < 10) greeting += "morning! ☀️";
+  else if (dayjs().hour() < 19) greeting += "day! 👋";
   else greeting += "evening! 🌃";
 
   return (

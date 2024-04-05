@@ -1,3 +1,4 @@
+import dayjs from "dayjs";
 import { Habit } from "../habitsModel";
 
 /**
@@ -24,40 +25,24 @@ export function toFriendlyFrequency(habit: Habit) {
   return `${habit.frequency === 1 ? "Once" : `${habit.frequency} times`} a ${habit.frequencyUnit}`;
 }
 
-function firstDayOfWeek(dateObject: Date, firstDayOfWeekIndex: number = 0) {
-  const dayOfWeek = dateObject.getDay(),
-    firstDayOfWeek = new Date(dateObject),
-    diff = dayOfWeek >= firstDayOfWeekIndex ? dayOfWeek - firstDayOfWeekIndex : 6 - dayOfWeek;
-
-  firstDayOfWeek.setDate(dateObject.getDate() - diff);
-  firstDayOfWeek.setHours(0, 0, 0, 0);
-
-  return firstDayOfWeek;
-}
-
-function getChosenStartString(frequencyUnit: string) {
+function getFrequencyUnitStart(frequencyUnit: string) {
   // Day, should be todays date in UTC
-  const todayStart = new Date();
-  todayStart.setHours(0, 0, 0, 0);
-  const todayStartString = todayStart.toISOString();
-
+  const todayStart = dayjs().startOf("day");
   // Week
-  const weekStartString = firstDayOfWeek(new Date(), 1).toISOString();
+  const weekStart = dayjs().startOf("week"); // FIXME: slightly off
   // Month
-  const monthStart = new Date(todayStart);
-  monthStart.setDate(1);
-  const monthStartString = monthStart.toISOString();
+  const monthStart = dayjs().startOf("month");
 
-  let chosenStartString = "";
+  let chosenStart = todayStart;
   if (frequencyUnit === "day") {
-    chosenStartString = todayStartString;
+    chosenStart = todayStart;
   } else if (frequencyUnit === "week") {
-    chosenStartString = weekStartString;
+    chosenStart = weekStart;
   } else if (frequencyUnit === "month") {
-    chosenStartString = monthStartString;
+    chosenStart = monthStart;
   }
 
-  return chosenStartString;
+  return chosenStart;
 }
 
 function maxDaysFromFrequencyUnit(frequencyUnit: string) {
@@ -65,31 +50,30 @@ function maxDaysFromFrequencyUnit(frequencyUnit: string) {
     return 1;
   } else if (frequencyUnit === "week") {
     return 7;
-  } else if (frequencyUnit === "month") {
-    return 30;
+  } else {
+    return dayjs().daysInMonth();
   }
-  return -1;
 }
 
 /**
  * Calculates the progress of a habit based on its dates property.
  * @param habit - The habit object.
  * @param isChecked - Whether the habit is checked or not (+1 date).
- * @returns The progress percentage of the habit.
+ * @returns The progress percentage of the habit (0-100).
  */
 export function getProgress(habit: Habit, isChecked: boolean) {
   if (!habit.frequency || !habit.frequencyUnit) {
     return 0;
   }
 
-  const chosenStartString = getChosenStartString(habit.frequencyUnit);
+  const frequencyUnitStart = getFrequencyUnitStart(habit.frequencyUnit);
 
   // Count the number of completed dates after the chosen start date
   let completedDates = Number(isChecked);
   if (habit.dates) {
     completedDates += Object.keys(habit.dates).reduce((acc, date) => {
-      if (new Date(date) >= new Date(chosenStartString)) {
-        return acc + habit.dates![date];
+      if (dayjs(date).isAfter(frequencyUnitStart)) {
+        return acc + Number(habit.dates![date]); // habit.dates![date] is true
       }
       return acc;
     }, 0);
@@ -101,14 +85,14 @@ export function getProgress(habit: Habit, isChecked: boolean) {
 /**
  * Calculates the progress buffer of a habit based on the frequency unit.
  * @param habit - The habit object.
- * @returns  The progress buffer percentage of the habit.
+ * @returns  The progress buffer percentage of the habit (0-100).
  */
 export function getProgressBuffer(habit: Habit) {
   if (!habit.frequency || !habit.frequencyUnit) {
     return 0;
   }
 
-  const chosenStartString = getChosenStartString(habit.frequencyUnit);
-  const daysSinceStart = (Date.now() - new Date(chosenStartString).getTime()) / (1000 * 60 * 60 * 24);
+  const frequencyUnitStart = getFrequencyUnitStart(habit.frequencyUnit);
+  const daysSinceStart = dayjs().diff(frequencyUnitStart) / (1000 * 60 * 60 * 24);
   return Math.min((daysSinceStart / maxDaysFromFrequencyUnit(habit.frequencyUnit)) * 100, 100);
 }
