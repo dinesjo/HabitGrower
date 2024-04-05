@@ -55,9 +55,9 @@ export default function IndexLayout() {
   useEffect(() => setChecked([]), [habits]);
 
   let greeting = "Good ";
-  if (new Date().getHours() < 10) greeting += "morning!☀️";
-  else if (new Date().getHours() < 19) greeting += "day!👋";
-  else greeting += "evening!🌃";
+  if (new Date().getHours() < 10) greeting += "morning! ☀️";
+  else if (new Date().getHours() < 19) greeting += "day! 👋";
+  else greeting += "evening! 🌃";
 
   return (
     <Cover sx={{ p: 1, minWidth: 300 }}>
