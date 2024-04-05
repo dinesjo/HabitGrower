@@ -21,8 +21,8 @@ import { Check, DoneAll } from "@mui/icons-material";
 import { IconMap } from "../../utils/IconMap";
 import { toFriendlyFrequency, getProgress, getProgressBuffer } from "../../utils/helpers.tsx";
 import { useEffect, useState } from "react";
-import { getDefaultStore } from "jotai";
-import { snackbarMessageAtom, snackbarSeverityAtom } from "../../main.tsx";
+import { getDefaultStore, useAtom } from "jotai";
+import { snackbarMessageAtom, snackbarSeverityAtom, userDayStartsAtAtom } from "../../main.tsx";
 import dayjs from "dayjs";
 
 async function loader() {
@@ -52,6 +52,8 @@ export default function IndexLayout() {
   const { habits } = useLoaderData() as { habits: Record<string, Habit> };
   const navigation = useNavigation();
   const [checked, setChecked] = useState<string[]>([]);
+
+  const [dayStartsAt] = useAtom(userDayStartsAtAtom);
 
   useEffect(() => setChecked([]), [habits]);
 
@@ -110,7 +112,7 @@ export default function IndexLayout() {
                     </ListItem>
                     <LinearProgress
                       variant="buffer"
-                      valueBuffer={getProgressBuffer(habit)}
+                      valueBuffer={getProgressBuffer(habit, dayStartsAt)}
                       value={getProgress(habit, isChecked)}
                       sx={{
                         ".MuiLinearProgress-bar1Buffer": {

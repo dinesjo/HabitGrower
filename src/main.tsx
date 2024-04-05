@@ -18,7 +18,7 @@ import IndexLayout from "./routes/Index/IndexLayout";
 import { ThemeProvider } from "@emotion/react";
 import { CssBaseline, PaletteMode, createTheme } from "@mui/material";
 import "./firebase";
-import { signOut } from "./firebase";
+import { database, getUser, signOut } from "./firebase";
 import AccountView from "./routes/Profile/AccountView";
 import SignInView from "./routes/Profile/SignInView";
 import ProfileLayout from "./routes/Profile/ProfileLayout";
@@ -31,6 +31,8 @@ import { atom, useAtom } from "jotai";
 import { atomWithStorage } from "jotai/utils";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { get, ref, set } from "firebase/database";
+import dayjs, { Dayjs } from "dayjs";
 
 export const router = createBrowserRouter(
   createRoutesFromElements(
@@ -38,7 +40,7 @@ export const router = createBrowserRouter(
       <Route path="/" element={<Outlet />} id="root" loader={Root.loader} errorElement={<ErrorPage />}>
         <Route index element={<IndexLayout />} loader={requireAuth(IndexLayout.loader)} action={IndexLayout.action} />
         <Route path="profile" element={<ProfileLayout />}>
-          <Route index element={<AccountView />} loader={AccountView.loader} action={AccountView.action} />
+          <Route index element={<AccountView />} loader={AccountView.loader} />
           <Route path="signout" action={signOut} />
           <Route path="signin" element={<SignInView />} />
         </Route>
@@ -81,6 +83,22 @@ export const router = createBrowserRouter(
 );
 
 export const themeAtom = atomWithStorage<PaletteMode>("theme", "dark");
+const user = await getUser(); //TODO: MAKE AN ASYNC READ-ONLY ATOM
+export const userDayStartsAtAtom = atomWithStorage<Dayjs | null>(user?.uid || "null", null, {
+  getItem: (userId) =>
+    get(ref(database, "users/" + userId + "/dayStartsAt")).then((snapshot) => {
+      if (snapshot.exists()) {
+        return dayjs(snapshot.val());
+      }
+      return null;
+    }),
+  setItem: (userId, dayStartsAt) => {
+    return set(ref(database, "users/" + userId + "/dayStartsAt"), dayStartsAt?.toISOString() || null);
+  },
+  removeItem: (userId) => {
+    return set(ref(database, "users/" + userId + "/dayStartsAt"), null);
+  },
+});
 
 const snackbarMessagePrimitiveAtom = atom<string>("");
 export const snackbarMessageAtom = atom(

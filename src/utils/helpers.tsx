@@ -45,16 +45,6 @@ function getFrequencyUnitStart(frequencyUnit: string) {
   return chosenStart;
 }
 
-function maxDaysFromFrequencyUnit(frequencyUnit: string) {
-  if (frequencyUnit === "day") {
-    return 1;
-  } else if (frequencyUnit === "week") {
-    return 7;
-  } else {
-    return dayjs().daysInMonth();
-  }
-}
-
 /**
  * Calculates the progress of a habit based on its dates property.
  * @param habit - The habit object.
@@ -87,12 +77,19 @@ export function getProgress(habit: Habit, isChecked: boolean) {
  * @param habit - The habit object.
  * @returns  The progress buffer percentage of the habit (0-100).
  */
-export function getProgressBuffer(habit: Habit) {
+export function getProgressBuffer(habit: Habit, dayStartsAt: dayjs.Dayjs | null = null) {
   if (!habit.frequency || !habit.frequencyUnit) {
     return 0;
   }
 
-  const frequencyUnitStart = getFrequencyUnitStart(habit.frequencyUnit);
-  const daysSinceStart = dayjs().diff(frequencyUnitStart) / (1000 * 60 * 60 * 24);
-  return Math.min((daysSinceStart / maxDaysFromFrequencyUnit(habit.frequencyUnit)) * 100, 100);
+  const hour = dayStartsAt?.hour() || 0;
+  const minutes = dayStartsAt?.minute() || 0;
+
+  const start = getFrequencyUnitStart(habit.frequencyUnit);
+  const adjustedStart = start.add(hour, "hour").add(minutes, "minute");
+
+  const daysElapsed = dayjs().diff(adjustedStart, "hours") / 24;
+  const maxDays = dayjs().endOf(habit.frequencyUnit).diff(adjustedStart, "hours") / 24;
+
+  return Math.min((daysElapsed / maxDays) * 100, 100);
 }

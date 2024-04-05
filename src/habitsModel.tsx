@@ -1,6 +1,6 @@
 import { get, push, ref, set } from "firebase/database";
 import { database, getUser } from "./firebase";
-import dayjs, { Dayjs } from "dayjs";
+import dayjs from "dayjs";
 
 export interface Habit {
   name: string;
@@ -18,27 +18,6 @@ async function getUserIdOrThrow(): Promise<string> {
     throw new Error("User not found");
   }
   return user.uid;
-}
-
-export async function getDayStartsAt(): Promise<Dayjs> {
-  const userId = await getUserIdOrThrow();
-
-  return await get(ref(database, "users/" + userId + "/timeStartsAt")).then((snapshot) => {
-    if (snapshot.exists()) {
-      return dayjs(snapshot.val());
-    }
-    return dayjs().startOf("day");
-  });
-}
-
-/**
- * @param time The time to set the day to start at in the format "HH:MM"
- */
-export async function setDayStartsAt(time: string): Promise<void> {
-  const [hour, minute] = time.split(":").map(Number);
-  const userId = await getUserIdOrThrow();
-  const dayStartsAtDayjs = dayjs().startOf("day").set("hour", hour).set("minute", minute);
-  await set(ref(database, "users/" + userId + "/timeStartsAt"), dayStartsAtDayjs.toISOString());
 }
 
 export async function fetchHabits(): Promise<{ [key: string]: Habit } | undefined> {
