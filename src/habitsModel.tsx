@@ -9,7 +9,7 @@ export interface Habit {
   frequency: number | null;
   frequencyUnit: "day" | "week" | "month" | null;
   color: string | null;
-  dates?: Record<string, number>;
+  dates?: Record<string, boolean>;
 }
 
 async function getUserIdOrThrow(): Promise<string> {
@@ -70,9 +70,12 @@ export async function registerHabitsNow(ids: string[]): Promise<void> {
   const userId = await getUserIdOrThrow();
 
   const today = dayjs();
-  const todayString = today.toISOString().split(".")[0] + "Z";
+  const todayString = today.toISOString().split(".")[0] + "Z"; // +Z for UTC
+
   for (const id of ids) {
-    const habitRef = ref(database, "users/" + userId + "/habits/" + id + "/dates/" + todayString);
-    await set(habitRef, true);
+    const todayRef = ref(database, "users/" + userId + "/habits/" + id + "/dates/" + todayString);
+    // Increase the count of the habit for today
+    const currentCount = await get(todayRef).then((snapshot) => Number(snapshot.val()) || 0);
+    await set(todayRef, currentCount + 1);
   }
 }

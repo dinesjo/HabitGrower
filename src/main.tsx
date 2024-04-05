@@ -31,12 +31,22 @@ import { useAtom } from "jotai";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { themeAtom } from "./store";
+import SelectedHabitGraph from "./routes/Index/SelectedHabitGraph";
 
 export const router = createBrowserRouter(
   createRoutesFromElements(
     <Route element={<Root />}>
       <Route path="/" element={<Outlet />} id="root" loader={Root.loader} errorElement={<ErrorPage />}>
-        <Route index element={<IndexLayout />} loader={requireAuth(IndexLayout.loader)} action={IndexLayout.action} />
+        <Route path="/">
+          <Route
+            index
+            element={<IndexLayout />}
+            id="index"
+            loader={requireAuth(IndexLayout.loader)}
+            action={IndexLayout.action}
+          />
+          <Route path=":id" element={<SelectedHabitGraph />} loader={requireAuth(SelectedHabitGraph.loader)} />
+        </Route>
         <Route path="profile" element={<ProfileLayout />}>
           <Route index element={<AccountView />} loader={AccountView.loader} />
           <Route path="signout" action={signOut} />
@@ -62,7 +72,10 @@ export const router = createBrowserRouter(
           <Route
             path=":id/delete"
             action={async ({ params }) => {
-              await deleteHabit(params.id as string);
+              if (!params.id) {
+                return redirect("/my-habits");
+              }
+              await deleteHabit(params.id);
               return redirect("/my-habits");
             }}
           />
@@ -79,7 +92,6 @@ export const router = createBrowserRouter(
     </Route>
   )
 );
-
 
 function Main() {
   const [themeAtomValue] = useAtom<PaletteMode>(themeAtom);

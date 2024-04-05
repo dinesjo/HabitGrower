@@ -15,7 +15,7 @@ import {
   Button,
 } from "@mui/material";
 import Cover from "../../components/Cover";
-import { Form, redirect, useLoaderData, useNavigation, Link as RouterLink } from "react-router-dom";
+import { Form, redirect, useLoaderData, useNavigation, Link as RouterLink, useNavigate } from "react-router-dom";
 import { Habit, fetchHabits, registerHabitsNow } from "../../habitsModel";
 import { Check, DoneAll } from "@mui/icons-material";
 import { IconMap } from "../../utils/IconMap";
@@ -51,6 +51,7 @@ IndexLayout.action = action;
 export default function IndexLayout() {
   const { habits } = useLoaderData() as { habits: Record<string, Habit> };
   const navigation = useNavigation();
+  const navigate = useNavigate();
   const [checked, setChecked] = useState<string[]>([]);
 
   const [dayStartsAt] = useAtom(userDayStartsAtAtom);
@@ -87,12 +88,7 @@ export default function IndexLayout() {
                 return (
                   <Box key={key}>
                     <ListItem disablePadding>
-                      <ListItemButton
-                        sx={{ p: 1 }}
-                        onClick={() =>
-                          setChecked((prev) => (isChecked ? prev.filter((id) => id !== key) : [...prev, key]))
-                        }
-                      >
+                      <ListItemButton sx={{ p: 1 }} onClick={() => navigate(`/${key}`)}>
                         <ListItemAvatar sx={{ color: habit.color }}>
                           <Avatar
                             sx={{
@@ -106,9 +102,14 @@ export default function IndexLayout() {
                           primary={<Typography sx={{ color: habit.color }}>{habit.name}</Typography>}
                           secondary={toFriendlyFrequency(habit)}
                         />
-                        {isChecked && <input type="hidden" name="habitIds" value={key} />}
-                        {<Checkbox checked={isChecked} />}
                       </ListItemButton>
+                      {isChecked && <input type="hidden" name="habitIds" value={key} />}
+                      <Checkbox
+                        checked={isChecked}
+                        onClick={() =>
+                          setChecked((prev) => (isChecked ? prev.filter((id) => id !== key) : [...prev, key]))
+                        }
+                      />
                     </ListItem>
                     <LinearProgress
                       variant="buffer"

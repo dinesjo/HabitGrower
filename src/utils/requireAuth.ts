@@ -17,6 +17,6 @@ export function requireAuth(loader: LoaderFunction) {
       return redirect("/profile/signin");
     }
     // If the user is authorized, run the loader
-    return loader(args[0]); // TODO: Check if this is the correct way to pass the arguments
+    return loader(args[0]);
   };
 }
