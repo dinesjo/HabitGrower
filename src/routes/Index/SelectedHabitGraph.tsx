@@ -23,7 +23,7 @@ export default function SelectedHabitGraph() {
   const { habit } = useLoaderData() as { habit: Habit };
   const navigate = useNavigate();
   const dateData = Object.keys(habit.dates || {}).reduce((acc: { date: number; value: number }[], date: string) => {
-    const currentDate = dayjs(date).startOf("day").unix() / (60 * 60 * 24);
+    const currentDate = Math.ceil(dayjs(date).startOf("day").unix() / (60 * 60 * 24));
     const existingData = acc.find((data) => data.date === currentDate);
     if (!existingData) {
       acc.push({
@@ -35,10 +35,9 @@ export default function SelectedHabitGraph() {
     }
     return acc;
   }, []);
-  console.log(dateData);
 
-  return habit.dates ? (
-    <Cover sx={{ p: 1, minWidth: 300 }}>
+  return (
+    <Cover sx={{ minWidth: 300 }}>
       <Card>
         <CardActions>
           <Button startIcon={<ChevronLeft />} aria-label="back" onClick={() => navigate("/")}>
@@ -68,30 +67,42 @@ export default function SelectedHabitGraph() {
           subheader={habit.description}
         />
         <CardContent>
-          <Typography variant="body2" color="text.secondary">
-            You've registered this habit {habit.dates.length} times.
-          </Typography>
-          <LineChart
-            width={300}
-            height={200}
-            xAxis={[
-              {
-                dataKey: "date",
-                valueFormatter: (unix) => dayjs.unix(unix).format("MMM D"),
-              },
-            ]}
-            series={dateData.map((entry) => ({
-              dataKey: "value",
-              label: dayjs.unix(entry.date).format("MMM D"),
-            }))}
-            dataset={dateData}
-          />
+          {habit.dates ? (
+            <>
+              <Typography variant="body2" color="text.secondary">
+                You've registered this habit {habit.dates.length} times.
+              </Typography>
+              <LineChart
+                width={300}
+                height={200}
+                xAxis={[
+                  {
+                    dataKey: "date",
+                    scaleType: "time",
+                    valueFormatter: (unix) => dayjs.unix(unix * (60 * 60 * 24)).format("MMM D"),
+                    label: "Date",
+                  },
+                ]}
+                yAxis={[
+                  {
+                    dataKey: "value",
+                    scaleType: "linear",
+                    min: 0,
+                    tickMinStep: 1, // integers
+                    label: "Habit done",
+                  },
+                ]}
+                series={[{ dataKey: "value", label: habit.name, color: habit.color || "#90c65b" }]}
+                dataset={dateData}
+              />
+            </>
+          ) : (
+            <Typography variant="body2" color="text.secondary">
+              You haven't registered this habit yet.
+            </Typography>
+          )}
         </CardContent>
       </Card>
     </Cover>
-  ) : (
-    <Typography variant="body2" color="text.secondary">
-      You haven't registered this habit yet.
-    </Typography>
   );
 }
