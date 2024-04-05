@@ -50,10 +50,10 @@ export default function EditHabitForm() {
 
   return (
     <Cover>
-      <Typography variant="h5" align="center" gutterBottom>
-        Edit Habit: <b>{habit.name}</b>
-      </Typography>
       <Container maxWidth="xs" component={Form} autoComplete="off" method="post">
+        <Typography variant="h5" align="center" gutterBottom>
+          Edit Habit: <b>{habit.name}</b>
+        </Typography>
         <Grid container spacing={2} sx={{ py: 1 }}>
           <Grid item xs={12} sm={6}>
             <TextField required name="name" label="Habit Name" defaultValue={habit.name} fullWidth />
@@ -103,7 +103,7 @@ export default function EditHabitForm() {
           <Grid item xs={5}>
             <TextField
               name="frequency"
-              label="Frequency"
+              label="How often?"
               type="number"
               defaultValue={habit.frequency || ""}
               fullWidth
@@ -111,10 +111,10 @@ export default function EditHabitForm() {
           </Grid>
           <Grid item xs={7}>
             <FormControl fullWidth>
-              <InputLabel id="frequencyUnit">Frequency Unit</InputLabel>
+              <InputLabel id="frequencyUnit">Every</InputLabel>
               <Select
                 name="frequencyUnit"
-                label="Frequency Unit"
+                label="Every"
                 labelId="frequencyUnit"
                 defaultValue={habit.frequencyUnit || ""}
                 fullWidth
