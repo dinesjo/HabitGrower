@@ -4,9 +4,10 @@ import { Logout } from "@mui/icons-material";
 import { Form, redirect, useLoaderData, useNavigation } from "react-router-dom";
 import { getUser } from "../../firebase";
 import { useAtom } from "jotai";
-import { themeAtom, userDayStartsAtAtom } from "../../main";
+import { themeAtom, userDayStartsAtAtom } from "../../store";
 import { TimePicker } from "@mui/x-date-pickers";
 import { Dayjs } from "dayjs";
+import { Suspense } from "react";
 
 async function loader() {
   const user = await getUser();
@@ -37,7 +38,9 @@ export default function AccountView() {
       <Divider sx={{ my: 1 }} />
       <Stack direction={"column"} spacing={1}>
         <DarkModeToggle />
-        <DayStartPicker />
+        <Suspense fallback="Loading...">
+          <DayStartPicker />
+        </Suspense>
       </Stack>
       <Box
         component={Form}

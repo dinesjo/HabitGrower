@@ -22,7 +22,7 @@ import { IconMap } from "../../utils/IconMap";
 import { toFriendlyFrequency, getProgress, getProgressBuffer } from "../../utils/helpers.tsx";
 import { useEffect, useState } from "react";
 import { getDefaultStore, useAtom } from "jotai";
-import { snackbarMessageAtom, snackbarSeverityAtom, userDayStartsAtAtom } from "../../main.tsx";
+import { snackbarMessageAtom, snackbarSeverityAtom, userDayStartsAtAtom } from "../../store";
 import dayjs from "dayjs";
 
 async function loader() {

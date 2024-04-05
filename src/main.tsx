@@ -18,7 +18,7 @@ import IndexLayout from "./routes/Index/IndexLayout";
 import { ThemeProvider } from "@emotion/react";
 import { CssBaseline, PaletteMode, createTheme } from "@mui/material";
 import "./firebase";
-import { database, getUser, signOut } from "./firebase";
+import { signOut } from "./firebase";
 import AccountView from "./routes/Profile/AccountView";
 import SignInView from "./routes/Profile/SignInView";
 import ProfileLayout from "./routes/Profile/ProfileLayout";
@@ -27,12 +27,10 @@ import MyHabitsIndex from "./routes/MyHabits/MyHabitsIndex";
 import EditHabitForm from "./components/EditHabitForm";
 import { createEmptyHabit, deleteHabit, Habit, updateHabit } from "./habitsModel";
 import { requireAuth } from "./utils/requireAuth";
-import { atom, useAtom } from "jotai";
-import { atomWithStorage } from "jotai/utils";
+import { useAtom } from "jotai";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { get, ref, set } from "firebase/database";
-import dayjs, { Dayjs } from "dayjs";
+import { themeAtom } from "./store";
 
 export const router = createBrowserRouter(
   createRoutesFromElements(
@@ -82,39 +80,6 @@ export const router = createBrowserRouter(
   )
 );
 
-export const themeAtom = atomWithStorage<PaletteMode>("theme", "dark");
-const user = await getUser(); //TODO: MAKE AN ASYNC READ-ONLY ATOM
-export const userDayStartsAtAtom = atomWithStorage<Dayjs | null>(user?.uid || "null", null, {
-  getItem: (userId) =>
-    get(ref(database, "users/" + userId + "/dayStartsAt")).then((snapshot) => {
-      if (snapshot.exists()) {
-        return dayjs(snapshot.val());
-      }
-      return null;
-    }),
-  setItem: (userId, dayStartsAt) => {
-    return set(ref(database, "users/" + userId + "/dayStartsAt"), dayStartsAt?.toISOString() || null);
-  },
-  removeItem: (userId) => {
-    return set(ref(database, "users/" + userId + "/dayStartsAt"), null);
-  },
-});
-
-const snackbarMessagePrimitiveAtom = atom<string>("");
-export const snackbarMessageAtom = atom(
-  (get) => get(snackbarMessagePrimitiveAtom),
-  (_, set, message: string) => {
-    set(snackbarMessagePrimitiveAtom, message);
-  }
-);
-const snackbarSeverityPrimitiveAtom = atom<"success" | "error" | "warning" | "info">("info");
-export const snackbarSeverityAtom = atom(
-  (get) => get(snackbarSeverityPrimitiveAtom),
-  (_, set, severity: "success" | "error" | "warning" | "info") => {
-    set(snackbarSeverityPrimitiveAtom, severity);
-  }
-);
-export const snackbarOpenAtom = atom<boolean>((get) => !!get(snackbarMessageAtom));
 
 function Main() {
   const [themeAtomValue] = useAtom<PaletteMode>(themeAtom);

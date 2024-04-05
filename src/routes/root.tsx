@@ -15,7 +15,7 @@ import { AccountCircle, ChecklistRtl, EditNote } from "@mui/icons-material";
 import { getUser } from "../firebase";
 import { User } from "firebase/auth";
 import { useAtom } from "jotai";
-import { snackbarMessageAtom, snackbarOpenAtom, snackbarSeverityAtom } from "../main";
+import { snackbarMessageAtom, snackbarOpenAtom, snackbarSeverityAtom } from "../store";
 
 async function loader() {
   const user = await getUser();

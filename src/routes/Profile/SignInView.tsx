@@ -7,7 +7,8 @@ import { useEffect } from "react";
 import { getUser } from "../../firebase";
 import { redirect } from "react-router-dom";
 import { getDefaultStore } from "jotai";
-import { router, snackbarMessageAtom, snackbarSeverityAtom } from "../../main";
+import { snackbarMessageAtom, snackbarSeverityAtom } from "../../store";
+import { router } from "../../main";
 
 async function loader() {
   const user = await getUser();
