@@ -1,14 +1,4 @@
-import {
-  CardHeader,
-  Typography,
-  Avatar,
-  CardActions,
-  Button,
-  CardContent,
-  Card,
-  Alert,
-  AlertTitle,
-} from "@mui/material";
+import { CardHeader, Typography, Avatar, CardActions, Button, CardContent, Alert, AlertTitle } from "@mui/material";
 import { LoaderFunctionArgs, useLoaderData, useNavigate, useParams } from "react-router-dom";
 import { Habit, fetchHabitById } from "../../habitsModel.tsx";
 import { ChevronLeft, Edit } from "@mui/icons-material";
@@ -35,7 +25,7 @@ export default function SelectedHabit() {
   const navigate = useNavigate();
 
   return (
-    <Card>
+    <>
       <CardActions>
         <Button startIcon={<ChevronLeft />} aria-label="back" onClick={() => navigate("/")}>
           Back
@@ -85,6 +75,6 @@ export default function SelectedHabit() {
           </CardActions>
         </>
       )}
-    </Card>
+    </>
   );
 }
