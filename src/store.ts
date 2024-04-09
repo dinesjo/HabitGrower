@@ -50,3 +50,5 @@ export const snackbarSeverityAtom = atom(
   }
 );
 export const snackbarOpenAtom = atom<boolean>((get) => !!get(snackbarMessageAtom));
+
+export const checkedHabitIdsAtom = atom<string[]>([]);

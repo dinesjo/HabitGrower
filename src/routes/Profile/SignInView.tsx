@@ -6,8 +6,7 @@ import "firebaseui/dist/firebaseui.css";
 import { useEffect } from "react";
 import { getUser } from "../../firebase";
 import { redirect } from "react-router-dom";
-import { getDefaultStore } from "jotai";
-import { snackbarMessageAtom, snackbarSeverityAtom } from "../../store";
+import { snackbarMessageAtom, snackbarSeverityAtom, store } from "../../store";
 import { router } from "../../main";
 
 async function loader() {
@@ -30,9 +29,8 @@ export default function SignInView() {
         // User successfully signed in.
         // Return type determines whether we continue the redirect automatically
         // or whether we leave that to developer to handle.
-        const defaultStore = getDefaultStore();
-        defaultStore.set(snackbarMessageAtom, "Sign in successful, welcome!");
-        defaultStore.set(snackbarSeverityAtom, "success");
+        store.set(snackbarMessageAtom, "Sign in successful, welcome!");
+        store.set(snackbarSeverityAtom, "success");
         router.navigate("/");
         return false;
       },

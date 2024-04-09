@@ -139,7 +139,7 @@ export default function EditHabitForm() {
           )}
           <Button
             onClick={() => {
-              navigate("/my-habits");
+              navigate("/");
             }}
           >
             Cancel
