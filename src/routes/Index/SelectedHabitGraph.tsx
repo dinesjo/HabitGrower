@@ -4,7 +4,6 @@ import { LineChart } from "@mui/x-charts";
 import { Typography } from "@mui/material";
 
 export default function SelectedHabitGraph({ habit }: { habit: Habit }) {
-  // const { habit } = useLoaderData() as { habit: Habit };
   const dateData = Object.keys(habit.dates || {}).reduce((acc: { date: number; value: number }[], date: string) => {
     const currentDate = Math.ceil(dayjs(date).startOf("day").unix() / (60 * 60 * 24));
     const existingData = acc.find((data) => data.date === currentDate);
@@ -33,7 +32,7 @@ export default function SelectedHabitGraph({ habit }: { habit: Habit }) {
   return habit.dates ? (
     <>
       <Typography variant="body2" color="text.secondary">
-        You've registered this habit {habit.dates.length} times.
+        You've registered this habit {dateData.length} times.
       </Typography>
       <LineChart
         dataset={dateData}
