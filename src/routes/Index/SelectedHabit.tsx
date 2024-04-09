@@ -43,9 +43,9 @@ export default function SelectedHabit() {
             Back
           </Button>
         </CardActions>
-        {!habit ? (
+        {!habit || !id ? (
           <Alert severity="error">
-            <AlertTitle>Habit not found!</AlertTitle>
+            <AlertTitle>Habit not found! Please check the ID in the URL is correct.</AlertTitle>
           </Alert>
         ) : (
           <>
@@ -83,7 +83,7 @@ export default function SelectedHabit() {
               <Button color="primary" startIcon={<Edit />} onClick={() => navigate(`/${id}/edit`)}>
                 Edit
               </Button>
-              <DeleteWithConfirm habit={habit} id={id!} />
+              <DeleteWithConfirm habit={habit} id={id} />
             </CardActions>
           </>
         )}

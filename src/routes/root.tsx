@@ -11,7 +11,7 @@ import {
   Paper,
   Snackbar,
 } from "@mui/material";
-import { AccountCircle, ChecklistRtl } from "@mui/icons-material";
+import { AccountCircle, Home } from "@mui/icons-material";
 import { getUser } from "../firebase";
 import { User } from "firebase/auth";
 import { useAtom } from "jotai";
@@ -59,7 +59,7 @@ export default function Root() {
           <AccountCircle />
         ),
     },
-    { text: "Overview", path: "/", icon: <ChecklistRtl /> },
+    { text: "Home", path: "/", icon: <Home /> },
   ];
 
   return (
@@ -68,7 +68,7 @@ export default function Root() {
         <Outlet />
         <Snackbar
           open={snackbarOpen}
-          autoHideDuration={6000}
+          autoHideDuration={3000}
           onClose={() => setSnackbarMessage("")}
           sx={{
             bottom: "calc(56px + 0.5rem)",
