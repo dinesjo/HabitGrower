@@ -11,7 +11,6 @@ import {
 } from "@mui/material";
 import { LoaderFunctionArgs, useLoaderData, useNavigate, useParams } from "react-router-dom";
 import { Habit, fetchHabitById } from "../../habitsModel.tsx";
-import Cover from "../../components/Cover.tsx";
 import { ChevronLeft, Edit } from "@mui/icons-material";
 import { IconMap } from "../../utils/IconMap.tsx";
 import { toFriendlyFrequency } from "../../utils/helpers.tsx";
@@ -36,58 +35,56 @@ export default function SelectedHabit() {
   const navigate = useNavigate();
 
   return (
-    <Cover sx={{ minWidth: 300 }}>
-      <Card>
-        <CardActions>
-          <Button startIcon={<ChevronLeft />} aria-label="back" onClick={() => navigate("/")}>
-            Back
-          </Button>
-        </CardActions>
-        {!habit || !id ? (
-          <Alert severity="error">
-            <AlertTitle>Habit not found! Please check the ID in the URL is correct.</AlertTitle>
-          </Alert>
-        ) : (
-          <>
-            <CardHeader
-              avatar={
-                <Avatar
-                  sx={{
-                    bgcolor: habit.color || "text.primary",
-                  }}
-                >
-                  {IconMap[habit.icon || "default"]}
-                </Avatar>
-              }
-              title={
-                <Typography
-                  variant="h5"
-                  sx={{
-                    color: habit.color || "text.primary",
-                  }}
-                >
-                  {habit.name}
-                </Typography>
-              }
-              subheader={habit.description}
-            />
-            <CardContent>
-              {habit.frequency && habit.frequencyUnit && (
-                <Typography variant="body2">
-                  You told yourself to {habit.name} {toFriendlyFrequency(habit)}.
-                </Typography>
-              )}
-              <SelectedHabitGraph habit={habit} />
-            </CardContent>
-            <CardActions>
-              <Button color="primary" startIcon={<Edit />} onClick={() => navigate(`/${id}/edit`)}>
-                Edit
-              </Button>
-              <DeleteWithConfirm habit={habit} id={id} />
-            </CardActions>
-          </>
-        )}
-      </Card>
-    </Cover>
+    <Card>
+      <CardActions>
+        <Button startIcon={<ChevronLeft />} aria-label="back" onClick={() => navigate("/")}>
+          Back
+        </Button>
+      </CardActions>
+      {!habit || !id ? (
+        <Alert severity="error">
+          <AlertTitle>Habit not found! Please check the ID in the URL is correct.</AlertTitle>
+        </Alert>
+      ) : (
+        <>
+          <CardHeader
+            avatar={
+              <Avatar
+                sx={{
+                  bgcolor: habit.color || "text.primary",
+                }}
+              >
+                {IconMap[habit.icon || "default"]}
+              </Avatar>
+            }
+            title={
+              <Typography
+                variant="h5"
+                sx={{
+                  color: habit.color || "text.primary",
+                }}
+              >
+                {habit.name}
+              </Typography>
+            }
+            subheader={habit.description}
+          />
+          <CardContent>
+            {habit.frequency && habit.frequencyUnit && (
+              <Typography variant="body2">
+                You told yourself to {habit.name} {toFriendlyFrequency(habit)}.
+              </Typography>
+            )}
+            <SelectedHabitGraph habit={habit} />
+          </CardContent>
+          <CardActions>
+            <Button color="primary" startIcon={<Edit />} onClick={() => navigate(`/${id}/edit`)}>
+              Edit
+            </Button>
+            <DeleteWithConfirm habit={habit} id={id} />
+          </CardActions>
+        </>
+      )}
+    </Card>
   );
 }

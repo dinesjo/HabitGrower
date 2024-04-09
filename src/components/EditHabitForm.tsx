@@ -12,7 +12,6 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import Cover from "./Cover";
 import { IconMap } from "../utils/IconMap";
 import { toFriendlyString } from "../utils/helpers.tsx";
 import DeleteWithConfirm from "./DeleteWithConfirm.tsx";
@@ -49,104 +48,96 @@ export default function EditHabitForm() {
   const navigation = useNavigation();
 
   return (
-    <Cover>
-      <Container maxWidth="xs" component={Form} autoComplete="off" method="post">
-        <Typography variant="h5" align="center" gutterBottom>
-          Edit Habit: <b>{habit.name}</b>
-        </Typography>
-        <Grid container spacing={2} sx={{ py: 1 }}>
-          <Grid item xs={12} sm={6}>
-            <TextField required name="name" label="Habit Name" defaultValue={habit.name} fullWidth />
-          </Grid>
-          <Grid item xs={12} sm={6}>
-            <TextField
-              name="description"
-              label="Description"
-              defaultValue={habit.description || ""}
-              multiline
-              fullWidth
-            />
-          </Grid>
-          <Grid item xs={4}>
-            <FormControl required fullWidth>
-              <InputLabel>Icon</InputLabel>
-              <Select name="icon" label="Icon" defaultValue={habit.icon || ""}>
-                {Object.keys(IconMap).map((icon) => (
-                  <MenuItem key={icon} value={icon}>
-                    {IconMap[icon]}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </Grid>
-          <Grid item xs={8}>
-            <FormControl fullWidth>
-              <InputLabel>Color</InputLabel>
-              <Select
-                name="color"
-                label="Color"
-                defaultValue={habit.color || ""}
-                renderValue={(value) => {
-                  return <Typography sx={{ color: value }}>{toFriendlyString(value)}</Typography>;
-                }}
-                fullWidth
-              >
-                <MenuItem value="">None</MenuItem>
-                {colors.map((color) => (
-                  <MenuItem key={color} value={color} sx={{ color: color }}>
-                    {toFriendlyString(color)}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </Grid>
-          <Grid item xs={5}>
-            <TextField
-              name="frequency"
-              label="How often?"
-              type="number"
-              defaultValue={habit.frequency || ""}
-              fullWidth
-            />
-          </Grid>
-          <Grid item xs={7}>
-            <FormControl fullWidth>
-              <InputLabel id="frequencyUnit">Every</InputLabel>
-              <Select
-                name="frequencyUnit"
-                label="Every"
-                labelId="frequencyUnit"
-                defaultValue={habit.frequencyUnit || ""}
-                fullWidth
-              >
-                <MenuItem value="">None</MenuItem>
-                <MenuItem value="day">Day</MenuItem>
-                <MenuItem value="week">Week</MenuItem>
-                <MenuItem value="month">Month</MenuItem>
-              </Select>
-            </FormControl>
-          </Grid>
+    <Container maxWidth="xs" component={Form} autoComplete="off" method="post">
+      <Typography variant="h5" align="center" gutterBottom>
+        Edit Habit: <b>{habit.name}</b>
+      </Typography>
+      <Grid container spacing={2} sx={{ py: 1 }}>
+        <Grid item xs={12} sm={6}>
+          <TextField required name="name" label="Habit Name" defaultValue={habit.name} fullWidth />
         </Grid>
-        <Stack direction={"row"} spacing={2} my={1}>
-          {navigation.state === "submitting" ? (
-            <Button variant="contained" disabled>
-              Saving...
-            </Button>
-          ) : (
-            <Button variant="contained" type="submit">
-              Save
-            </Button>
-          )}
-          <Button
-            onClick={() => {
-              navigate("/");
-            }}
-          >
-            Cancel
+        <Grid item xs={12} sm={6}>
+          <TextField
+            name="description"
+            label="Description"
+            defaultValue={habit.description || ""}
+            multiline
+            fullWidth
+          />
+        </Grid>
+        <Grid item xs={4}>
+          <FormControl required fullWidth>
+            <InputLabel>Icon</InputLabel>
+            <Select name="icon" label="Icon" defaultValue={habit.icon || ""}>
+              {Object.keys(IconMap).map((icon) => (
+                <MenuItem key={icon} value={icon}>
+                  {IconMap[icon]}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </Grid>
+        <Grid item xs={8}>
+          <FormControl fullWidth>
+            <InputLabel>Color</InputLabel>
+            <Select
+              name="color"
+              label="Color"
+              defaultValue={habit.color || ""}
+              renderValue={(value) => {
+                return <Typography sx={{ color: value }}>{toFriendlyString(value)}</Typography>;
+              }}
+              fullWidth
+            >
+              <MenuItem value="">None</MenuItem>
+              {colors.map((color) => (
+                <MenuItem key={color} value={color} sx={{ color: color }}>
+                  {toFriendlyString(color)}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </Grid>
+        <Grid item xs={5}>
+          <TextField name="frequency" label="How often?" type="number" defaultValue={habit.frequency || ""} fullWidth />
+        </Grid>
+        <Grid item xs={7}>
+          <FormControl fullWidth>
+            <InputLabel id="frequencyUnit">Every</InputLabel>
+            <Select
+              name="frequencyUnit"
+              label="Every"
+              labelId="frequencyUnit"
+              defaultValue={habit.frequencyUnit || ""}
+              fullWidth
+            >
+              <MenuItem value="">None</MenuItem>
+              <MenuItem value="day">Day</MenuItem>
+              <MenuItem value="week">Week</MenuItem>
+              <MenuItem value="month">Month</MenuItem>
+            </Select>
+          </FormControl>
+        </Grid>
+      </Grid>
+      <Stack direction={"row"} spacing={2} my={1}>
+        {navigation.state === "submitting" ? (
+          <Button variant="contained" disabled>
+            Saving...
           </Button>
-          <DeleteWithConfirm habit={habit} id={id!} />
-        </Stack>
-      </Container>
-    </Cover>
+        ) : (
+          <Button variant="contained" type="submit">
+            Save
+          </Button>
+        )}
+        <Button
+          onClick={() => {
+            navigate("/");
+          }}
+        >
+          Cancel
+        </Button>
+        <DeleteWithConfirm habit={habit} id={id!} />
+      </Stack>
+    </Container>
   );
 }

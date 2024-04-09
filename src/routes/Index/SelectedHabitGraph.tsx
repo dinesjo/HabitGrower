@@ -1,7 +1,7 @@
 import { Habit } from "../../habitsModel";
 import dayjs from "dayjs";
 import { LineChart } from "@mui/x-charts";
-import { Typography } from "@mui/material";
+import { Container, Typography } from "@mui/material";
 
 export default function SelectedHabitGraph({ habit }: { habit: Habit }) {
   const dateData = Object.keys(habit.dates || {}).reduce((acc: { date: number; value: number }[], date: string) => {
@@ -34,29 +34,31 @@ export default function SelectedHabitGraph({ habit }: { habit: Habit }) {
       <Typography variant="body2" color="text.secondary">
         You've registered this habit {dateData.length} times.
       </Typography>
-      <LineChart
-        dataset={dateData}
-        width={300}
-        height={200}
-        xAxis={[
-          {
-            dataKey: "date",
-            scaleType: "point",
-            valueFormatter: (unix) => dayjs.unix(unix * (60 * 60 * 24)).format("MMM D"),
-            label: "Date",
-          },
-        ]}
-        yAxis={[
-          {
-            dataKey: "value",
-            min: 0,
-            max: Math.max(habit.frequency || 0, maxValue),
-            tickMinStep: 1, // integers
-            label: "Habit done",
-          },
-        ]}
-        series={[{ dataKey: "value", label: habit.name, color: habit.color || "#90c65b" }]}
-      />
+      <Container disableGutters sx={{ display: "flex", justifyContent: "center" }}>
+        <LineChart
+          dataset={dateData}
+          width={300}
+          height={200}
+          xAxis={[
+            {
+              dataKey: "date",
+              scaleType: "point",
+              valueFormatter: (unix) => dayjs.unix(unix * (60 * 60 * 24)).format("MMM D"),
+              label: "Date",
+            },
+          ]}
+          yAxis={[
+            {
+              dataKey: "value",
+              min: 0,
+              max: Math.max(habit.frequency || 0, maxValue),
+              tickMinStep: 1, // integers
+              label: "Habit done",
+            },
+          ]}
+          series={[{ dataKey: "value", label: habit.name, color: habit.color || "#90c65b" }]}
+        />
+      </Container>
     </>
   ) : (
     <Typography variant="body2" color="text.secondary">

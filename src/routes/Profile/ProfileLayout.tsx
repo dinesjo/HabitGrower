@@ -1,10 +1,10 @@
+import { Container } from "@mui/material";
 import { Outlet } from "react-router-dom";
-import Cover from "../../components/Cover";
 
 export default function ProfileLayout() {
   return (
-    <Cover sx={{ p: 1, minWidth: 300 }}>
+    <Container sx={{ p: 1 }}>
       <Outlet />
-    </Cover>
+    </Container>
   );
 }

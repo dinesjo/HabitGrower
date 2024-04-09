@@ -1,4 +1,4 @@
-import { Outlet, useNavigation, NavLink, useLoaderData } from "react-router-dom";
+import { Outlet, useNavigation, NavLink, useLoaderData, Form } from "react-router-dom";
 import { useEffect, useState } from "react";
 import {
   Alert,
@@ -7,11 +7,13 @@ import {
   BottomNavigationAction,
   Box,
   CircularProgress,
+  Container,
+  Fab,
   LinearProgress,
   Paper,
   Snackbar,
 } from "@mui/material";
-import { AccountCircle, Home } from "@mui/icons-material";
+import { AccountCircle, Add, Home } from "@mui/icons-material";
 import { getUser } from "../firebase";
 import { User } from "firebase/auth";
 import { useAtom } from "jotai";
@@ -64,25 +66,55 @@ export default function Root() {
 
   return (
     <>
-      <Box sx={{ width: "100%", height: "calc(100vh - 56px)", position: "relative" }}>
-        <Outlet />
-        <Snackbar
-          open={snackbarOpen}
-          autoHideDuration={3000}
-          onClose={() => setSnackbarMessage("")}
+      <Box
+        sx={{
+          height: "calc(100vh - 56px)",
+          width: "100%",
+          position: "relative",
+          backgroundImage: "url('/cover.jpg')",
+          backgroundSize: "cover",
+        }}
+      >
+        <Container
+          maxWidth="xs"
           sx={{
-            bottom: "calc(56px + 0.5rem)",
+            position: "relative",
+            height: "100%",
+            maxWidth: "max-content",
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
           }}
         >
-          <Alert
+          <Paper>
+            <Outlet />
+          </Paper>
+          <Box sx={{ position: "absolute", bottom: 16, right: 16 }}>
+            <Form action="/new-habit" method="post">
+              <Fab type="submit" variant="extended" color="secondary" disabled={navigation.state === "submitting"}>
+                <Add sx={{ mr: 1 }} />
+                New Habit
+              </Fab>
+            </Form>
+          </Box>
+          <Snackbar
+            open={snackbarOpen}
+            autoHideDuration={3000}
             onClose={() => setSnackbarMessage("")}
-            severity={snackbarSeverity}
-            variant="filled"
-            sx={{ width: "100%" }}
+            sx={{
+              bottom: "calc(56px + 0.5rem)",
+            }}
           >
-            {snackbarMessage}
-          </Alert>
-        </Snackbar>
+            <Alert
+              onClose={() => setSnackbarMessage("")}
+              severity={snackbarSeverity}
+              variant="filled"
+              sx={{ width: "100%" }}
+            >
+              {snackbarMessage}
+            </Alert>
+          </Snackbar>
+        </Container>
       </Box>
       <Paper
         sx={{

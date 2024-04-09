@@ -14,7 +14,6 @@ import "./firebase";
 import { signOut } from "./firebase";
 import AccountView from "./routes/Profile/AccountView";
 import SignInView from "./routes/Profile/SignInView";
-import ProfileLayout from "./routes/Profile/ProfileLayout";
 import SelectedHabit from "./routes/Index/SelectedHabit";
 import EditHabitForm from "./components/EditHabitForm";
 import { createEmptyHabit, deleteHabit, Habit, updateHabit } from "./habitsModel";
@@ -23,13 +22,14 @@ import { useAtom } from "jotai";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { checkedHabitIdsAtom, store, themeAtom } from "./store";
+import ProfileLayout from "./routes/Profile/ProfileLayout";
+import IndexPage from "./routes/Index/IndexView";
 
 export const router = createBrowserRouter(
   createRoutesFromElements(
     <Route element={<Root />} id="root" loader={Root.loader} errorElement={<ErrorPage />}>
-      {/* <Route path="/" element={<Outlet />} id="root" loader={Root.loader} errorElement={<ErrorPage />}> */}
-      <Route path="/">
-        <Route index element={<IndexLayout />} loader={requireAuth(IndexLayout.loader)} action={IndexLayout.action} />
+      <Route path="/" element={<IndexLayout />}>
+        <Route index element={<IndexPage />} loader={requireAuth(IndexPage.loader)} action={IndexPage.action} />
         <Route path="test" element={<div>Test</div>} />
         <Route path=":id" element={<SelectedHabit />} loader={requireAuth(SelectedHabit.loader)} />
         <Route
