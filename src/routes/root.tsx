@@ -1,4 +1,4 @@
-import { Outlet, useNavigation, NavLink, useRouteLoaderData } from "react-router-dom";
+import { Outlet, useNavigation, NavLink, useLoaderData } from "react-router-dom";
 import { useEffect, useState } from "react";
 import {
   Alert,
@@ -11,7 +11,7 @@ import {
   Paper,
   Snackbar,
 } from "@mui/material";
-import { AccountCircle, ChecklistRtl, EditNote } from "@mui/icons-material";
+import { AccountCircle, ChecklistRtl } from "@mui/icons-material";
 import { getUser } from "../firebase";
 import { User } from "firebase/auth";
 import { useAtom } from "jotai";
@@ -44,7 +44,7 @@ export default function Root() {
     }
     return () => clearTimeout(timeoutId); // clear timeout on unmount or when loading changes
   }, [loading]);
-  const user = useRouteLoaderData("root") as User | null;
+  const user = useLoaderData() as User | null;
 
   const pages = [
     {
@@ -60,12 +60,11 @@ export default function Root() {
         ),
     },
     { text: "Overview", path: "/", icon: <ChecklistRtl /> },
-    { text: "My Habits", path: "/my-habits", icon: <EditNote /> },
   ];
 
   return (
     <>
-      <Box sx={{ width: "100%", height: "calc(100vh - 56px)" }}>
+      <Box sx={{ width: "100%", height: "calc(100vh - 56px)", position: "relative" }}>
         <Outlet />
         <Snackbar
           open={snackbarOpen}

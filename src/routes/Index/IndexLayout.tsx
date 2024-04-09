@@ -12,17 +12,21 @@ import {
   Fab,
   Grow,
   Divider,
-  Button,
 } from "@mui/material";
 import Cover from "../../components/Cover";
-import { Form, redirect, useLoaderData, useNavigation, Link as RouterLink, useNavigate } from "react-router-dom";
+import { Form, redirect, useLoaderData, useNavigation, useNavigate } from "react-router-dom";
 import { Habit, fetchHabits, registerHabitsNow } from "../../habitsModel";
-import { Check, DoneAll } from "@mui/icons-material";
+import { Add, Check, DoneAll } from "@mui/icons-material";
 import { IconMap } from "../../utils/IconMap";
 import { toFriendlyFrequency, getProgress, getProgressBuffer } from "../../utils/helpers.tsx";
-import { useEffect, useState } from "react";
-import { getDefaultStore, useAtom } from "jotai";
-import { snackbarMessageAtom, snackbarSeverityAtom, userDayStartsAtAtom } from "../../store";
+import { useAtom } from "jotai";
+import {
+  checkedHabitIdsAtom,
+  snackbarMessageAtom,
+  snackbarSeverityAtom,
+  store,
+  userDayStartsAtAtom,
+} from "../../store";
 import dayjs from "dayjs";
 
 async function loader() {
@@ -31,14 +35,17 @@ async function loader() {
   };
 }
 
+// Register habits
 async function action({ request }: { request: Request }) {
   // Get IDs from formData and register
   const formData = await request.formData();
   const habitIds = formData.getAll("habitIds") as string[];
   await registerHabitsNow(habitIds);
 
+  // Clear checked habits
+  store.set(checkedHabitIdsAtom, []);
+
   // Show confirmation snackbar
-  const store = getDefaultStore();
   store.set(snackbarMessageAtom, "Habit(s) registered successfully!");
   store.set(snackbarSeverityAtom, "success");
 
@@ -52,11 +59,9 @@ export default function IndexLayout() {
   const { habits } = useLoaderData() as { habits: Record<string, Habit> };
   const navigation = useNavigation();
   const navigate = useNavigate();
-  const [checked, setChecked] = useState<string[]>([]);
+  const [checkedHabitIds, setCheckedHabitIds] = useAtom(checkedHabitIdsAtom);
 
   const [dayStartsAt] = useAtom(userDayStartsAtAtom);
-
-  useEffect(() => setChecked([]), [habits]);
 
   let greeting = "Good ";
   if (dayjs().hour() < 10) greeting += "morning! ☀️";
@@ -84,7 +89,7 @@ export default function IndexLayout() {
             >
               {Object.keys(habits).map((key) => {
                 const habit = habits[key];
-                const isChecked = checked.includes(key);
+                const isChecked = checkedHabitIds.includes(key);
                 return (
                   <Box key={key}>
                     <ListItem disablePadding>
@@ -107,7 +112,7 @@ export default function IndexLayout() {
                       <Checkbox
                         checked={isChecked}
                         onClick={() =>
-                          setChecked((prev) => (isChecked ? prev.filter((id) => id !== key) : [...prev, key]))
+                          setCheckedHabitIds((prev) => (isChecked ? prev.filter((id) => id !== key) : [...prev, key]))
                         }
                       />
                     </ListItem>
@@ -138,18 +143,18 @@ export default function IndexLayout() {
                 width: "100%",
                 display: "flex",
                 justifyContent: "center",
-                bottom: "-4rem",
+                bottom: "-2rem",
               }}
             >
               {navigation.state === "submitting" ? (
                 <Fab variant="extended" color="primary" type="submit" disabled>
-                  {checked.length === 1 ? <Check sx={{ mr: 1 }} /> : <DoneAll sx={{ mr: 1 }} />}
+                  {checkedHabitIds.length === 1 ? <Check sx={{ mr: 1 }} /> : <DoneAll sx={{ mr: 1 }} />}
                   Registering...
                 </Fab>
               ) : (
-                <Grow in={checked.length > 0}>
-                  <Fab variant="extended" color="primary" type="submit" disabled={!checked.length}>
-                    {checked.length === 1 ? <Check sx={{ mr: 1 }} /> : <DoneAll sx={{ mr: 1 }} />}
+                <Grow in={checkedHabitIds.length > 0}>
+                  <Fab variant="extended" color="primary" type="submit" disabled={!checkedHabitIds.length}>
+                    {checkedHabitIds.length === 1 ? <Check sx={{ mr: 1 }} /> : <DoneAll sx={{ mr: 1 }} />}
                     Register
                   </Fab>
                 </Grow>
@@ -157,16 +162,18 @@ export default function IndexLayout() {
             </Box>
           </>
         ) : (
-          <>
-            <Typography variant="body2" align="center" color="text.secondary">
-              No habits found.
-              <br />
-              <Button component={RouterLink} to="/my-habits">
-                Go create one!
-              </Button>
-            </Typography>
-          </>
+          <Typography variant="body2" align="center" color="text.secondary">
+            No habits found.
+          </Typography>
         )}
+      </Box>
+      <Box sx={{ position: "absolute", bottom: 8, right: 8 }}>
+        <Form action="/new-habit" method="post">
+          <Fab type="submit" variant="extended" color="secondary" disabled={navigation.state === "submitting"}>
+            <Add sx={{ mr: 1 }} />
+            New Habit
+          </Fab>
+        </Form>
       </Box>
     </Cover>
   );

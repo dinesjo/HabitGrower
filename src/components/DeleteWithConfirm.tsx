@@ -24,7 +24,7 @@ export default function DeleteWithConfirm({ habit, id }: { habit: Habit; id: str
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setDeleteDialogOpen(false)}>Cancel</Button>
-          <Form action={`/my-habits/${id}/delete`} method="post">
+          <Form action={`/${id}/delete`} method="post">
             {navigation.state === "submitting" ? (
               <Button color="error" disabled>
                 Deleting...

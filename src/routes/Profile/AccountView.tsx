@@ -97,7 +97,7 @@ function DayStartPicker() {
       }}
       name="dayStartsAt"
       ampm={false}
-      label="Day starts at"
+      label="I wake up around..."
       slotProps={{ textField: { helperText: "Helps determine when progress bar starts" } }}
     />
   );
