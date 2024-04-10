@@ -28,18 +28,7 @@ async function loader({ params }: LoaderFunctionArgs<{ id: string }>) {
 
 EditHabitForm.loader = loader;
 
-const colors = [
-  "slategray",
-  "steelblue",
-  "limegreen",
-  "mediumseagreen",
-  "tomato",
-  "orange",
-  "palevioletred",
-  "magenta",
-  "brown",
-  "sandybrown",
-];
+const colors = ["slategray", "steelblue", "mediumseagreen", "tomato", "orange", "palevioletred", "brown", "sandybrown"];
 
 export default function EditHabitForm() {
   const { habit } = useLoaderData() as { habit: Habit };
