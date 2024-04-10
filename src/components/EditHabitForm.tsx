@@ -30,13 +30,21 @@ async function loader({ params }: LoaderFunctionArgs<{ id: string }>) {
 
 EditHabitForm.loader = loader;
 
-const colors = ["slategray", "steelblue", "mediumseagreen", "tomato", "orange", "palevioletred", "brown", "sandybrown"];
-
 export default function EditHabitForm() {
   const { habit } = useLoaderData() as { habit: Habit };
   const { id } = useParams();
   const navigate = useNavigate();
   const navigation = useNavigation();
+  const colorChoices = [
+    "slategray",
+    "steelblue",
+    "mediumseagreen",
+    "tomato",
+    "orange",
+    "palevioletred",
+    "brown",
+    "sandybrown",
+  ];
 
   const handleBack = () => {
     navigate(`/${id}`);
@@ -91,7 +99,7 @@ export default function EditHabitForm() {
                 fullWidth
               >
                 <MenuItem value="">None</MenuItem>
-                {colors.map((color) => (
+                {colorChoices.map((color) => (
                   <MenuItem key={color} value={color} sx={{ color: color }}>
                     {toFriendlyString(color)}
                   </MenuItem>

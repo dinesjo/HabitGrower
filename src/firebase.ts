@@ -23,6 +23,10 @@ const auth = getAuth();
 
 export const database = getDatabase(app);
 
+/**
+ * Retrieves the current user from the authentication state.
+ * @returns A promise that resolves with the user object if the user is signed in, or null if the user is not signed in.
+ */
 export async function getUser() {
   return new Promise<User | null>((resolve, reject) => {
     const unsubscribe = onAuthStateChanged(
@@ -43,5 +47,5 @@ export async function getUser() {
 
 export async function signOut() {
   await auth.signOut();
-  return redirect("/profile");
+  return redirect("/profile/signin");
 }

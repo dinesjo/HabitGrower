@@ -15,7 +15,7 @@ import {
   Container,
 } from "@mui/material";
 import { Form, redirect, useLoaderData, useNavigation, useNavigate } from "react-router-dom";
-import { Habit, fetchHabits, registerHabitsNow } from "../../habitsModel";
+import { Habit, fetchAllHabits, registerHabitsToday } from "../../habitsModel";
 import { Check, DoneAll } from "@mui/icons-material";
 import { IconMap } from "../../utils/IconMap";
 import { toFriendlyFrequency, getProgress, getProgressBuffer } from "../../utils/helpers.tsx";
@@ -31,7 +31,7 @@ import dayjs from "dayjs";
 
 async function loader() {
   return {
-    habits: await fetchHabits(),
+    habits: await fetchAllHabits(),
   };
 }
 
@@ -40,7 +40,7 @@ async function action({ request }: { request: Request }) {
   // Get IDs from formData and register
   const formData = await request.formData();
   const habitIds = formData.getAll("habitIds") as string[];
-  await registerHabitsNow(habitIds);
+  await registerHabitsToday(habitIds);
 
   // Clear checked habits
   store.set(checkedHabitIdsAtom, []);

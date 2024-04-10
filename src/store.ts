@@ -7,7 +7,7 @@ import dayjs, { Dayjs } from "dayjs";
 
 export const store = getDefaultStore();
 export const themeAtom = atomWithStorage<PaletteMode>("theme", "dark");
-export const userAtom = atom(async () => await getUser());
+const userAtom = atom(async () => await getUser());
 export const userDayStartsAtAtom = atomWithStorage<Dayjs | null>(
   "",
   null,
@@ -35,6 +35,7 @@ export const userDayStartsAtAtom = atomWithStorage<Dayjs | null>(
   }
 );
 
+// Snackbar
 const snackbarMessagePrimitiveAtom = atom<string>("");
 export const snackbarMessageAtom = atom(
   (get) => get(snackbarMessagePrimitiveAtom),
@@ -51,4 +52,5 @@ export const snackbarSeverityAtom = atom(
 );
 export const snackbarOpenAtom = atom<boolean>((get) => !!get(snackbarMessageAtom));
 
+// Checked habits
 export const checkedHabitIdsAtom = atom<string[]>([]);
