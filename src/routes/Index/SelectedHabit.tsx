@@ -68,7 +68,7 @@ export default function SelectedHabit() {
             <SelectedHabitGraph habit={habit} />
           </CardContent>
           <CardActions>
-            <Button color="primary" startIcon={<Edit />} onClick={() => navigate(`/${id}/edit`)}>
+            <Button variant="outlined" color="primary" startIcon={<Edit />} onClick={() => navigate(`/${id}/edit`)}>
               Edit
             </Button>
             <DeleteWithConfirm habit={habit} id={id} />

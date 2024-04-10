@@ -10,7 +10,7 @@ export default function DeleteWithConfirm({ habit, id }: { habit: Habit; id: str
 
   return (
     <>
-      <Button color="error" startIcon={<DeleteForever />} onClick={() => setDeleteDialogOpen(true)}>
+      <Button color="error" variant="text" startIcon={<DeleteForever />} onClick={() => setDeleteDialogOpen(true)}>
         Delete
       </Button>
       <Dialog
@@ -23,17 +23,13 @@ export default function DeleteWithConfirm({ habit, id }: { habit: Habit; id: str
           <DialogContentText>"{habit.name}" will be deleted. This action cannot be undone.</DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setDeleteDialogOpen(false)}>Cancel</Button>
+          <Button onClick={() => setDeleteDialogOpen(false)} color="inherit">
+            Cancel
+          </Button>
           <Form action={`/${id}/delete`} method="post">
-            {navigation.state === "submitting" ? (
-              <Button color="error" disabled>
-                Deleting...
-              </Button>
-            ) : (
-              <Button type="submit" color="error">
-                Confirm
-              </Button>
-            )}
+            <Button variant="contained" type="submit" color="error" disabled={navigation.state === "submitting"}>
+              Delete Forever
+            </Button>
           </Form>
         </DialogActions>
       </Dialog>
