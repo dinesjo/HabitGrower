@@ -4,6 +4,14 @@ import { LineChart } from "@mui/x-charts";
 import { Container, Typography } from "@mui/material";
 
 export default function SelectedHabitGraph({ habit }: { habit: Habit }) {
+  if (!habit.dates) {
+    return (
+      <Typography variant="body2" color="text.secondary">
+        You haven't registered this habit yet.
+      </Typography>
+    );
+  }
+
   const dateData = Object.keys(habit.dates || {}).reduce((acc: { date: number; value: number }[], date: string) => {
     const currentDate = Math.ceil(dayjs(date).startOf("day").unix() / (60 * 60 * 24));
     const existingData = acc.find((data) => data.date === currentDate);
@@ -29,7 +37,7 @@ export default function SelectedHabitGraph({ habit }: { habit: Habit }) {
   // Get max value in the dataSet
   const maxValue = Math.max(...dateData.map((data) => data.value));
 
-  return habit.dates ? (
+  return (
     <>
       <Typography variant="body2" color="text.secondary">
         You've registered this habit {dateData.length} times.
@@ -60,9 +68,5 @@ export default function SelectedHabitGraph({ habit }: { habit: Habit }) {
         />
       </Container>
     </>
-  ) : (
-    <Typography variant="body2" color="text.secondary">
-      You haven't registered this habit yet.
-    </Typography>
   );
 }
