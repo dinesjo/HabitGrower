@@ -13,6 +13,7 @@ import {
   Grow,
   Divider,
   Container,
+  Badge,
 } from "@mui/material";
 import { Form, redirect, useLoaderData, useNavigation, useNavigate } from "react-router-dom";
 import { Habit, fetchAllHabits, registerHabitsToday } from "../../habitsModel";
@@ -84,23 +85,33 @@ export default function IndexPage() {
             sx={{
               maxHeight: "calc(100vh - 200px)",
               overflow: "auto",
+              scrollbarWidth: "thin",
+              scrollbarColor: "#ccc transparent",
             }}
           >
             {Object.keys(habits).map((key) => {
               const habit = habits[key];
               const isChecked = checkedHabitIds.includes(key);
+              const progress = getProgress(habit, isChecked);
               return (
-                <Box key={key}>
+                <Box key={key} sx={{ width: "inherit" }}>
                   <ListItem disablePadding>
                     <ListItemButton sx={{ p: 1 }} onClick={() => navigate(`/${key}`)}>
                       <ListItemAvatar sx={{ color: habit.color }}>
-                        <Avatar
-                          sx={{
-                            bgcolor: habit.color || "text.primary",
-                          }}
+                        <Badge
+                          invisible={progress !== 100}
+                          badgeContent={"Done!"}
+                          color="success"
+                          anchorOrigin={{ vertical: "top", horizontal: "right" }}
                         >
-                          {IconMap[habit.icon || "default"]}
-                        </Avatar>
+                          <Avatar
+                            sx={{
+                              bgcolor: habit.color || "text.primary",
+                            }}
+                          >
+                            {IconMap[habit.icon || "default"]}
+                          </Avatar>
+                        </Badge>
                       </ListItemAvatar>
                       <ListItemText
                         primary={<Typography sx={{ color: habit.color }}>{habit.name}</Typography>}
@@ -118,7 +129,7 @@ export default function IndexPage() {
                   <LinearProgress
                     variant="buffer"
                     valueBuffer={getProgressBuffer(habit, dayStartsAt)}
-                    value={getProgress(habit, isChecked)}
+                    value={progress}
                     sx={{
                       ".MuiLinearProgress-bar1Buffer": {
                         backgroundColor: habit.color,
