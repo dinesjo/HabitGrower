@@ -1,5 +1,7 @@
 # 🪷HabitGrower
 
+Deployed at [habitgrower.web.app](https://habitgrower.web.app).
+
 HabitGrower is a web application built with React and TypeScript, designed to help users track and grow their habits. It uses Firebase for user authentication and data storage.
 
 ## Features
