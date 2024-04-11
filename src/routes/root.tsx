@@ -86,7 +86,7 @@ export default function Root() {
             justifyContent: "center",
           }}
         >
-          <Paper variant="outlined">
+          <Paper>
             <Outlet />
           </Paper>
           <Box sx={{ position: "absolute", bottom: 16, right: 16 }}>
