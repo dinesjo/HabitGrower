@@ -7,7 +7,6 @@ import {
   ListItemText,
   Typography,
   Checkbox,
-  LinearProgress,
   Box,
   Fab,
   Grow,
@@ -29,6 +28,7 @@ import {
   userDayStartsAtAtom,
 } from "../../store";
 import dayjs from "dayjs";
+import LinearProgressWithLabel from "../../components/LinearProgressWithLabel.tsx";
 
 async function loader() {
   return {
@@ -126,7 +126,7 @@ export default function IndexPage() {
                       }
                     />
                   </ListItem>
-                  <LinearProgress
+                  <LinearProgressWithLabel
                     variant="buffer"
                     valueBuffer={getProgressBuffer(habit, dayStartsAt)}
                     value={progress}
