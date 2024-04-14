@@ -5,9 +5,9 @@ export default function LinearProgressWithLabel({ ...props }) {
   const bufferValue = Math.round(props.valueBuffer);
   const diff = bufferValue - progressValue;
   let chipColor: AlertColor = "success";
-  if (diff > 20) {
+  if (diff > 40) {
     chipColor = "error";
-  } else if (diff > 10) {
+  } else if (diff > 20) {
     chipColor = "warning";
   }
 
