@@ -70,7 +70,7 @@ export default function IndexPage() {
   else greeting += "evening! 🌃";
 
   return (
-    <Container component={Form} method="post" sx={{ position: "relative", p: 1 }}>
+    <Container component={Form} method="post" sx={{ position: "relative", p: 1, mb: "auto" }}>
       <Typography variant="h4" align="center">
         {greeting}
       </Typography>
@@ -83,7 +83,7 @@ export default function IndexPage() {
           </Typography>
           <List
             sx={{
-              maxHeight: "calc(100vh - 200px)",
+              maxHeight: "calc(100vh - 300px)",
               overflow: "auto",
               scrollbarWidth: "thin",
               scrollbarColor: "#ccc transparent",
@@ -126,23 +126,25 @@ export default function IndexPage() {
                       }
                     />
                   </ListItem>
-                  <LinearProgressWithLabel
-                    variant="buffer"
-                    valueBuffer={getProgressBuffer(habit, dayStartsAt)}
-                    value={progress}
-                    sx={{
-                      ".MuiLinearProgress-bar1Buffer": {
-                        backgroundColor: habit.color,
-                      },
-                      ".MuiLinearProgress-bar2Buffer": {
-                        backgroundColor: habit.color,
-                        opacity: 0.3,
-                      },
-                      ".MuiLinearProgress-dashed": {
-                        display: "none",
-                      },
-                    }}
-                  />
+                  {habit.frequency && habit.frequencyUnit && (
+                    <LinearProgressWithLabel
+                      variant="buffer"
+                      valueBuffer={getProgressBuffer(habit, dayStartsAt)}
+                      value={progress}
+                      sx={{
+                        ".MuiLinearProgress-bar1Buffer": {
+                          backgroundColor: habit.color,
+                        },
+                        ".MuiLinearProgress-bar2Buffer": {
+                          backgroundColor: habit.color,
+                          opacity: 0.3,
+                        },
+                        ".MuiLinearProgress-dashed": {
+                          display: "none",
+                        },
+                      }}
+                    />
+                  )}
                 </Box>
               );
             })}
@@ -156,19 +158,17 @@ export default function IndexPage() {
               bottom: "-2rem",
             }}
           >
-            {navigation.state === "submitting" ? (
-              <Fab variant="extended" color="primary" type="submit" disabled>
+            <Grow in={checkedHabitIds.length > 0}>
+              <Fab
+                variant="extended"
+                color="primary"
+                type="submit"
+                disabled={!checkedHabitIds.length || navigation.state === "submitting"}
+              >
                 {checkedHabitIds.length === 1 ? <Check sx={{ mr: 1 }} /> : <DoneAll sx={{ mr: 1 }} />}
-                Registering...
+                Register
               </Fab>
-            ) : (
-              <Grow in={checkedHabitIds.length > 0}>
-                <Fab variant="extended" color="primary" type="submit" disabled={!checkedHabitIds.length}>
-                  {checkedHabitIds.length === 1 ? <Check sx={{ mr: 1 }} /> : <DoneAll sx={{ mr: 1 }} />}
-                  Register
-                </Fab>
-              </Grow>
-            )}
+            </Grow>
           </Box>
         </>
       ) : (
