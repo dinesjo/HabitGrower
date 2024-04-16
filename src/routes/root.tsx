@@ -87,11 +87,13 @@ export default function Root() {
           }}
         >
           <Outlet />
-          <Form action="/new-habit" method="post">
-            <Fab type="submit" color="secondary" sx={{ position: "absolute", bottom: 16, right: 16 }}>
-              <PlaylistAdd />
-            </Fab>
-          </Form>
+          {user && (
+            <Form action="/new-habit" method="post">
+              <Fab type="submit" color="secondary" sx={{ position: "absolute", bottom: 16, right: 16 }}>
+                <PlaylistAdd />
+              </Fab>
+            </Form>
+          )}
           <Snackbar
             open={snackbarOpen}
             autoHideDuration={3000}
