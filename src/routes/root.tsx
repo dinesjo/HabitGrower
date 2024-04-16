@@ -8,12 +8,10 @@ import {
   Box,
   CircularProgress,
   Container,
+  Fab,
   LinearProgress,
   Paper,
   Snackbar,
-  SpeedDial,
-  SpeedDialAction,
-  SpeedDialIcon,
 } from "@mui/material";
 import { AccountCircle, Home, PlaylistAdd } from "@mui/icons-material";
 import { getUser } from "../firebase";
@@ -90,23 +88,9 @@ export default function Root() {
         >
           <Outlet />
           <Form action="/new-habit" method="post">
-            <SpeedDial
-              ariaLabel="New Habit"
-              icon={<SpeedDialIcon />}
-              sx={{
-                position: "absolute",
-                bottom: 16,
-                right: 16,
-                ".MuiSpeedDial-fab": { backgroundColor: "secondary.main", color: "secondary.contrastText" },
-              }}
-            >
-              <SpeedDialAction
-                icon={<PlaylistAdd />}
-                tooltipTitle={"New Habit"}
-                tooltipOpen
-                FabProps={{ type: "submit" }}
-              />
-            </SpeedDial>
+            <Fab type="submit" color="secondary" sx={{ position: "absolute", bottom: 16, right: 16 }}>
+              <PlaylistAdd />
+            </Fab>
           </Form>
           <Snackbar
             open={snackbarOpen}
