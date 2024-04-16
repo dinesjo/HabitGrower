@@ -27,9 +27,9 @@ export default function SelectedHabitGraph({ habit }: { habit: Habit }) {
   }, []);
 
   // Fill in missing dates with value 0
-  const firstDay = dateData[0]; // e.g. 19815
-  const lastDay = dateData[dateData.length - 1]; // e.g. 19825
-  const allDays = Array.from({ length: lastDay.date - firstDay.date + 1 }, (_, i) => firstDay.date + i);
+  const firstDay = dateData[0].date; // e.g. 19815
+  const today = Math.ceil(dayjs().startOf("day").unix() / (60 * 60 * 24)); // e.g. 19824
+  const allDays = Array.from({ length: today - firstDay + 1 }, (_, i) => firstDay + i); // e.g. [19815, 19816, ..., 19824]
   const missingDays = allDays.filter((day) => !dateData.find((data) => data.date === day));
   missingDays.forEach((date) => dateData.push({ date, value: 0 }));
   dateData.sort((a, b) => a.date - b.date);
