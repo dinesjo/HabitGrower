@@ -1,4 +1,4 @@
-import { Outlet, useNavigation, NavLink, useLoaderData, Form } from "react-router-dom";
+import { Outlet, useNavigation, NavLink, Form } from "react-router-dom";
 import { useEffect, useState } from "react";
 import {
   Alert,
@@ -14,23 +14,19 @@ import {
   Snackbar,
 } from "@mui/material";
 import { AccountCircle, Home, PlaylistAdd } from "@mui/icons-material";
-import { getUser } from "../firebase";
-import { User } from "firebase/auth";
+import { getAuth } from "firebase/auth";
 import { useAtom } from "jotai";
 import { snackbarMessageAtom, snackbarOpenAtom, snackbarSeverityAtom } from "../store";
-
-async function loader() {
-  const user = await getUser();
-  return user;
-}
-
-Root.loader = loader;
+import { useAuthState } from "react-firebase-hooks/auth";
 
 export default function Root() {
   // Router
   const navigation = useNavigation();
   const loading = navigation.state === "loading";
   const [showLoading, setShowLoading] = useState(false);
+
+  // User signed in using hook
+  const [user, userLoading] = useAuthState(getAuth());
 
   // Snackbar
   const [snackbarOpen] = useAtom(snackbarOpenAtom);
@@ -46,20 +42,18 @@ export default function Root() {
     }
     return () => clearTimeout(timeoutId); // clear timeout on unmount or when loading changes
   }, [loading]);
-  const user = useLoaderData() as User | null;
 
   const pages = [
     {
       text: "Profile",
       path: "/profile",
-      icon:
-        loading && !user ? (
-          <CircularProgress sx={{ color: "primary.contrastText" }} />
-        ) : user?.photoURL ? (
-          <Avatar src={user.photoURL} alt={user.displayName || "Profile Picture"} />
-        ) : (
-          <AccountCircle />
-        ),
+      icon: userLoading ? (
+        <CircularProgress sx={{ color: "primary.contrastText" }} />
+      ) : user?.photoURL ? (
+        <Avatar src={user.photoURL} alt={user.displayName || "Profile Picture"} />
+      ) : (
+        <AccountCircle />
+      ),
     },
     { text: "Home", path: "/", icon: <Home /> },
   ];

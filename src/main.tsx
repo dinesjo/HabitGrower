@@ -27,7 +27,7 @@ import IndexPage from "./routes/Index/IndexView";
 
 export const router = createBrowserRouter(
   createRoutesFromElements(
-    <Route element={<Root />} id="root" loader={Root.loader} errorElement={<ErrorPage />}>
+    <Route element={<Root />} id="root" errorElement={<ErrorPage />}>
       <Route path="/" element={<IndexLayout />}>
         <Route index element={<IndexPage />} loader={requireAuth(IndexPage.loader)} action={IndexPage.action} />
         <Route path="test" element={<div>Test</div>} />
