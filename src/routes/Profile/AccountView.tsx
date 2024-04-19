@@ -4,7 +4,7 @@ import { Logout } from "@mui/icons-material";
 import { Form, redirect, useLoaderData, useNavigation } from "react-router-dom";
 import { getUser } from "../../firebase";
 import { useAtom } from "jotai";
-import { themeAtom, userDayStartsAtAtom } from "../../store";
+import { themeAtom, userDayStartsAtAtom, userWeekStartsAtMondayAtom } from "../../store";
 import { TimePicker } from "@mui/x-date-pickers";
 import { Dayjs } from "dayjs";
 import { Suspense } from "react";
@@ -40,6 +40,7 @@ export default function AccountView() {
         <DarkModeToggle />
         <Suspense fallback="Loading...">
           <DayStartPicker />
+          <WeekStartPicker />
         </Suspense>
       </Stack>
       <Box
@@ -100,5 +101,20 @@ function DayStartPicker() {
       label="I wake up around..."
       slotProps={{ textField: { helperText: "Helps determine when progress bar starts" } }}
     />
+  );
+}
+
+function WeekStartPicker() {
+  const [weekStartsAtMonday, setWeekStartsAtMonday] = useAtom(userWeekStartsAtMondayAtom);
+
+  return (
+    <FormGroup>
+      <FormControlLabel
+        control={
+          <Switch checked={weekStartsAtMonday || false} onChange={() => setWeekStartsAtMonday(!weekStartsAtMonday)} />
+        }
+        label="Start week on monday"
+      />
+    </FormGroup>
   );
 }

@@ -26,6 +26,7 @@ import {
   snackbarSeverityAtom,
   store,
   userDayStartsAtAtom,
+  userWeekStartsAtMondayAtom,
 } from "../../store";
 import dayjs from "dayjs";
 import LinearProgressWithLabel from "../../components/LinearProgressWithLabel.tsx";
@@ -61,6 +62,7 @@ export default function IndexPage() {
   const navigation = useNavigation();
   const navigate = useNavigate();
   const [checkedHabitIds, setCheckedHabitIds] = useAtom(checkedHabitIdsAtom);
+  const [userWeekStartsAtMonday] = useAtom(userWeekStartsAtMondayAtom);
 
   const [dayStartsAt] = useAtom(userDayStartsAtAtom);
 
@@ -92,7 +94,8 @@ export default function IndexPage() {
             {Object.keys(habits).map((key) => {
               const habit = habits[key];
               const isChecked = checkedHabitIds.includes(key);
-              const progress = getProgress(habit, isChecked);
+              const progress = getProgress(habit, isChecked, userWeekStartsAtMonday);
+              const progressBuffer = getProgressBuffer(habit, dayStartsAt, userWeekStartsAtMonday);
               return (
                 <Box key={key} sx={{ width: "inherit" }}>
                   <ListItem disablePadding>
@@ -129,7 +132,7 @@ export default function IndexPage() {
                   {habit.frequency && habit.frequencyUnit && (
                     <LinearProgressWithLabel
                       variant="buffer"
-                      valueBuffer={getProgressBuffer(habit, dayStartsAt)}
+                      valueBuffer={progressBuffer}
                       value={progress}
                       sx={{
                         ".MuiLinearProgress-bar1Buffer": {

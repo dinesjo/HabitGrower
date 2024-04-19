@@ -25,11 +25,14 @@ export function toFriendlyFrequency(habit: Habit) {
   return `${habit.frequency === 1 ? "Once" : `${habit.frequency} times`} a ${habit.frequencyUnit}`;
 }
 
-function getFrequencyUnitStart(frequencyUnit: string) {
+/**
+ * @param addDays - 0: start week on Sunday, 1: start week on Monday
+ */
+function getFrequencyUnitStart(frequencyUnit: string, userWeekStartsAtMonday: boolean | null) {
   // Day, should be todays date in UTC
   const todayStart = dayjs().startOf("day");
   // Week
-  const weekStart = dayjs().startOf("week"); // FIXME: slightly off
+  const weekStart = dayjs().startOf("week").add(Number(userWeekStartsAtMonday), "day");
   // Month
   const monthStart = dayjs().startOf("month");
 
@@ -51,12 +54,12 @@ function getFrequencyUnitStart(frequencyUnit: string) {
  * @param isChecked - Whether the habit is checked or not (+1 date).
  * @returns The progress percentage of the habit (0-100).
  */
-export function getProgress(habit: Habit, isChecked: boolean) {
+export function getProgress(habit: Habit, isChecked: boolean, userWeekStartsAtMonday: boolean) {
   if (!habit.frequency || !habit.frequencyUnit) {
     return 0;
   }
 
-  const frequencyUnitStart = getFrequencyUnitStart(habit.frequencyUnit);
+  const frequencyUnitStart = getFrequencyUnitStart(habit.frequencyUnit, userWeekStartsAtMonday);
 
   // Count the number of completed dates after the chosen start date
   let completedDates = Number(isChecked);
@@ -77,7 +80,11 @@ export function getProgress(habit: Habit, isChecked: boolean) {
  * @param habit - The habit object.
  * @returns  The progress buffer percentage of the habit (0-100).
  */
-export function getProgressBuffer(habit: Habit, dayStartsAt: dayjs.Dayjs | null = null) {
+export function getProgressBuffer(
+  habit: Habit,
+  dayStartsAt: dayjs.Dayjs | null = null,
+  userWeekStartsAtMonday: boolean = false
+) {
   if (!habit.frequency || !habit.frequencyUnit) {
     return 0;
   }
@@ -85,7 +92,7 @@ export function getProgressBuffer(habit: Habit, dayStartsAt: dayjs.Dayjs | null 
   const hour = dayStartsAt?.hour() || 0;
   const minutes = dayStartsAt?.minute() || 0;
 
-  const start = getFrequencyUnitStart(habit.frequencyUnit);
+  const start = getFrequencyUnitStart(habit.frequencyUnit, userWeekStartsAtMonday);
   const adjustedStart = start.add(hour, "hour").add(minutes, "minute");
 
   const daysElapsed = dayjs().diff(adjustedStart, "hours") / 24;

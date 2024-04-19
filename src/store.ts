@@ -7,6 +7,8 @@ import dayjs, { Dayjs } from "dayjs";
 
 export const store = getDefaultStore();
 export const themeAtom = atomWithStorage<PaletteMode>("theme", "dark");
+
+// User
 const userAtom = atom(async () => await getUser());
 export const userDayStartsAtAtom = atomWithStorage<Dayjs | null>(
   "",
@@ -28,6 +30,33 @@ export const userDayStartsAtAtom = atomWithStorage<Dayjs | null>(
     removeItem: async () => {
       const userId = (await store.get(userAtom))?.uid;
       return set(ref(database, "users/" + userId + "/dayStartsAt"), null);
+    },
+  },
+  {
+    getOnInit: true,
+  }
+);
+
+export const userWeekStartsAtMondayAtom = atomWithStorage<boolean>(
+  "",
+  false,
+  {
+    getItem: async () => {
+      const userId = (await store.get(userAtom))?.uid;
+      return get(ref(database, "users/" + userId + "/weekStartsAtMonday")).then((snapshot) => {
+        if (snapshot.exists()) {
+          return snapshot.val();
+        }
+        return false;
+      });
+    },
+    setItem: async (_, weekStartsAtMonday) => {
+      const userId = (await store.get(userAtom))?.uid;
+      return set(ref(database, "users/" + userId + "/weekStartsAtMonday"), weekStartsAtMonday);
+    },
+    removeItem: async () => {
+      const userId = (await store.get(userAtom))?.uid;
+      return set(ref(database, "users/" + userId + "/weekStartsAtMonday"), null);
     },
   },
   {
