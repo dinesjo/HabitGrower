@@ -25,14 +25,15 @@ export function toFriendlyFrequency(habit: Habit) {
   return `${habit.frequency === 1 ? "Once" : `${habit.frequency} times`} a ${habit.frequencyUnit}`;
 }
 
-/**
- * @param addDays - 0: start week on Sunday, 1: start week on Monday
- */
 function getFrequencyUnitStart(frequencyUnit: string, userWeekStartsAtMonday: boolean | null) {
   // Day, should be todays date in UTC
   const todayStart = dayjs().startOf("day");
   // Week
-  const weekStart = dayjs().startOf("week").add(Number(userWeekStartsAtMonday), "day");
+  let weekStart = dayjs().startOf("week").add(Number(userWeekStartsAtMonday), "day");
+  if (userWeekStartsAtMonday && dayjs().day() === 0) {
+    // edge case for Sunday and userWeekStartsAtMonday
+    weekStart = weekStart.subtract(1, "week");
+  }
   // Month
   const monthStart = dayjs().startOf("month");
 
@@ -46,6 +47,30 @@ function getFrequencyUnitStart(frequencyUnit: string, userWeekStartsAtMonday: bo
   }
 
   return chosenStart;
+}
+
+function getFrequencyUnitEnd(frequencyUnit: string, userWeekStartsAtMonday: boolean | null) {
+  // Day, should be todays date in UTC
+  const todayEnd = dayjs().endOf("day");
+  // Week
+  let weekEnd = dayjs().endOf("week").add(Number(userWeekStartsAtMonday), "day");
+  if (userWeekStartsAtMonday && dayjs().day() === 0) {
+    // edge case for Sunday and userWeekStartsAtMonday
+    weekEnd = weekEnd.subtract(1, "week");
+  }
+  // Month
+  const monthEnd = dayjs().endOf("month");
+
+  let chosenEnd = todayEnd;
+  if (frequencyUnit === "day") {
+    chosenEnd = todayEnd;
+  } else if (frequencyUnit === "week") {
+    chosenEnd = weekEnd;
+  } else if (frequencyUnit === "month") {
+    chosenEnd = monthEnd;
+  }
+
+  return chosenEnd;
 }
 
 /**
@@ -94,9 +119,9 @@ export function getProgressBuffer(
 
   const start = getFrequencyUnitStart(habit.frequencyUnit, userWeekStartsAtMonday);
   const adjustedStart = start.add(hour, "hour").add(minutes, "minute");
-
+  const end = getFrequencyUnitEnd(habit.frequencyUnit, userWeekStartsAtMonday);
+  const maxDays = end.diff(adjustedStart, "hours") / 24;
   const daysElapsed = dayjs().diff(adjustedStart, "hours") / 24;
-  const maxDays = dayjs().endOf(habit.frequencyUnit).diff(adjustedStart, "hours") / 24;
 
   return Math.min((daysElapsed / maxDays) * 100, 100);
 }
