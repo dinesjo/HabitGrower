@@ -3,7 +3,6 @@ import dayjs from "dayjs";
 import { LineChart } from "@mui/x-charts";
 import { Box, Container, ToggleButton, ToggleButtonGroup, Typography } from "@mui/material";
 import { useAtom } from "jotai";
-import { DensityLarge, DensityMedium, DensitySmall } from "@mui/icons-material";
 import { atomWithStorage } from "jotai/utils";
 
 const daysShownMap: Record<number, string> = {
