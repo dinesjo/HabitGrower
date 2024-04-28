@@ -24,6 +24,9 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { checkedHabitIdsAtom, store, themeAtom } from "./store";
 import ProfileLayout from "./routes/Profile/ProfileLayout";
 import IndexPage from "./routes/Index/IndexView";
+import { DevTools } from "jotai-devtools";
+// Note that this may get included in your production builds. Please import it conditionally if you want to avoid that
+import "jotai-devtools/styles.css";
 
 export const router = createBrowserRouter(
   createRoutesFromElements(
@@ -96,6 +99,7 @@ function Main() {
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
       <ThemeProvider theme={theme}>
+        <DevTools />
         <CssBaseline />
         <RouterProvider router={router} />
       </ThemeProvider>
