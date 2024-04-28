@@ -1,9 +1,22 @@
 import { Habit } from "../../habitsModel";
 import dayjs from "dayjs";
 import { LineChart } from "@mui/x-charts";
-import { Container, Typography } from "@mui/material";
+import { Box, Container, ToggleButton, ToggleButtonGroup, Typography } from "@mui/material";
+import { useAtom } from "jotai";
+import { DensityLarge, DensityMedium, DensitySmall } from "@mui/icons-material";
+import { atomWithStorage } from "jotai/utils";
+
+const daysShownMap: Record<number, string> = {
+  14: "14 Days",
+  30: "30 Days",
+  99999: "Show All",
+} as const;
+
+const daysShownAtom = atomWithStorage<number>("daysShown", 30);
 
 export default function SelectedHabitGraph({ habit }: { habit: Habit }) {
+  const [daysShown] = useAtom(daysShownAtom);
+
   if (!habit.dates) {
     return (
       <Typography variant="body2" color="text.secondary">
@@ -12,16 +25,25 @@ export default function SelectedHabitGraph({ habit }: { habit: Habit }) {
     );
   }
 
-  const dateData = Object.keys(habit.dates || {}).reduce((acc: { date: number; value: number }[], date: string) => {
+  // Filter data to only show the last n days
+  const filteredDates = Object.fromEntries(
+    Object.entries(habit.dates).filter(([date]) => {
+      const daysAgo = Math.ceil(dayjs().diff(dayjs(date), "day", true));
+      return daysAgo < daysShown;
+    })
+  );
+
+  // Create dataset from filteredDates
+  const dateData = Object.keys(filteredDates).reduce((acc: { date: number; value: number }[], date: string) => {
     const currentDate = Math.ceil(dayjs(date).startOf("day").unix() / (60 * 60 * 24));
     const existingData = acc.find((data) => data.date === currentDate);
     if (!existingData) {
       acc.push({
         date: currentDate,
-        value: Number(habit.dates![date]),
+        value: Number(filteredDates![date]),
       });
     } else {
-      existingData.value += Number(habit.dates![date]);
+      existingData.value += Number(filteredDates![date]);
     }
     return acc;
   }, []);
@@ -40,8 +62,11 @@ export default function SelectedHabitGraph({ habit }: { habit: Habit }) {
   return (
     <>
       <Typography variant="body2" color="text.secondary">
-        You've registered this habit {dateData.length} times.
+        You've registered this habit {dateData.length} times within selected timespan.
       </Typography>
+      <Container sx={{ my: 1, display: "flex", justifyContent: "center" }}>
+        <HabitGraphControls />
+      </Container>
       <Container disableGutters sx={{ display: "flex", justifyContent: "center" }}>
         <LineChart
           dataset={dateData}
@@ -68,5 +93,33 @@ export default function SelectedHabitGraph({ habit }: { habit: Habit }) {
         />
       </Container>
     </>
+  );
+}
+
+function HabitGraphControls() {
+  const [daysShown, setDaysShown] = useAtom(daysShownAtom);
+
+  return (
+    <Box>
+      <Typography variant="body2" color="text.secondary">
+        Select time span:
+      </Typography>
+      <ToggleButtonGroup
+        color="primary"
+        size="small"
+        value={daysShown}
+        exclusive
+        onChange={(_, v) => {
+          if (v) setDaysShown(v);
+        }}
+        aria-label="Time span"
+      >
+        {Object.entries(daysShownMap).map(([days, icon]) => (
+          <ToggleButton key={days} value={Number(days)}>
+            {icon}
+          </ToggleButton>
+        ))}
+      </ToggleButtonGroup>
+    </Box>
   );
 }
