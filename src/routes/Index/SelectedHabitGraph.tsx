@@ -89,7 +89,7 @@ export default function SelectedHabitGraph({ habit }: { habit: Habit }) {
               label: "Habit done",
             },
           ]}
-          series={[{ dataKey: "value", label: habit.name, color: habit.color || "#90c65b" }]}
+          series={[{ dataKey: "value", color: habit.color || "#90c65b" }]}
         />
       </Container>
     </>
