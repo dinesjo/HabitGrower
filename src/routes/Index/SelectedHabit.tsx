@@ -24,6 +24,8 @@ export default function SelectedHabit() {
   const { id } = useParams();
   const navigate = useNavigate();
 
+  const registerCount = habit.dates ? Object.keys(habit.dates).length : 0;
+
   return (
     <>
       <CardActions>
@@ -65,6 +67,9 @@ export default function SelectedHabit() {
                 You told yourself to {habit.name} {toFriendlyFrequency(habit)}.
               </Typography>
             )}
+            <Typography variant="body2" color="text.secondary">
+              You've registered this habit {registerCount} times.
+            </Typography>
             <SelectedHabitGraph habit={habit} />
           </CardContent>
           <CardActions>

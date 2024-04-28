@@ -32,9 +32,6 @@ export default function SelectedHabitGraph({ habit }: { habit: Habit }) {
     })
   );
 
-  // Count the number of times the habit was done on each day
-  const registerCount = Object.keys(filteredDates).length;
-
   // Create dataset from filteredDates
   const dateData = Object.keys(filteredDates).reduce((acc: { date: number; value: number }[], date: string) => {
     const currentDate = Math.ceil(dayjs(date).startOf("day").unix() / (60 * 60 * 24));
@@ -63,11 +60,8 @@ export default function SelectedHabitGraph({ habit }: { habit: Habit }) {
 
   return (
     <>
-      <Typography variant="body2" color="text.secondary">
-        You've registered this habit {registerCount} times within selected timespan.
-      </Typography>
       <Container sx={{ my: 1, display: "flex", justifyContent: "center" }}>
-        <HabitGraphControls />
+        <GraphControls />
       </Container>
       <Container disableGutters sx={{ display: "flex", justifyContent: "center" }}>
         <LineChart
@@ -98,7 +92,7 @@ export default function SelectedHabitGraph({ habit }: { habit: Habit }) {
   );
 }
 
-function HabitGraphControls() {
+function GraphControls() {
   const [daysShown, setDaysShown] = useAtom(daysShownAtom);
 
   return (
