@@ -84,3 +84,10 @@ export async function registerHabitsToday(ids: string[]): Promise<void> {
     await set(todayRef, currentCount + 1);
   }
 }
+
+export async function unregisterHabitByDate(id: string, date: string): Promise<void> {
+  const userId = await getUserIdOrThrow();
+
+  const dateRef = ref(database, `users/${userId}/habits/${id}/dates/${date}`);
+  await set(dateRef, null);
+}

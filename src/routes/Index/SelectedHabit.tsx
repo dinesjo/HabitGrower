@@ -6,6 +6,7 @@ import { IconMap } from "../../utils/IconMap.tsx";
 import { toFriendlyFrequency } from "../../utils/helpers.tsx";
 import DeleteWithConfirm from "../../components/DeleteWithConfirm.tsx";
 import SelectedHabitGraph from "./SelectedHabitGraph.tsx";
+import SelectedHabitList from "./SelectedHabitList.tsx";
 
 async function loader({ params }: LoaderFunctionArgs<{ id: string }>) {
   const { id } = params;
@@ -61,7 +62,9 @@ export default function SelectedHabit() {
             }
             subheader={habit.description}
           />
-          <CardContent>
+          <CardContent
+            sx={{ maxHeight: "60vh", overflowY: "auto", scrollbarWidth: "thin", scrollbarColor: "#ccc #222" }}
+          >
             {habit.frequency && habit.frequencyUnit && (
               <Typography variant="body2">
                 You told yourself to {habit.name} {toFriendlyFrequency(habit)}.
@@ -71,6 +74,7 @@ export default function SelectedHabit() {
               You've registered this habit {registerCount} times.
             </Typography>
             <SelectedHabitGraph habit={habit} />
+            <SelectedHabitList habit={habit} />
           </CardContent>
           <CardActions>
             <Button variant="outlined" color="primary" startIcon={<Edit />} onClick={() => navigate(`/${id}/edit`)}>

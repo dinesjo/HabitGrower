@@ -16,7 +16,7 @@ import AccountView from "./routes/Profile/AccountView";
 import SignInView from "./routes/Profile/SignInView";
 import SelectedHabit from "./routes/Index/SelectedHabit";
 import EditHabitForm from "./components/EditHabitForm";
-import { createEmptyHabit, deleteHabit, Habit, updateHabit } from "./habitsModel";
+import { createEmptyHabit, deleteHabit, Habit, unregisterHabitByDate, updateHabit } from "./habitsModel";
 import { requireAuth } from "./utils/requireAuth";
 import { useAtom } from "jotai";
 import { LocalizationProvider } from "@mui/x-date-pickers";
@@ -33,7 +33,6 @@ export const router = createBrowserRouter(
     <Route element={<Root />} id="root" errorElement={<ErrorPage />}>
       <Route path="/" element={<IndexLayout />}>
         <Route index element={<IndexPage />} loader={requireAuth(IndexPage.loader)} action={IndexPage.action} />
-        <Route path="test" element={<div>Test</div>} />
         <Route path=":id" element={<SelectedHabit />} loader={requireAuth(SelectedHabit.loader)} />
         <Route
           path=":id/edit"
@@ -58,6 +57,16 @@ export const router = createBrowserRouter(
             // Remove from checkedHabitIds
             store.set(checkedHabitIdsAtom, (checkedHabitIds) => checkedHabitIds.filter((id) => id !== params.id));
             return redirect("/");
+          }}
+        />
+        <Route
+          path=":id/unregister/:date"
+          action={async ({ params }) => {
+            if (!params.id || !params.date) {
+              return redirect("/" + params.id);
+            }
+            await unregisterHabitByDate(params.id, params.date);
+            return redirect("/" + params.id);
           }}
         />
         <Route

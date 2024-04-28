@@ -97,8 +97,8 @@ function GraphControls() {
 
   return (
     <Box>
-      <Typography variant="body2" color="text.secondary">
-        Select time span:
+      <Typography variant="subtitle2" color="primary.main">
+        Time span:
       </Typography>
       <ToggleButtonGroup
         color="primary"
