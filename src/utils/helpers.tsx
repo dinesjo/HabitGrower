@@ -1,5 +1,6 @@
 import dayjs from "dayjs";
 import { Habit } from "../habitsModel";
+import { snackbarMessageAtom, snackbarSeverityAtom, store } from "../store";
 
 /**
  * Converts a string to a friendly format by adding spaces before capital letters and capitalizing the first letter.
@@ -124,4 +125,10 @@ export function getProgressBuffer(
   const daysElapsed = dayjs().diff(adjustedStart, "hours") / 24;
 
   return Math.min((daysElapsed / maxDays) * 100, 100);
+}
+
+export function showSnackBar(message: string, severity: "error" | "warning" | "info" | "success" = "info") {
+  // Show snackbar
+  store.set(snackbarMessageAtom, message);
+  store.set(snackbarSeverityAtom, severity);
 }
