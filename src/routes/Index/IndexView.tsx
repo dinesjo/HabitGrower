@@ -168,7 +168,7 @@ export default function IndexPage() {
                 type="submit"
                 disabled={!checkedHabitIds.length || navigation.state === "submitting"}
               >
-                {checkedHabitIds.length === 1 ? <Check sx={{ mr: 1 }} /> : <DoneAll sx={{ mr: 1 }} />}
+                {checkedHabitIds.length <= 1 ? <Check sx={{ mr: 1 }} /> : <DoneAll sx={{ mr: 1 }} />}
                 Register
               </Fab>
             </Grow>
