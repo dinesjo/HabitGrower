@@ -1,40 +1,88 @@
-import { IconButton, List, ListItem, ListItemText } from "@mui/material";
+import {
+  IconButton,
+  List,
+  ListItem,
+  ListItemText,
+  Typography,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
+  Button,
+} from "@mui/material";
 import dayjs from "dayjs";
 import { Habit } from "../../habitsModel";
-import { DeleteForever } from "@mui/icons-material";
+import { RemoveOutlined } from "@mui/icons-material";
 import { Form, useNavigation } from "react-router-dom";
+import { useState } from "react";
 
 export default function SelectedHabitList({ habit }: { habit: Habit }) {
   const navigation = useNavigation();
+  const [open, setOpen] = useState(false);
+  const [dateToDelete, setDateToDelete] = useState<string | null>(null);
+
+  function handleOpen(date: string) {
+    setDateToDelete(date);
+    setOpen(true);
+  }
 
   return (
-    <List sx={{ width: "100%" }}>
-      {habit.dates &&
-        Object.entries(habit.dates)
-          .sort((a, b) => descending(a[0], b[0]))
-          .map(([date]) => (
-            <Form key={date} action={"unregister/" + date} method="delete">
-              <ListItem
-                secondaryAction={
-                  <IconButton
-                    edge="end"
-                    aria-label="delete"
-                    type="submit"
-                    color="error"
-                    disabled={navigation.state === "submitting"}
-                  >
-                    <DeleteForever />
-                  </IconButton>
-                }
-              >
-                <ListItemText
-                  primary={`${dayjs(date).format("ddd, MMM D")}, ${dayjs(date).format("HH:mm")}`}
-                  secondary={`${dayjs().diff(dayjs(date), "days")} days ago`}
-                />
-              </ListItem>
-            </Form>
-          ))}
-    </List>
+    <>
+      <Dialog open={open} onClose={() => setOpen(false)}>
+        <Form action={"unregister/" + dateToDelete} method="delete" onSubmit={() => setOpen(false)}>
+          <DialogTitle>Unregister?</DialogTitle>
+          <DialogContent>
+            <DialogContentText>Unregister at {dayjs(dateToDelete).format("ddd, MMM D HH:mm")}?</DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button color="inherit" onClick={() => setOpen(false)}>
+              Cancel
+            </Button>
+            <Button color="error" variant="contained" type="submit" disabled={navigation.state === "submitting"}>
+              Unregister
+            </Button>
+          </DialogActions>
+        </Form>
+      </Dialog>
+      <List sx={{ width: "100%" }}>
+        {habit.dates &&
+          Object.entries(habit.dates)
+            .sort((a, b) => descending(a[0], b[0]))
+            .map(([date]) => {
+              const daysAgo = dayjs().startOf("day").diff(dayjs(date).startOf("day"), "days");
+              const daysAgoFriendly = daysAgo === 0 ? "Today" : daysAgo === 1 ? "Yesterday" : `${daysAgo} days ago`;
+              const isToday = daysAgo === 0;
+
+              return (
+                <ListItem
+                  key={date}
+                  secondaryAction={
+                    <IconButton
+                      edge="end"
+                      aria-label="delete"
+                      type="submit"
+                      color="error"
+                      disabled={navigation.state === "submitting"}
+                      onClick={() => handleOpen(date)}
+                    >
+                      <RemoveOutlined />
+                    </IconButton>
+                  }
+                >
+                  <ListItemText
+                    primary={`${dayjs(date).format("ddd, MMM D")}, ${dayjs(date).format("HH:mm")}`}
+                    secondary={
+                      <Typography variant="body2" color={isToday ? "primary" : "text.secondary"}>
+                        {daysAgoFriendly}
+                      </Typography>
+                    }
+                  />
+                </ListItem>
+              );
+            })}
+      </List>
+    </>
   );
 }
 

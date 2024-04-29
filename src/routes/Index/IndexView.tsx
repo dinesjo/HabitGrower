@@ -96,9 +96,23 @@ export default function IndexPage() {
               const isChecked = checkedHabitIds.includes(key);
               const progress = getProgress(habit, isChecked, userWeekStartsAtMonday);
               const progressBuffer = getProgressBuffer(habit, dayStartsAt, userWeekStartsAtMonday);
+
               return (
                 <Box key={key} sx={{ width: "inherit" }}>
-                  <ListItem disablePadding>
+                  <ListItem
+                    disablePadding
+                    secondaryAction={
+                      <>
+                        {isChecked && <input type="hidden" name="habitIds" value={key} />}
+                        <Checkbox
+                          checked={isChecked}
+                          onClick={() =>
+                            setCheckedHabitIds((prev) => (isChecked ? prev.filter((id) => id !== key) : [...prev, key]))
+                          }
+                        />
+                      </>
+                    }
+                  >
                     <ListItemButton sx={{ p: 1 }} onClick={() => navigate(`/${key}`)}>
                       <ListItemAvatar sx={{ color: habit.color }}>
                         <Badge
@@ -121,13 +135,6 @@ export default function IndexPage() {
                         secondary={toFriendlyFrequency(habit)}
                       />
                     </ListItemButton>
-                    {isChecked && <input type="hidden" name="habitIds" value={key} />}
-                    <Checkbox
-                      checked={isChecked}
-                      onClick={() =>
-                        setCheckedHabitIds((prev) => (isChecked ? prev.filter((id) => id !== key) : [...prev, key]))
-                      }
-                    />
                   </ListItem>
                   {habit.frequency && habit.frequencyUnit && (
                     <LinearProgressWithLabel

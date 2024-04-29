@@ -1,7 +1,7 @@
 import { CardHeader, Typography, Avatar, CardActions, Button, CardContent, Alert, AlertTitle } from "@mui/material";
 import { LoaderFunctionArgs, useLoaderData, useNavigate, useParams } from "react-router-dom";
 import { Habit, fetchHabitById } from "../../habitsModel.tsx";
-import { ChevronLeft, Edit } from "@mui/icons-material";
+import { ChevronLeft, EditOutlined } from "@mui/icons-material";
 import { IconMap } from "../../utils/IconMap.tsx";
 import { toFriendlyFrequency } from "../../utils/helpers.tsx";
 import DeleteWithConfirm from "../../components/DeleteWithConfirm.tsx";
@@ -77,7 +77,12 @@ export default function SelectedHabit() {
             <SelectedHabitList habit={habit} />
           </CardContent>
           <CardActions>
-            <Button variant="outlined" color="primary" startIcon={<Edit />} onClick={() => navigate(`/${id}/edit`)}>
+            <Button
+              variant="outlined"
+              color="primary"
+              startIcon={<EditOutlined />}
+              onClick={() => navigate(`/${id}/edit`)}
+            >
               Edit
             </Button>
             <DeleteWithConfirm habit={habit} id={id} />

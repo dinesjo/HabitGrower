@@ -1,6 +1,6 @@
 import { Button, Dialog, DialogTitle, DialogActions, DialogContent, DialogContentText } from "@mui/material";
 import { Form, useNavigation } from "react-router-dom";
-import { Delete } from "@mui/icons-material";
+import { DeleteOutlined } from "@mui/icons-material";
 import { Habit } from "../habitsModel";
 import { useState } from "react";
 
@@ -14,7 +14,7 @@ export default function DeleteWithConfirm({ habit, id }: { habit: Habit; id: str
 
   return (
     <>
-      <Button color="error" variant="text" startIcon={<Delete />} onClick={handleOpen}>
+      <Button color="error" variant="text" startIcon={<DeleteOutlined />} onClick={handleOpen}>
         Delete
       </Button>
       <Dialog open={deleteDialogOpen} onClose={handleClose} aria-labelledby={"delete-confirm-title"}>
