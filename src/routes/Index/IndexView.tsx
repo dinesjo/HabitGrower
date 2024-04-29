@@ -95,10 +95,25 @@ export default function IndexPage() {
               const habit = habits[key];
               const isChecked = checkedHabitIds.includes(key);
               const progress = getProgress(habit, isChecked, userWeekStartsAtMonday);
+              const registeredProgress = getProgress(habit, false, userWeekStartsAtMonday);
               const progressBuffer = getProgressBuffer(habit, dayStartsAt, userWeekStartsAtMonday);
 
               return (
-                <Box key={key} sx={{ width: "inherit" }}>
+                <Box
+                  key={key}
+                  sx={
+                    registeredProgress === 100
+                      ? {
+                          "div:not(.MuiSvgIcon-root) div": {
+                            filter: "grayscale(100%)",
+                          },
+                          width: "inherit",
+                        }
+                      : {
+                          width: "inherit",
+                        }
+                  }
+                >
                   <ListItem
                     disablePadding
                     secondaryAction={
@@ -109,6 +124,7 @@ export default function IndexPage() {
                           onClick={() =>
                             setCheckedHabitIds((prev) => (isChecked ? prev.filter((id) => id !== key) : [...prev, key]))
                           }
+                          sx={{ "& .MuiSvgIcon-root": { fontSize: 28 } }}
                         />
                       </>
                     }

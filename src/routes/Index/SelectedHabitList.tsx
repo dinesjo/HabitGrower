@@ -20,7 +20,7 @@ import { useState } from "react";
 import { useAtom, useAtomValue } from "jotai";
 import { atomWithStorage } from "jotai/utils";
 
-const sortDirectionAtom = atomWithStorage<"asc" | "desc">("sortHabitListDirection", "asc");
+const sortDirectionAtom = atomWithStorage<"asc" | "desc">("sortHabitListDirection", "desc");
 
 export default function SelectedHabitList({ habit }: { habit: Habit }) {
   const navigation = useNavigation();
