@@ -27,6 +27,7 @@ import IndexPage from "./routes/Index/IndexView";
 import { DevTools } from "jotai-devtools";
 // Note that this may get included in your production builds. Please import it conditionally if you want to avoid that
 import "jotai-devtools/styles.css";
+import { showSnackBar } from "./utils/helpers";
 
 export const router = createBrowserRouter(
   createRoutesFromElements(
@@ -44,6 +45,8 @@ export const router = createBrowserRouter(
             }
             const formData = Object.fromEntries(await request.formData());
             await updateHabit(params.id, formData as unknown as Habit);
+            // Show snackbar
+            showSnackBar("Habit updated!", "success");
             return redirect("/");
           }}
         />
@@ -56,6 +59,8 @@ export const router = createBrowserRouter(
             await deleteHabit(params.id);
             // Remove from checkedHabitIds
             store.set(checkedHabitIdsAtom, (checkedHabitIds) => checkedHabitIds.filter((id) => id !== params.id));
+            // Show snackbar
+            showSnackBar("Habit deleted!", "success");
             return redirect("/");
           }}
         />
@@ -66,6 +71,8 @@ export const router = createBrowserRouter(
               return redirect("/" + params.id);
             }
             await unregisterHabitByDate(params.id, params.date);
+            // Show snackbar
+            showSnackBar("Unregistered successfully!", "success");
             return redirect("/" + params.id);
           }}
         />

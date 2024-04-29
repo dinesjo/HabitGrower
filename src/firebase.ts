@@ -4,6 +4,7 @@ import { User, getAuth, onAuthStateChanged } from "firebase/auth";
 import firebase from "firebase/compat/app";
 import { getDatabase } from "firebase/database";
 import { redirect } from "react-router-dom";
+import { showSnackBar } from "./utils/helpers";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDMfCeJUzcBqHpfdfDbi_KQ4KIzmQuwOMs",
@@ -47,5 +48,6 @@ export async function getUser() {
 
 export async function signOut() {
   await auth.signOut();
+  showSnackBar("Signed out successfully!", "success");
   return redirect("/profile/signin");
 }

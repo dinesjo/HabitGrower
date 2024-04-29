@@ -18,16 +18,9 @@ import { Form, redirect, useLoaderData, useNavigation, useNavigate } from "react
 import { Habit, fetchAllHabits, registerHabitsToday } from "../../habitsModel";
 import { Check, DoneAll } from "@mui/icons-material";
 import { IconMap } from "../../utils/IconMap";
-import { toFriendlyFrequency, getProgress, getProgressBuffer } from "../../utils/helpers.tsx";
+import { toFriendlyFrequency, getProgress, getProgressBuffer, showSnackBar } from "../../utils/helpers.tsx";
 import { useAtom } from "jotai";
-import {
-  checkedHabitIdsAtom,
-  snackbarMessageAtom,
-  snackbarSeverityAtom,
-  store,
-  userDayStartsAtAtom,
-  userWeekStartsAtMondayAtom,
-} from "../../store";
+import { checkedHabitIdsAtom, store, userDayStartsAtAtom, userWeekStartsAtMondayAtom } from "../../store";
 import dayjs from "dayjs";
 import LinearProgressWithLabel from "../../components/LinearProgressWithLabel.tsx";
 
@@ -48,8 +41,7 @@ async function action({ request }: { request: Request }) {
   store.set(checkedHabitIdsAtom, []);
 
   // Show confirmation snackbar
-  store.set(snackbarMessageAtom, "Habit(s) registered successfully!");
-  store.set(snackbarSeverityAtom, "success");
+  showSnackBar("Habit(s) registered successfully!", "success");
 
   return redirect("/");
 }
