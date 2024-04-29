@@ -1,6 +1,6 @@
 import { Habit } from "../../habitsModel";
 import dayjs from "dayjs";
-import { LineChart } from "@mui/x-charts";
+import { BarChart } from "@mui/x-charts";
 import { Box, Container, ToggleButton, ToggleButtonGroup, Typography } from "@mui/material";
 import { useAtom } from "jotai";
 import { atomWithStorage } from "jotai/utils";
@@ -64,28 +64,28 @@ export default function SelectedHabitGraph({ habit }: { habit: Habit }) {
         <GraphControls />
       </Container>
       <Container disableGutters sx={{ display: "flex", justifyContent: "center" }}>
-        <LineChart
+        <BarChart
           dataset={dateData}
           width={300}
           height={200}
+          margin={{ top: 20, right: 20, bottom: 30, left: 20 }} // remove excess margin
           xAxis={[
             {
               dataKey: "date",
-              scaleType: "point",
+              scaleType: "band",
               valueFormatter: (unix) => dayjs.unix(unix * (60 * 60 * 24)).format("MMM D"),
-              label: "Date",
             },
           ]}
           yAxis={[
             {
               dataKey: "value",
               min: 0,
-              max: Math.max(habit.frequency || 0, maxValue),
-              tickMinStep: 1, // integers
-              label: "Habit done",
+              max: habit.frequencyUnit === "day" ? Math.max(habit.frequency || 0, maxValue) : maxValue,
+              tickMinStep: 1, // will always be integers
             },
           ]}
           series={[{ dataKey: "value", color: habit.color || "#90c65b" }]}
+          grid={{ horizontal: true }}
         />
       </Container>
     </>
