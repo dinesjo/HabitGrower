@@ -10,17 +10,23 @@ import {
   DialogContentText,
   DialogActions,
   Button,
+  Box,
 } from "@mui/material";
 import dayjs from "dayjs";
 import { Habit } from "../../habitsModel";
-import { RemoveOutlined } from "@mui/icons-material";
+import { KeyboardArrowDownOutlined, KeyboardArrowUpOutlined, RemoveOutlined } from "@mui/icons-material";
 import { Form, useNavigation } from "react-router-dom";
 import { useState } from "react";
+import { useAtom, useAtomValue } from "jotai";
+import { atomWithStorage } from "jotai/utils";
+
+const sortDirectionAtom = atomWithStorage<"asc" | "desc">("sortHabitListDirection", "asc");
 
 export default function SelectedHabitList({ habit }: { habit: Habit }) {
   const navigation = useNavigation();
   const [open, setOpen] = useState(false);
   const [dateToDelete, setDateToDelete] = useState<string | null>(null);
+  const sortDirection = useAtomValue(sortDirectionAtom);
 
   function handleOpen(date: string) {
     setDateToDelete(date);
@@ -29,6 +35,9 @@ export default function SelectedHabitList({ habit }: { habit: Habit }) {
 
   return (
     <>
+      <Box sx={{ display: "flex", justifyContent: "end" }}>
+        <SortDirectionButton />
+      </Box>
       <Dialog open={open} onClose={() => setOpen(false)}>
         <Form action={"unregister/" + dateToDelete} method="delete" onSubmit={() => setOpen(false)}>
           <DialogTitle>Unregister?</DialogTitle>
@@ -48,7 +57,7 @@ export default function SelectedHabitList({ habit }: { habit: Habit }) {
       <List sx={{ width: "100%" }}>
         {habit.dates &&
           Object.entries(habit.dates)
-            .sort((a, b) => descending(a[0], b[0]))
+            .sort((a, b) => (sortDirection === "asc" ? ascending(a[0], b[0]) : descending(a[0], b[0])))
             .map(([date]) => {
               const daysAgo = dayjs().startOf("day").diff(dayjs(date).startOf("day"), "days");
               const daysAgoFriendly = daysAgo === 0 ? "Today" : daysAgo === 1 ? "Yesterday" : `${daysAgo} days ago`;
@@ -86,9 +95,23 @@ export default function SelectedHabitList({ habit }: { habit: Habit }) {
   );
 }
 
-// function ascending(a: string, b: string) {
-//   return dayjs(a).isBefore(dayjs(b)) ? -1 : 1;
-// }
+function SortDirectionButton() {
+  const [sortDirection, setSortDirection] = useAtom(sortDirectionAtom);
+  const isDesc = sortDirection === "desc";
+
+  return (
+    <Button
+      startIcon={isDesc ? <KeyboardArrowUpOutlined /> : <KeyboardArrowDownOutlined />}
+      onClick={() => setSortDirection(sortDirection === "asc" ? "desc" : "asc")}
+    >
+      {sortDirection === "desc" ? "Newest first" : "Oldest first"}
+    </Button>
+  );
+}
+
+function ascending(a: string, b: string) {
+  return dayjs(a).isBefore(dayjs(b)) ? -1 : 1;
+}
 
 function descending(a: string, b: string) {
   return dayjs(b).isBefore(dayjs(a)) ? -1 : 1;
