@@ -121,48 +121,55 @@ export default function IndexPage() {
                       </>
                     }
                   >
-                    <ListItemButton sx={{ p: 1 }} onClick={() => navigate(`/${key}`)}>
-                      <ListItemAvatar sx={{ color: habit.color }}>
-                        <Badge
-                          invisible={progress !== 100}
-                          badgeContent={"Done!"}
-                          color="success"
-                          anchorOrigin={{ vertical: "top", horizontal: "right" }}
-                        >
-                          <Avatar
-                            sx={{
-                              bgcolor: habit.color || "text.primary",
-                            }}
+                    <ListItemButton
+                      sx={{ py: 0.25, px: 1, display: "flex", flexDirection: "column", alignItems: "start" }}
+                      onClick={() => navigate(`/${key}`)}
+                    >
+                      <Box sx={{ display: "flex", alignItems: "center" }}>
+                        <ListItemAvatar sx={{ color: habit.color }}>
+                          <Badge
+                            invisible={progress !== 100}
+                            badgeContent={"Done!"}
+                            color="success"
+                            anchorOrigin={{ vertical: "top", horizontal: "right" }}
                           >
-                            {IconMap[habit.icon || "default"]}
-                          </Avatar>
-                        </Badge>
-                      </ListItemAvatar>
-                      <ListItemText
-                        primary={<Typography sx={{ color: habit.color }}>{habit.name}</Typography>}
-                        secondary={toFriendlyFrequency(habit)}
-                      />
+                            <Avatar
+                              sx={{
+                                bgcolor: habit.color || "text.primary",
+                              }}
+                            >
+                              {IconMap[habit.icon || "default"]}
+                            </Avatar>
+                          </Badge>
+                        </ListItemAvatar>
+                        <ListItemText
+                          primary={<Typography sx={{ color: habit.color }}>{habit.name}</Typography>}
+                          secondary={toFriendlyFrequency(habit)}
+                        />
+                      </Box>
+                      <Box sx={{ width: "100%", pr: 1 }}>
+                        {habit.frequency && habit.frequencyUnit && (
+                          <LinearProgressWithLabel
+                            variant="buffer"
+                            valueBuffer={progressBuffer}
+                            value={progress}
+                            sx={{
+                              ".MuiLinearProgress-bar1Buffer": {
+                                backgroundColor: habit.color,
+                              },
+                              ".MuiLinearProgress-bar2Buffer": {
+                                backgroundColor: habit.color,
+                                opacity: 0.3,
+                              },
+                              ".MuiLinearProgress-dashed": {
+                                display: "none",
+                              },
+                            }}
+                          />
+                        )}
+                      </Box>
                     </ListItemButton>
                   </ListItem>
-                  {habit.frequency && habit.frequencyUnit && (
-                    <LinearProgressWithLabel
-                      variant="buffer"
-                      valueBuffer={progressBuffer}
-                      value={progress}
-                      sx={{
-                        ".MuiLinearProgress-bar1Buffer": {
-                          backgroundColor: habit.color,
-                        },
-                        ".MuiLinearProgress-bar2Buffer": {
-                          backgroundColor: habit.color,
-                          opacity: 0.3,
-                        },
-                        ".MuiLinearProgress-dashed": {
-                          display: "none",
-                        },
-                      }}
-                    />
-                  )}
                 </Box>
               );
             })}
