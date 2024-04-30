@@ -1,6 +1,18 @@
-import { Avatar, Box, Divider, Fab, FormControlLabel, FormGroup, Stack, Switch, Typography } from "@mui/material";
+import {
+  Avatar,
+  Box,
+  Divider,
+  Fab,
+  LinearProgress,
+  ListItem,
+  ListItemIcon,
+  ListItemText,
+  Stack,
+  Switch,
+  Typography,
+} from "@mui/material";
 import { User } from "firebase/auth";
-import { Logout } from "@mui/icons-material";
+import { DarkModeOutlined, Logout, TodayOutlined } from "@mui/icons-material";
 import { Form, redirect, useLoaderData, useNavigation } from "react-router-dom";
 import { getUser } from "../../firebase";
 import { useAtom } from "jotai";
@@ -27,22 +39,30 @@ export default function AccountView() {
   return (
     <Box sx={{ position: "relative" }}>
       <Stack direction="row" spacing={2} justifyContent="center" alignItems="center">
-        <Typography variant="h6" mb={2} textAlign="center">
+        <Typography variant="h5" mb={2} textAlign="center">
           Hi, {displayName || "there"}!
         </Typography>
         {photoURL && <Avatar alt={"Profile Picture"} src={photoURL} />}
       </Stack>
-      <Typography variant="body2" textAlign="center">
+      <Typography variant="body2" textAlign="center" color="text.secondary">
         You are logged in as <b>{email || "Unknown Email"}</b>.
       </Typography>
       <Divider sx={{ my: 1 }} />
-      <Stack direction={"column"} spacing={1}>
-        <DarkModeToggle />
-        <Suspense fallback="Loading...">
-          <DayStartPicker />
-          <WeekStartPicker />
-        </Suspense>
-      </Stack>
+      <Typography variant="h6" textAlign="center">
+        Device settings
+      </Typography>
+      <DarkModeToggle />
+      <Divider sx={{ my: 1 }} />
+      <Typography variant="h6" textAlign="center">
+        Acount settings
+      </Typography>
+      <Typography variant="subtitle2" textAlign="center" color="text.secondary">
+        Settings will sync to all devices.
+      </Typography>
+      <Suspense fallback={<LinearProgress />}>
+        <WeekStartPicker />
+        <DayStartPicker />
+      </Suspense>
       <Box
         component={Form}
         method="post"
@@ -71,20 +91,6 @@ export default function AccountView() {
   );
 }
 
-function DarkModeToggle() {
-  const [theme, setTheme] = useAtom(themeAtom);
-
-  const toggleTheme = () => {
-    setTheme(theme === "light" ? "dark" : "light");
-  };
-
-  return (
-    <FormGroup>
-      <FormControlLabel control={<Switch checked={theme === "dark"} onChange={toggleTheme} />} label="Dark Mode" />
-    </FormGroup>
-  );
-}
-
 function DayStartPicker() {
   const [dayStartsAt, setDayStartsAt] = useAtom(userDayStartsAtAtom);
 
@@ -100,7 +106,26 @@ function DayStartPicker() {
       ampm={false}
       label="I wake up around..."
       slotProps={{ textField: { helperText: "Helps determine when progress bar starts" } }}
+      sx={{ width: "100%" }}
     />
+  );
+}
+
+function DarkModeToggle() {
+  const [theme, setTheme] = useAtom(themeAtom);
+
+  const toggleTheme = () => {
+    setTheme(theme === "light" ? "dark" : "light");
+  };
+
+  return (
+    <ListItem>
+      <ListItemIcon>
+        <DarkModeOutlined />
+      </ListItemIcon>
+      <ListItemText primary="Dark Mode" />
+      <Switch checked={theme === "dark"} onChange={toggleTheme} />
+    </ListItem>
   );
 }
 
@@ -108,13 +133,12 @@ function WeekStartPicker() {
   const [weekStartsAtMonday, setWeekStartsAtMonday] = useAtom(userWeekStartsAtMondayAtom);
 
   return (
-    <FormGroup>
-      <FormControlLabel
-        control={
-          <Switch checked={weekStartsAtMonday || false} onChange={() => setWeekStartsAtMonday(!weekStartsAtMonday)} />
-        }
-        label="Start week on monday"
-      />
-    </FormGroup>
+    <ListItem>
+      <ListItemIcon>
+        <TodayOutlined />
+      </ListItemIcon>
+      <ListItemText primary="Start week on Monday" />
+      <Switch checked={weekStartsAtMonday || false} onChange={() => setWeekStartsAtMonday(!weekStartsAtMonday)} />
+    </ListItem>
   );
 }
