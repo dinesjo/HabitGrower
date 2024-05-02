@@ -65,7 +65,7 @@ export default function IndexPage() {
 
   return (
     <Container component={Form} method="post" sx={{ position: "relative", p: 1, mb: "auto" }}>
-      <Typography variant="h4" align="center">
+      <Typography variant="h4" align="center" color="primary.main">
         {greeting}
       </Typography>
       <Typography variant="subtitle1">Have you kept up with your habits lately?</Typography>
