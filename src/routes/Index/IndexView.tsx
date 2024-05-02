@@ -13,10 +13,10 @@ import {
   Divider,
   Container,
   Badge,
+  AvatarGroup,
 } from "@mui/material";
 import { Form, redirect, useLoaderData, useNavigation, useNavigate } from "react-router-dom";
 import { Habit, fetchAllHabits, registerHabitsToday } from "../../habitsModel";
-import { Check, DoneAll } from "@mui/icons-material";
 import { IconMap } from "../../utils/IconMap";
 import { toFriendlyFrequency, getProgress, getProgressBuffer, showSnackBar } from "../../utils/helpers.tsx";
 import { useAtom } from "jotai";
@@ -190,8 +190,32 @@ export default function IndexPage() {
                 type="submit"
                 disabled={!checkedHabitIds.length || navigation.state === "submitting"}
               >
-                {checkedHabitIds.length <= 1 ? <Check sx={{ mr: 1 }} /> : <DoneAll sx={{ mr: 1 }} />}
                 Register
+                <AvatarGroup
+                  sx={{
+                    ml: 1,
+                    ".MuiAvatar-root": {
+                      width: 24,
+                      height: 24,
+                      fontSize: "0.75rem",
+                    },
+                    ".MuiSvgIcon-root": {
+                      fontSize: "1rem",
+                    },
+                  }}
+                  max={5}
+                >
+                  {checkedHabitIds.map((key) => {
+                    const habit = habits[key];
+                    return (
+                      <Grow in key={key} style={{ transformOrigin: "left center 0" }} timeout={500}>
+                        <Avatar key={key} sx={{ bgcolor: habit.color }}>
+                          {IconMap[habit.icon || "default"]}
+                        </Avatar>
+                      </Grow>
+                    );
+                  })}
+                </AvatarGroup>
               </Fab>
             </Grow>
           </Box>
