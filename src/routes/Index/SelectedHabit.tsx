@@ -1,4 +1,14 @@
-import { CardHeader, Typography, Avatar, CardActions, Button, CardContent, Alert, AlertTitle } from "@mui/material";
+import {
+  CardHeader,
+  Typography,
+  Avatar,
+  CardActions,
+  Button,
+  CardContent,
+  Alert,
+  AlertTitle,
+  Divider,
+} from "@mui/material";
 import { LoaderFunctionArgs, useLoaderData, useNavigate, useParams } from "react-router-dom";
 import { Habit, fetchHabitById } from "../../habitsModel.tsx";
 import { ChevronLeft, EditOutlined } from "@mui/icons-material";
@@ -76,6 +86,7 @@ export default function SelectedHabit() {
             <SelectedHabitGraph habit={habit} />
             <SelectedHabitList habit={habit} />
           </CardContent>
+          <Divider />
           <CardActions>
             <Button
               variant="outlined"

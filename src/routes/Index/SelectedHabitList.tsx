@@ -54,7 +54,7 @@ export default function SelectedHabitList({ habit }: { habit: Habit }) {
           </DialogActions>
         </Form>
       </Dialog>
-      <List sx={{ width: "100%" }}>
+      <List disablePadding dense sx={{ width: "100%" }}>
         {habit.dates &&
           Object.entries(habit.dates)
             .sort((a, b) => (sortDirection === "asc" ? ascending(a[0], b[0]) : descending(a[0], b[0])))

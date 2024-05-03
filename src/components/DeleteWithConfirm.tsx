@@ -14,7 +14,7 @@ export default function DeleteWithConfirm({ habit, id }: { habit: Habit; id: str
 
   return (
     <>
-      <Button color="error" variant="text" startIcon={<DeleteOutlined />} onClick={handleOpen}>
+      <Button color="error" variant="outlined" startIcon={<DeleteOutlined />} onClick={handleOpen}>
         Delete
       </Button>
       <Dialog open={deleteDialogOpen} onClose={handleClose} aria-labelledby={"delete-confirm-title"}>
