@@ -28,6 +28,10 @@ export default function SelectedHabitList({ habit }: { habit: Habit }) {
   const [dateToDelete, setDateToDelete] = useState<string | null>(null);
   const sortDirection = useAtomValue(sortDirectionAtom);
 
+  if (!habit.dates) {
+    return null;
+  }
+
   function handleOpen(date: string) {
     setDateToDelete(date);
     setOpen(true);

@@ -17,11 +17,7 @@ export default function SelectedHabitGraph({ habit }: { habit: Habit }) {
   const [daysShown] = useAtom(daysShownAtom);
 
   if (!habit.dates) {
-    return (
-      <Typography variant="body2" color="text.secondary">
-        You haven't registered this habit yet.
-      </Typography>
-    );
+    return null;
   }
 
   // Filter data to only show the last n days
