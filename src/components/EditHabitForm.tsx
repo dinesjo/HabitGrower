@@ -2,6 +2,7 @@ import { Form, LoaderFunctionArgs, useLoaderData, useNavigate, useNavigation, us
 import { Habit, fetchHabitById } from "../habitsModel";
 import {
   Button,
+  Card,
   CardActions,
   Container,
   FormControl,
@@ -55,7 +56,7 @@ export default function EditHabitForm() {
   };
 
   return (
-    <>
+    <Card>
       <CardActions>
         <Button startIcon={<ChevronLeft />} aria-label="back" onClick={handleBack}>
           Back
@@ -139,19 +140,13 @@ export default function EditHabitForm() {
           </Grid>
         </Grid>
         <Stack direction={"row"} spacing={2} my={1}>
-          {navigation.state === "submitting" ? (
-            <Button startIcon={<Save />} variant="contained" disabled>
-              Saving...
-            </Button>
-          ) : (
-            <Button startIcon={<Save />} variant="contained" type="submit">
-              Save
-            </Button>
-          )}
+          <Button startIcon={<Save />} variant="contained" type="submit" disabled={navigation.state === "submitting"}>
+            Save
+          </Button>
           <Button onClick={handleBack}>Cancel</Button>
           <DeleteWithConfirm habit={habit} id={id!} />
         </Stack>
       </Container>
-    </>
+    </Card>
   );
 }

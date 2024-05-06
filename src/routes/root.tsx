@@ -83,7 +83,7 @@ export default function Root() {
           <Outlet />
           {user && (
             <Form action="/new-habit" method="post">
-              <Fab type="submit" color="secondary" sx={{ position: "absolute", bottom: 16, right: 16 }}>
+              <Fab type="submit" color="secondary" sx={{ position: "absolute", bottom: 6, right: 6 }}>
                 <PlaylistAdd />
               </Fab>
             </Form>

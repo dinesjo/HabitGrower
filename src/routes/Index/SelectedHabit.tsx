@@ -8,6 +8,7 @@ import {
   Alert,
   AlertTitle,
   Divider,
+  Card,
 } from "@mui/material";
 import { LoaderFunctionArgs, useLoaderData, useNavigate, useParams } from "react-router-dom";
 import { Habit, fetchHabitById } from "../../habitsModel.tsx";
@@ -38,7 +39,7 @@ export default function SelectedHabit() {
   const registerCount = habit.dates ? Object.keys(habit.dates).length : 0;
 
   return (
-    <>
+    <Card>
       <CardActions>
         <Button startIcon={<ChevronLeft />} aria-label="back" onClick={() => navigate("/")}>
           Back
@@ -100,6 +101,6 @@ export default function SelectedHabit() {
           </CardActions>
         </>
       )}
-    </>
+    </Card>
   );
 }
