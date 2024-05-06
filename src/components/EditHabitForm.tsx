@@ -38,11 +38,15 @@ export default function EditHabitForm() {
   const colorChoices = [
     "slategray",
     "steelblue",
+    "skyblue",
+    "slateblue",
     "mediumseagreen",
+    "lightgreen",
+    "forestgreen",
     "tomato",
+    "salmon",
     "orange",
     "palevioletred",
-    "brown",
     "sandybrown",
   ];
 
