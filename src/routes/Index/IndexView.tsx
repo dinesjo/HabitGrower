@@ -73,13 +73,11 @@ export default function IndexPage() {
         <Typography variant="subtitle1">Have you kept up with your habits lately?</Typography>
         <Divider sx={{ my: 1 }} />
         {habits ? (
-          <>
+          <Form method="post">
             <Typography variant="subtitle2" color="text.secondary">
               Register your habits below:
             </Typography>
             <List
-              component={Form}
-              method="post"
               sx={{
                 maxHeight: "calc(100vh - 14.5rem)", // IMPORTANT for height
                 overflow: "auto",
@@ -224,7 +222,7 @@ export default function IndexPage() {
                 </Fab>
               </Grow>
             </Box>
-          </>
+          </Form>
         ) : (
           <Typography variant="body2" align="center" color="text.secondary">
             No habits found.
