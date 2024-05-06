@@ -82,7 +82,7 @@ export default function EditHabitForm() {
           <Grid item xs={4}>
             <FormControl required fullWidth>
               <InputLabel>Icon</InputLabel>
-              <Select name="icon" label="Icon" defaultValue={habit.icon || ""}>
+              <Select autoWidth name="icon" label="Icon" defaultValue={habit.icon || ""}>
                 {Object.keys(IconMap).map((icon) => (
                   <MenuItem key={icon} value={icon}>
                     {IconMap[icon]}
