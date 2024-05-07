@@ -31,9 +31,6 @@ export const userDayStartsAtAtom = atomWithStorage<Dayjs | null>(
       const userId = (await store.get(userAtom))?.uid;
       return set(ref(database, "users/" + userId + "/dayStartsAt"), null);
     },
-  },
-  {
-    getOnInit: true,
   }
 );
 
@@ -58,9 +55,6 @@ export const userWeekStartsAtMondayAtom = atomWithStorage<boolean>(
       const userId = (await store.get(userAtom))?.uid;
       return set(ref(database, "users/" + userId + "/weekStartsAtMonday"), null);
     },
-  },
-  {
-    getOnInit: true,
   }
 );
 
