@@ -7,7 +7,6 @@ import ReactDOM from "react-dom/client";
 import { createBrowserRouter, createRoutesFromElements, redirect, Route, RouterProvider } from "react-router-dom";
 import Root from "./routes/root";
 import ErrorPage from "./error-page";
-import IndexLayout from "./routes/Index/IndexLayout";
 import { ThemeProvider } from "@emotion/react";
 import { CssBaseline, PaletteMode, createTheme } from "@mui/material";
 import "./firebase";
@@ -22,7 +21,6 @@ import { useAtom } from "jotai";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { checkedHabitIdsAtom, store, themeAtom } from "./store";
-import ProfileLayout from "./routes/Profile/ProfileLayout";
 import IndexPage from "./routes/Index/IndexView";
 import { DevTools } from "jotai-devtools";
 // Note that this may get included in your production builds. Please import it conditionally if you want to avoid that
@@ -32,7 +30,7 @@ import { showSnackBar } from "./utils/helpers";
 export const router = createBrowserRouter(
   createRoutesFromElements(
     <Route element={<Root />} id="root" errorElement={<ErrorPage />}>
-      <Route path="/" element={<IndexLayout />}>
+      <Route path="/">
         <Route index element={<IndexPage />} loader={requireAuth(IndexPage.loader)} action={IndexPage.action} />
         <Route path=":id" element={<SelectedHabit />} loader={requireAuth(SelectedHabit.loader)} />
         <Route
@@ -84,7 +82,7 @@ export const router = createBrowserRouter(
           }}
         />
       </Route>
-      <Route path="profile" element={<ProfileLayout />}>
+      <Route path="profile">
         <Route index element={<AccountView />} loader={AccountView.loader} />
         <Route path="signout" action={signOut} />
         <Route path="signin" element={<SignInView />} />

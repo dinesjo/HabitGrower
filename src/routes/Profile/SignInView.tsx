@@ -1,5 +1,5 @@
 import { useTheme } from "@emotion/react";
-import { CircularProgress, Theme, Typography } from "@mui/material";
+import { Card, CardContent, CircularProgress, Theme, Typography } from "@mui/material";
 import firebase from "firebase/compat/app";
 import * as firebaseui from "firebaseui";
 import "firebaseui/dist/firebaseui.css";
@@ -57,17 +57,19 @@ export default function SignInView() {
   });
 
   return (
-    <>
-      <Typography variant="h5" textAlign="center">
-        Welcome to <span style={{ color: (theme as Theme).palette.primary.main }}>HabitGrower</span>!
-      </Typography>
-      <Typography variant="body2" textAlign="center">
-        Please sign in to continue
-      </Typography>
-      <div id="firebaseui-auth-container"></div>
-      <div id="loader">
-        <CircularProgress />
-      </div>
-    </>
+    <Card>
+      <CardContent>
+        <Typography variant="h5" textAlign="center">
+          Welcome to <span style={{ color: (theme as Theme).palette.primary.main }}>HabitGrower</span>!
+        </Typography>
+        <Typography variant="body2" textAlign="center">
+          Please sign in to continue
+        </Typography>
+        <div id="firebaseui-auth-container"></div>
+        <div id="loader">
+          <CircularProgress />
+        </div>
+      </CardContent>
+    </Card>
   );
 }
