@@ -27,7 +27,7 @@ import { atom, useAtom } from "jotai";
 import { checkedHabitIdsAtom, store, userDayStartsAtAtom, userWeekStartsAtMondayAtom } from "../../store";
 import dayjs from "dayjs";
 import LinearProgressWithLabel from "../../components/LinearProgressWithLabel.tsx";
-import { KeyboardArrowDown, KeyboardArrowUp, Reorder } from "@mui/icons-material";
+import { Reorder } from "@mui/icons-material";
 
 async function loader() {
   return {
@@ -63,7 +63,6 @@ export default function IndexPage() {
   const [checkedHabitIds, setCheckedHabitIds] = useAtom(checkedHabitIdsAtom);
   const [userWeekStartsAtMonday] = useAtom(userWeekStartsAtMondayAtom);
   const [dayStartsAt] = useAtom(userDayStartsAtAtom);
-
   const [reordering, setReordering] = useAtom(reorderingAtom);
 
   let greeting = "Good ";
@@ -107,8 +106,7 @@ export default function IndexPage() {
                   const registeredProgress = getProgress(habit, false, userWeekStartsAtMonday);
                   const progressBuffer = getProgressBuffer(habit, dayStartsAt, userWeekStartsAtMonday);
                   return (
-                    <Stack
-                      direction="row"
+                    <Box
                       key={key}
                       sx={
                         registeredProgress === 100
@@ -123,12 +121,6 @@ export default function IndexPage() {
                             }
                       }
                     >
-                      {reordering && (
-                        <>
-                          <ReorderingControls habit={habit} />
-                          <Divider orientation="vertical" variant="middle" flexItem />
-                        </>
-                      )}
                       <ListItem
                         disablePadding
                         secondaryAction={
@@ -195,7 +187,7 @@ export default function IndexPage() {
                           </Box>
                         </ListItemButton>
                       </ListItem>
-                    </Stack>
+                    </Box>
                   );
                 })}
               </List>
@@ -253,18 +245,5 @@ export default function IndexPage() {
         )}
       </Container>
     </Paper>
-  );
-}
-
-function ReorderingControls({ habit }: { habit: Habit }) {
-  return (
-    <Stack direction="column" justifyContent="center">
-      <IconButton size="small" sx={{ color: "text.secondary" }}>
-        <KeyboardArrowUp />
-      </IconButton>
-      <IconButton size="small" sx={{ color: "text.secondary" }}>
-        <KeyboardArrowDown />
-      </IconButton>
-    </Stack>
   );
 }
