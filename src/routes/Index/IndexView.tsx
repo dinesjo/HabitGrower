@@ -24,6 +24,7 @@ import { useAtom } from "jotai";
 import { checkedHabitIdsAtom, store, userDayStartsAtAtom, userWeekStartsAtMondayAtom } from "../../store";
 import dayjs from "dayjs";
 import LinearProgressWithLabel from "../../components/LinearProgressWithLabel.tsx";
+import { Check } from "@mui/icons-material";
 
 async function loader() {
   return {
@@ -59,6 +60,45 @@ export default function IndexPage() {
 
   const [dayStartsAt] = useAtom(userDayStartsAtAtom);
 
+  function sortHabitsRecordCB(a: [string, Habit], b: [string, Habit]) {
+    // If progress is not 100, go first
+    const progressA = getProgress(a[1], false, userWeekStartsAtMonday);
+    const progressB = getProgress(b[1], false, userWeekStartsAtMonday);
+    if (progressA < 100 && progressB === 100) return -1;
+    if (progressA === 100 && progressB < 100) return 1;
+
+    // If no frequency, go by name
+    if (!a[1].frequency || !b[1].frequency || !a[1].frequencyUnit || !b[1].frequencyUnit) {
+      return a[1].name.localeCompare(b[1].name);
+    }
+
+    function getFrequencyUnitValue(frequencyUnit: string) {
+      switch (frequencyUnit) {
+        case "day":
+          return 1;
+        case "week":
+          return 2;
+        case "month":
+          return 3;
+        case "year":
+          return 4;
+        default:
+          return 0;
+      }
+    }
+
+    // Go by frequency unit
+    if (getFrequencyUnitValue(a[1].frequencyUnit) < getFrequencyUnitValue(b[1].frequencyUnit)) return -1;
+    if (getFrequencyUnitValue(a[1].frequencyUnit) > getFrequencyUnitValue(b[1].frequencyUnit)) return 1;
+
+    // If same frequency unit, go by frequency
+    if (b[1].frequency < a[1].frequency) return -1;
+    if (b[1].frequency > a[1].frequency) return 1;
+
+    // If same frequency and unit, go by name
+    return a[1].name.localeCompare(b[1].name);
+  }
+
   let greeting = "Good ";
   if (dayjs().hour() < 10) greeting += "morning! ☀️";
   else if (dayjs().hour() < 19) greeting += "day! 👋";
@@ -85,97 +125,98 @@ export default function IndexPage() {
                 scrollbarColor: "#ccc transparent",
               }}
             >
-              {Object.keys(habits).map((key) => {
-                const habit = habits[key];
-                const isChecked = checkedHabitIds.includes(key);
-                const progress = getProgress(habit, isChecked, userWeekStartsAtMonday);
-                const registeredProgress = getProgress(habit, false, userWeekStartsAtMonday);
-                const progressBuffer = getProgressBuffer(habit, dayStartsAt, userWeekStartsAtMonday);
-                return (
-                  <Box
-                    key={key}
-                    sx={
-                      registeredProgress === 100
-                        ? {
-                            "div:not(.MuiSvgIcon-root) div": {
-                              filter: "grayscale(100%)",
-                            },
-                            width: "inherit",
-                          }
-                        : {
-                            width: "inherit",
-                          }
-                    }
-                  >
-                    <ListItem
-                      disablePadding
-                      secondaryAction={
-                        <>
-                          {isChecked && <input type="hidden" name="habitIds" value={key} />}
-                          <Checkbox
-                            checked={isChecked}
-                            onClick={() =>
-                              setCheckedHabitIds((prev) =>
-                                isChecked ? prev.filter((id) => id !== key) : [...prev, key]
-                              )
+              {Object.entries(habits)
+                .sort(sortHabitsRecordCB)
+                .map(([key, habit]) => {
+                  const isChecked = checkedHabitIds.includes(key);
+                  const progress = getProgress(habit, isChecked, userWeekStartsAtMonday);
+                  const registeredProgress = getProgress(habit, false, userWeekStartsAtMonday);
+                  const progressBuffer = getProgressBuffer(habit, dayStartsAt, userWeekStartsAtMonday);
+                  return (
+                    <Box
+                      key={key}
+                      sx={
+                        registeredProgress === 100
+                          ? {
+                              "div:not(.MuiSvgIcon-root) div": {
+                                filter: "grayscale(100%)",
+                              },
+                              width: "inherit",
                             }
-                            sx={{ "& .MuiSvgIcon-root": { fontSize: 28 } }}
-                          />
-                        </>
+                          : {
+                              width: "inherit",
+                            }
                       }
                     >
-                      <ListItemButton
-                        sx={{ py: 0.25, px: 1, display: "flex", flexDirection: "column", alignItems: "start" }}
-                        onClick={() => navigate(`/${key}`)}
-                      >
-                        <Box sx={{ display: "flex", alignItems: "center" }}>
-                          <ListItemAvatar sx={{ color: habit.color }}>
-                            <Badge
-                              invisible={progress !== 100}
-                              badgeContent={"Done!"}
-                              color="success"
-                              anchorOrigin={{ vertical: "top", horizontal: "right" }}
-                            >
-                              <Avatar
-                                sx={{
-                                  bgcolor: habit.color || "text.primary",
-                                }}
-                              >
-                                {IconMap[habit.icon || "default"]}
-                              </Avatar>
-                            </Badge>
-                          </ListItemAvatar>
-                          <ListItemText
-                            primary={<Typography sx={{ color: habit.color }}>{habit.name}</Typography>}
-                            secondary={toFriendlyFrequency(habit)}
-                          />
-                        </Box>
-                        <Box sx={{ width: "100%", pr: 1 }}>
-                          {habit.frequency && habit.frequencyUnit && (
-                            <LinearProgressWithLabel
-                              variant="buffer"
-                              valueBuffer={progressBuffer}
-                              value={progress}
-                              sx={{
-                                ".MuiLinearProgress-bar1Buffer": {
-                                  backgroundColor: habit.color,
-                                },
-                                ".MuiLinearProgress-bar2Buffer": {
-                                  backgroundColor: habit.color,
-                                  opacity: 0.3,
-                                },
-                                ".MuiLinearProgress-dashed": {
-                                  display: "none",
-                                },
-                              }}
+                      <ListItem
+                        disablePadding
+                        secondaryAction={
+                          <>
+                            {isChecked && <input type="hidden" name="habitIds" value={key} />}
+                            <Checkbox
+                              checked={isChecked}
+                              onClick={() =>
+                                setCheckedHabitIds((prev) =>
+                                  isChecked ? prev.filter((id) => id !== key) : [...prev, key]
+                                )
+                              }
+                              sx={{ "& .MuiSvgIcon-root": { fontSize: 28 } }}
                             />
-                          )}
-                        </Box>
-                      </ListItemButton>
-                    </ListItem>
-                  </Box>
-                );
-              })}
+                          </>
+                        }
+                      >
+                        <ListItemButton
+                          sx={{ py: 0.25, px: 1, display: "flex", flexDirection: "column", alignItems: "start" }}
+                          onClick={() => navigate(`/${key}`)}
+                        >
+                          <Box sx={{ display: "flex", alignItems: "center" }}>
+                            <ListItemAvatar sx={{ color: habit.color }}>
+                              <Badge
+                                invisible={progress !== 100}
+                                badgeContent={"Done!"}
+                                color="success"
+                                anchorOrigin={{ vertical: "top", horizontal: "right" }}
+                              >
+                                <Avatar
+                                  sx={{
+                                    bgcolor: habit.color || "text.primary",
+                                  }}
+                                >
+                                  {IconMap[habit.icon || "default"]}
+                                </Avatar>
+                              </Badge>
+                            </ListItemAvatar>
+                            <ListItemText
+                              primary={<Typography sx={{ color: habit.color }}>{habit.name}</Typography>}
+                              secondary={toFriendlyFrequency(habit)}
+                            />
+                          </Box>
+                          <Box sx={{ width: "100%", pr: 1 }}>
+                            {habit.frequency && habit.frequencyUnit && (
+                              <LinearProgressWithLabel
+                                variant="buffer"
+                                valueBuffer={progressBuffer}
+                                value={progress}
+                                sx={{
+                                  ".MuiLinearProgress-bar1Buffer": {
+                                    backgroundColor: habit.color,
+                                  },
+                                  ".MuiLinearProgress-bar2Buffer": {
+                                    backgroundColor: habit.color,
+                                    opacity: 0.3,
+                                  },
+                                  ".MuiLinearProgress-dashed": {
+                                    display: "none",
+                                  },
+                                }}
+                              />
+                            )}
+                          </Box>
+                        </ListItemButton>
+                      </ListItem>
+                    </Box>
+                  );
+                })}
             </List>
             <Box
               sx={{
@@ -193,6 +234,7 @@ export default function IndexPage() {
                   type="submit"
                   disabled={!checkedHabitIds.length || navigation.state === "submitting"}
                 >
+                  <Check sx={{ mr: 1 }} />
                   Register
                   <AvatarGroup
                     sx={{
