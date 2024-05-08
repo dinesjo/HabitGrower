@@ -12,12 +12,13 @@ import {
 } from "@mui/material";
 import { LoaderFunctionArgs, useLoaderData, useNavigate, useParams } from "react-router-dom";
 import { Habit, fetchHabitById } from "../../habitsModel.tsx";
-import { ChevronLeft, EditOutlined } from "@mui/icons-material";
+import { EditOutlined } from "@mui/icons-material";
 import { IconMap } from "../../utils/IconMap.tsx";
 import { toFriendlyFrequency } from "../../utils/helpers.tsx";
-import DeleteWithConfirm from "../../components/DeleteWithConfirm.tsx";
 import SelectedHabitGraph from "./SelectedHabitGraph.tsx";
 import SelectedHabitList from "./SelectedHabitList.tsx";
+import BackButton from "../../components/BackButton.tsx";
+import DeleteHabitWithConfirm from "../../components/DeleteHabitWithConfirm.tsx";
 
 async function loader({ params }: LoaderFunctionArgs<{ id: string }>) {
   const { id } = params;
@@ -41,9 +42,7 @@ export default function SelectedHabit() {
   return (
     <Card>
       <CardActions>
-        <Button startIcon={<ChevronLeft />} aria-label="back" onClick={() => navigate("/")}>
-          Back
-        </Button>
+        <BackButton />
       </CardActions>
       {!habit || !id ? (
         <Alert severity="error">
@@ -97,7 +96,7 @@ export default function SelectedHabit() {
             >
               Edit
             </Button>
-            <DeleteWithConfirm habit={habit} id={id} />
+            <DeleteHabitWithConfirm habit={habit} id={id} />
           </CardActions>
         </>
       )}

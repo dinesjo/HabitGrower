@@ -16,8 +16,9 @@ import {
 } from "@mui/material";
 import { IconMap } from "../utils/IconMap";
 import { toFriendlyString } from "../utils/helpers.tsx";
-import DeleteWithConfirm from "./DeleteWithConfirm.tsx";
-import { ChevronLeft, Save } from "@mui/icons-material";
+import DeleteHabitWithConfirm from "./DeleteHabitWithConfirm.tsx";
+import { Save } from "@mui/icons-material";
+import BackButton from "./BackButton.tsx";
 
 async function loader({ params }: LoaderFunctionArgs<{ id: string }>) {
   const { id } = params;
@@ -58,9 +59,7 @@ export default function EditHabitForm() {
   return (
     <Card>
       <CardActions>
-        <Button startIcon={<ChevronLeft />} aria-label="back" onClick={handleBack}>
-          Back
-        </Button>
+        <BackButton />
       </CardActions>
       <Container maxWidth="xs" component={Form} autoComplete="off" method="post">
         <Typography variant="h5" align="center" gutterBottom>
@@ -144,7 +143,7 @@ export default function EditHabitForm() {
             Save
           </Button>
           <Button onClick={handleBack}>Cancel</Button>
-          <DeleteWithConfirm habit={habit} id={id!} />
+          <DeleteHabitWithConfirm habit={habit} id={id!} />
         </Stack>
       </Container>
     </Card>

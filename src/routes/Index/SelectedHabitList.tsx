@@ -108,7 +108,7 @@ function SortDirectionButton() {
       startIcon={isDesc ? <KeyboardArrowUpOutlined /> : <KeyboardArrowDownOutlined />}
       onClick={() => setSortDirection(sortDirection === "asc" ? "desc" : "asc")}
     >
-      {sortDirection === "desc" ? "Newest first" : "Oldest first"}
+      {isDesc ? "Newest first" : "Oldest first"}
     </Button>
   );
 }
