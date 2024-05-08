@@ -1,6 +1,6 @@
 import { Button, Dialog, DialogTitle, DialogActions, DialogContent, DialogContentText } from "@mui/material";
 import { Form, useNavigation } from "react-router-dom";
-import { DeleteOutlined } from "@mui/icons-material";
+import { DeleteForever, DeleteOutlined } from "@mui/icons-material";
 import { Habit } from "../habitsModel";
 import { useState } from "react";
 
@@ -10,25 +10,29 @@ export default function DeleteWithConfirm({ habit, id }: { habit: Habit; id: str
   const handleOpen = () => setDeleteDialogOpen(true);
   const handleClose = () => setDeleteDialogOpen(false);
 
-  const deleteAtionPath = `/${id}/delete`;
-
   return (
     <>
       <Button color="error" variant="outlined" startIcon={<DeleteOutlined />} onClick={handleOpen}>
         Delete
       </Button>
       <Dialog open={deleteDialogOpen} onClose={handleClose} aria-labelledby={"delete-confirm-title"}>
-        <Form action={deleteAtionPath} method="post">
-          <DialogTitle id={"delete-confirm-title"}>Delete habit?</DialogTitle>
+        <Form action={`/${id}/delete`} method="post">
+          <DialogTitle id={"delete-confirm-title"}>Delete "{habit.name}"?</DialogTitle>
           <DialogContent>
-            <DialogContentText>"{habit.name}" will be deleted. This action cannot be undone.</DialogContentText>
+            <DialogContentText>This action cannot be undone.</DialogContentText>
           </DialogContent>
           <DialogActions>
             <Button onClick={handleClose} color="inherit" disabled={navigation.state === "submitting"}>
               Cancel
             </Button>
-            <Button variant="contained" type="submit" color="error" disabled={navigation.state === "submitting"}>
-              Delete Forever
+            <Button
+              startIcon={<DeleteForever />}
+              variant="contained"
+              type="submit"
+              color="error"
+              disabled={navigation.state === "submitting"}
+            >
+              Delete
             </Button>
           </DialogActions>
         </Form>

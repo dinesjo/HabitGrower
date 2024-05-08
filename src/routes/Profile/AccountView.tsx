@@ -115,7 +115,7 @@ function DarkModeToggle() {
       <ListItemIcon>
         <DarkModeOutlined />
       </ListItemIcon>
-      <ListItemText primary="Dark mode" />
+      <ListItemText primary="Dark mode" secondary="(Recommended)" />
       <Switch checked={theme === "dark"} onChange={toggleTheme} />
     </ListItem>
   );
