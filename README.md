@@ -28,9 +28,9 @@ These instructions will get you a copy of the project up and running on your loc
    ```
 3. Start the development server.
    ```sh
-   npm start
+   npm run dev
    ```
-4. Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+4. Open [http://localhost:5173](http://localhost:5173) to view it in the browser.
 
 ## Built With
 
