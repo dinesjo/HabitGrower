@@ -11,10 +11,10 @@ import {
   Fab,
   Grow,
   Divider,
-  Container,
   Badge,
   AvatarGroup,
-  Paper,
+  Card,
+  CardContent,
 } from "@mui/material";
 import { Form, redirect, useLoaderData, useNavigation, useNavigate } from "react-router-dom";
 import { Habit, fetchAllHabits, registerHabitsToday } from "../../habitsModel";
@@ -105,13 +105,15 @@ export default function IndexPage() {
   else greeting += "evening! 🌃";
 
   return (
-    <Paper sx={{ mb: 4 }}>
-      <Container sx={{ position: "relative", p: 1 }}>
+    <Card sx={{ overflow: "visible", mb: 4 }}>
+      <CardContent>
         <Typography variant="h4" align="center" color="primary.main">
           {greeting}
         </Typography>
         <Typography variant="subtitle1">Have you kept up with your habits lately?</Typography>
-        <Divider sx={{ my: 1 }} />
+      </CardContent>
+      <Divider />
+      <CardContent sx={{ position: "relative" }}>
         {habits ? (
           <Form method="post">
             <Typography variant="subtitle2" color="text.secondary">
@@ -119,7 +121,7 @@ export default function IndexPage() {
             </Typography>
             <List
               sx={{
-                maxHeight: "calc(100vh - 14.5rem)", // IMPORTANT for height
+                maxHeight: "calc(100vh - 16.5rem)", // IMPORTANT for height
                 overflow: "auto",
                 scrollbarWidth: "thin",
                 scrollbarColor: "#ccc transparent",
@@ -270,7 +272,7 @@ export default function IndexPage() {
             No habits found.
           </Typography>
         )}
-      </Container>
-    </Paper>
+      </CardContent>
+    </Card>
   );
 }
