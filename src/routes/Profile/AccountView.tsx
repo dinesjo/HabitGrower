@@ -51,7 +51,9 @@ export default function AccountView() {
         <Typography variant="body2" textAlign="center" color="text.secondary">
           You are logged in as <b>{email || "Unknown Email"}</b>.
         </Typography>
-        <Divider sx={{ my: 1 }} />
+      </CardContent>
+      <Divider />
+      <CardContent>
         <List disablePadding>
           <DarkModeToggle />
           <Suspense fallback={<LinearProgress />}>
