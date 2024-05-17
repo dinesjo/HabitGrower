@@ -75,10 +75,18 @@ export default function EditHabitForm() {
               </Divider>
             </Grid>
             <Grid item xs={12} sm={6}>
-              <TextField required name="name" label="Habit Name" defaultValue={habit.name} fullWidth />
+              <TextField
+                variant="standard"
+                required
+                name="name"
+                label="Habit Name"
+                defaultValue={habit.name}
+                fullWidth
+              />
             </Grid>
             <Grid item xs={12} sm={6}>
               <TextField
+                variant="standard"
                 name="description"
                 label="Description"
                 defaultValue={habit.description || ""}
@@ -86,38 +94,40 @@ export default function EditHabitForm() {
                 fullWidth
               />
             </Grid>
-            <Grid item xs={4}>
-              <FormControl required fullWidth>
-                <InputLabel>Icon</InputLabel>
-                <Select autoWidth name="icon" label="Icon" defaultValue={habit.icon || ""}>
-                  {Object.keys(IconMap).map((icon) => (
-                    <MenuItem key={icon} value={icon}>
-                      {IconMap[icon]}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            </Grid>
-            <Grid item xs={8}>
-              <FormControl fullWidth>
-                <InputLabel>Color</InputLabel>
-                <Select
-                  name="color"
-                  label="Color"
-                  defaultValue={habit.color || ""}
-                  renderValue={(value) => {
-                    return <Typography sx={{ color: value }}>{toFriendlyString(value)}</Typography>;
-                  }}
-                  fullWidth
-                >
-                  <MenuItem value="">None</MenuItem>
-                  {colorChoices.map((color) => (
-                    <MenuItem key={color} value={color} sx={{ color: color }}>
-                      {toFriendlyString(color)}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
+            <Grid item container xs={12} spacing={2} display="flex" alignItems="end">
+              <Grid item xs={4}>
+                <FormControl variant="standard" required fullWidth>
+                  <InputLabel>Icon</InputLabel>
+                  <Select autoWidth name="icon" label="Icon" defaultValue={habit.icon || ""}>
+                    {Object.keys(IconMap).map((icon) => (
+                      <MenuItem key={icon} value={icon}>
+                        {IconMap[icon]}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </Grid>
+              <Grid item xs={8}>
+                <FormControl variant="standard" fullWidth>
+                  <InputLabel>Color</InputLabel>
+                  <Select
+                    name="color"
+                    label="Color"
+                    defaultValue={habit.color || ""}
+                    renderValue={(value) => {
+                      return <Typography sx={{ color: value }}>{toFriendlyString(value)}</Typography>;
+                    }}
+                    fullWidth
+                  >
+                    <MenuItem value="">None</MenuItem>
+                    {colorChoices.map((color) => (
+                      <MenuItem key={color} value={color} sx={{ color: color }}>
+                        {toFriendlyString(color)}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </Grid>
             </Grid>
             {/* Section tile */}
             <Grid item xs={12}>
@@ -127,7 +137,9 @@ export default function EditHabitForm() {
             </Grid>
             <Grid item xs={5}>
               <TextField
+                variant="standard"
                 name="frequency"
+                label="Frequency"
                 placeholder="3"
                 type="number"
                 defaultValue={habit.frequency || ""}
@@ -135,7 +147,7 @@ export default function EditHabitForm() {
               />
             </Grid>
             <Grid item xs={7}>
-              <FormControl fullWidth>
+              <FormControl variant="standard" fullWidth>
                 <InputLabel id="frequencyUnit">Every</InputLabel>
                 <Select
                   name="frequencyUnit"

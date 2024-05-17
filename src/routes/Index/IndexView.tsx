@@ -120,6 +120,7 @@ export default function IndexPage() {
               Register your habits below:
             </Typography>
             <List
+              disablePadding
               sx={{
                 maxHeight: "calc(100vh - 16.5rem)", // IMPORTANT for height
                 overflow: "auto",

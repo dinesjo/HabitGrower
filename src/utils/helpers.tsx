@@ -92,7 +92,7 @@ export function getProgress(habit: Habit, isChecked: boolean, userWeekStartsAtMo
   if (habit.dates) {
     completedDates += Object.keys(habit.dates).reduce((acc, date) => {
       if (dayjs(date).isAfter(frequencyUnitStart)) {
-        return acc + Number(habit.dates![date]); // habit.dates![date] is true
+        return acc + Number(habit.dates![date]); // habit.dates![date] is true or 1
       }
       return acc;
     }, 0);
