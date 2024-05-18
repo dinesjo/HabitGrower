@@ -130,6 +130,12 @@ export default function Root() {
                 "&.active": {
                   color: "primary.main",
                 },
+                "&.active .MuiAvatar-root": {
+                  outline: "1px solid",
+                  outlineColor: "primary.main",
+                  outlineOffset: "1px",
+                  mb: 0.5,
+                },
                 "&.pending": {
                   color: "primary.light",
                 },
