@@ -75,18 +75,10 @@ export default function EditHabitForm() {
               </Divider>
             </Grid>
             <Grid item xs={12} sm={6}>
-              <TextField
-                variant="standard"
-                required
-                name="name"
-                label="Habit Name"
-                defaultValue={habit.name}
-                fullWidth
-              />
+              <TextField required name="name" label="Habit Name" defaultValue={habit.name} fullWidth />
             </Grid>
             <Grid item xs={12} sm={6}>
               <TextField
-                variant="standard"
                 name="description"
                 label="Description"
                 defaultValue={habit.description || ""}
@@ -96,7 +88,7 @@ export default function EditHabitForm() {
             </Grid>
             <Grid item container xs={12} spacing={2} display="flex" alignItems="end">
               <Grid item xs={4}>
-                <FormControl variant="standard" required fullWidth>
+                <FormControl required fullWidth>
                   <InputLabel>Icon</InputLabel>
                   <Select autoWidth name="icon" label="Icon" defaultValue={habit.icon || ""}>
                     {Object.keys(IconMap).map((icon) => (
@@ -108,7 +100,7 @@ export default function EditHabitForm() {
                 </FormControl>
               </Grid>
               <Grid item xs={8}>
-                <FormControl variant="standard" fullWidth>
+                <FormControl fullWidth>
                   <InputLabel>Color</InputLabel>
                   <Select
                     name="color"
@@ -137,7 +129,6 @@ export default function EditHabitForm() {
             </Grid>
             <Grid item xs={5}>
               <TextField
-                variant="standard"
                 name="frequency"
                 label="Frequency"
                 placeholder="3"
@@ -147,7 +138,7 @@ export default function EditHabitForm() {
               />
             </Grid>
             <Grid item xs={7}>
-              <FormControl variant="standard" fullWidth>
+              <FormControl fullWidth>
                 <InputLabel id="frequencyUnit">Every</InputLabel>
                 <Select
                   name="frequencyUnit"
