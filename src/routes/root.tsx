@@ -12,6 +12,7 @@ import {
   LinearProgress,
   Paper,
   Snackbar,
+  Tooltip,
 } from "@mui/material";
 import { AccountCircle, Home, PlaylistAdd } from "@mui/icons-material";
 import { getAuth } from "firebase/auth";
@@ -83,9 +84,11 @@ export default function Root() {
           <Outlet />
           {user && (
             <Form action="/new-habit" method="post">
-              <Fab type="submit" color="secondary" sx={{ position: "absolute", bottom: 6, right: 6 }}>
-                <PlaylistAdd />
-              </Fab>
+              <Tooltip title="New Habit" placement="left">
+                <Fab type="submit" color="secondary" sx={{ position: "absolute", bottom: 6, right: 6 }}>
+                  <PlaylistAdd />
+                </Fab>
+              </Tooltip>
             </Form>
           )}
           <Snackbar

@@ -25,6 +25,9 @@ export default function LinearProgressWithLabel({ ...props }) {
             <Typography variant="body2" sx={{ color: "error.main" }}>
               Red: far behind schedule
             </Typography>
+            <Typography variant="body2" sx={{ color: "text.secondary" }}>
+              Gray: complete
+            </Typography>
           </Box>
         }
       >
