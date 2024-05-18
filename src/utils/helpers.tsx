@@ -121,8 +121,8 @@ export function getProgressBuffer(
   const start = getFrequencyUnitStart(habit.frequencyUnit, userWeekStartsAtMonday);
   const adjustedStart = start.add(hour, "hour").add(minutes, "minute");
   const end = getFrequencyUnitEnd(habit.frequencyUnit, userWeekStartsAtMonday);
-  const maxDays = end.diff(adjustedStart, "hours") / 24;
-  const daysElapsed = dayjs().diff(adjustedStart, "hours") / 24;
+  const maxDays = end.diff(adjustedStart, "minutes") / (24 * 60);
+  const daysElapsed = dayjs().diff(adjustedStart, "minutes") / (24 * 60);
 
   return Math.min((daysElapsed / maxDays) * 100, 100);
 }
