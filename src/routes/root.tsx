@@ -70,6 +70,7 @@ export default function Root() {
           backgroundSize: "cover",
         }}
       >
+        {showLoading && <LinearProgress sx={{ position: "absolute", top: 0, left: 0, right: 0 }} />}
         <Container
           maxWidth="xs"
           sx={{
@@ -119,7 +120,6 @@ export default function Root() {
           zIndex: 1001,
         }}
       >
-        {showLoading && <LinearProgress />}
         <BottomNavigation>
           {pages.map((page, index) => (
             <BottomNavigationAction
