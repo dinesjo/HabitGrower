@@ -23,7 +23,7 @@ export function toFriendlyFrequency(habit: Habit) {
   if (!habit.frequency || !habit.frequencyUnit) {
     return "";
   }
-  return `${habit.frequency === 1 ? "Once" : `${habit.frequency} times`} a ${habit.frequencyUnit}`;
+  return `${Number(habit.frequency) === 1 ? "once" : `${habit.frequency} times`} a ${habit.frequencyUnit}`;
 }
 
 function getFrequencyUnitStart(frequencyUnit: string, userWeekStartsAtMonday: boolean | null) {

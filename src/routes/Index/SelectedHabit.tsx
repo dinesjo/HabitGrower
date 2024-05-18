@@ -77,7 +77,11 @@ export default function SelectedHabit() {
           >
             {habit.frequency && habit.frequencyUnit && (
               <Typography variant="body2">
-                You told yourself to {habit.name} {toFriendlyFrequency(habit)}.
+                You told yourself to{" "}
+                <Typography variant="body2" display="inline" sx={{ color: habit.color }}>
+                  {habit.name}
+                </Typography>{" "}
+                {toFriendlyFrequency(habit)}.
               </Typography>
             )}
             <Typography variant="body2" color="text.secondary">
