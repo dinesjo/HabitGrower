@@ -163,7 +163,7 @@ export default function IndexPage() {
                                   isChecked ? prev.filter((id) => id !== key) : [...prev, key]
                                 )
                               }
-                              sx={{ "& .MuiSvgIcon-root": { fontSize: 28 } }}
+                              sx={{ "& .MuiSvgIcon-root": { fontSize: 32 } }}
                             />
                           </>
                         }
