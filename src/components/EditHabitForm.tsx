@@ -39,18 +39,18 @@ export default function EditHabitForm() {
   const navigate = useNavigate();
   const navigation = useNavigation();
   const colorChoices = [
-    "slategray",
-    "steelblue",
-    "skyblue",
-    "slateblue",
-    "mediumseagreen",
-    "lightgreen",
-    "forestgreen",
-    "tomato",
-    "salmon",
-    "orange",
-    "palevioletred",
-    "sandybrown",
+    "SlateGray",
+    "SteelBlue",
+    "SkyBlue",
+    "SlateBlue",
+    "MediumSeaGreen",
+    "LightGreen",
+    "ForestGreen",
+    "Tomato",
+    "Salmon",
+    "Orange",
+    "PaleVioletRed",
+    "SandyBrown",
   ];
 
   const handleBack = () => {
