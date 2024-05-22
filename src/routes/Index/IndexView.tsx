@@ -15,6 +15,7 @@ import {
   AvatarGroup,
   Card,
   CardContent,
+  Chip,
 } from "@mui/material";
 import { Form, redirect, useLoaderData, useNavigation, useNavigate } from "react-router-dom";
 import { Habit, fetchAllHabits, registerHabitsToday } from "../../habitsModel";
@@ -24,7 +25,7 @@ import { useAtom } from "jotai";
 import { checkedHabitIdsAtom, store, userDayStartsAtAtom, userWeekStartsAtMondayAtom } from "../../store";
 import dayjs from "dayjs";
 import LinearProgressWithLabel from "../../components/LinearProgressWithLabel.tsx";
-import { Check } from "@mui/icons-material";
+import { Check, Done } from "@mui/icons-material";
 
 async function loader() {
   return {
@@ -99,10 +100,17 @@ export default function IndexPage() {
     return a[1].name.localeCompare(b[1].name);
   }
 
+  const sortedHabits = Object.entries(habits).sort(sortHabitsRecordCB);
+
   let greeting = "Good ";
   if (dayjs().hour() < 10) greeting += "morning! ☀️";
   else if (dayjs().hour() < 19) greeting += "day! 👋";
   else greeting += "evening! 🌃";
+
+  const firstCompletedHabitKey = sortedHabits.find(([, habit]) => {
+    const progress = getProgress(habit, false, userWeekStartsAtMonday);
+    return progress === 100;
+  })?.[0];
 
   return (
     <Card sx={{ overflow: "visible", mb: 4 }}>
@@ -128,16 +136,20 @@ export default function IndexPage() {
                 scrollbarColor: "#ccc transparent",
               }}
             >
-              {Object.entries(habits)
-                .sort(sortHabitsRecordCB)
-                .map(([key, habit]) => {
-                  const isChecked = checkedHabitIds.includes(key);
-                  const progress = getProgress(habit, isChecked, userWeekStartsAtMonday);
-                  const registeredProgress = getProgress(habit, false, userWeekStartsAtMonday);
-                  const progressBuffer = getProgressBuffer(habit, dayStartsAt, userWeekStartsAtMonday);
-                  return (
+              {sortedHabits.map(([key, habit]) => {
+                const isChecked = checkedHabitIds.includes(key);
+                const progress = getProgress(habit, isChecked, userWeekStartsAtMonday);
+                const registeredProgress = getProgress(habit, false, userWeekStartsAtMonday);
+                const progressBuffer = getProgressBuffer(habit, dayStartsAt, userWeekStartsAtMonday);
+                const isFirstCompletedHabit = key === firstCompletedHabitKey;
+                return (
+                  <Box key={key}>
+                    {isFirstCompletedHabit && (
+                      <Divider sx={{ my: 1 }}>
+                        <Chip label="Completed Habits" size="small" icon={<Done />} />
+                      </Divider>
+                    )}
                     <Box
-                      key={key}
                       sx={
                         registeredProgress === 100
                           ? {
@@ -218,8 +230,9 @@ export default function IndexPage() {
                         </ListItemButton>
                       </ListItem>
                     </Box>
-                  );
-                })}
+                  </Box>
+                );
+              })}
             </List>
             <Box
               sx={{
