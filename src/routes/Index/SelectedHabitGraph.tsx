@@ -44,7 +44,10 @@ export default function SelectedHabitGraph({ habit }: { habit: Habit }) {
   }, []);
 
   // Fill in missing dates with value 0
-  const firstDay = dateData[0].date; // e.g. 19815
+  const firstDay =
+    daysShown > 999 // Show all days
+      ? dateData[0].date // First day in the dataset
+      : Math.ceil(dayjs().subtract(daysShown, "day").startOf("day").unix() / (60 * 60 * 24)); // e.g. 19815
   const today = Math.ceil(dayjs().startOf("day").unix() / (60 * 60 * 24)); // e.g. 19824
   const allDays = Array.from({ length: today - firstDay + 1 }, (_, i) => firstDay + i); // e.g. [19815, 19816, ..., 19824]
   const missingDays = allDays.filter((day) => !dateData.find((data) => data.date === day));
