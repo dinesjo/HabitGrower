@@ -100,7 +100,7 @@ export default function IndexPage() {
     return a[1].name.localeCompare(b[1].name);
   }
 
-  const sortedHabits = Object.entries(habits).sort(sortHabitsRecordCB);
+  const sortedHabits = habits ? Object.entries(habits).sort(sortHabitsRecordCB) : [];
 
   let greeting = "Good ";
   if (dayjs().hour() < 10) greeting += "morning! ☀️";
