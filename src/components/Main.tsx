@@ -22,6 +22,10 @@ export default function Main() {
           secondary: {
             main: "#7d3dbc",
           },
+          background: {
+            default: themeAtomValue === "dark" ? "#1f1e23" : "#f0f0f0",
+            paper: themeAtomValue === "dark" ? "#080809" : "#fff",
+          },
         },
         shape: {
           borderRadius: 16,

@@ -115,10 +115,12 @@ export default function IndexPage() {
   return (
     <Card sx={{ overflow: "visible", mb: 4 }}>
       <CardContent>
-        <Typography variant="h4" align="center" color="primary.main">
+        <Typography variant="h4" color="primary.main" align="center">
           {greeting}
         </Typography>
-        <Typography variant="subtitle1">Have you kept up with your habits lately?</Typography>
+        <Typography variant="subtitle1" color="text.secondary" align="center">
+          Have you kept up with your habits lately?
+        </Typography>
       </CardContent>
       <Divider />
       <CardContent sx={{ position: "relative" }}>
