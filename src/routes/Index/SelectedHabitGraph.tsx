@@ -8,7 +8,7 @@ import { atomWithStorage } from "jotai/utils";
 const daysShownMap: Record<number, string> = {
   14: "14 Days",
   30: "30 Days",
-  99999: "Show All",
+  90: "3 Months",
 } as const;
 
 const daysShownAtom = atomWithStorage<number>("daysShown", 30);
@@ -44,10 +44,7 @@ export default function SelectedHabitGraph({ habit }: { habit: Habit }) {
   }, []);
 
   // Fill in missing dates with value 0
-  const firstDay =
-    daysShown > 999 // Show all days
-      ? dateData[0].date // First day in the dataset
-      : Math.ceil(dayjs().subtract(daysShown, "day").startOf("day").unix() / (60 * 60 * 24)); // e.g. 19815
+  const firstDay = Math.ceil(dayjs().subtract(daysShown, "day").startOf("day").unix() / (60 * 60 * 24)); // e.g. 19815
   const today = Math.ceil(dayjs().startOf("day").unix() / (60 * 60 * 24)); // e.g. 19824
   const allDays = Array.from({ length: today - firstDay + 1 }, (_, i) => firstDay + i); // e.g. [19815, 19816, ..., 19824]
   const missingDays = allDays.filter((day) => !dateData.find((data) => data.date === day));
@@ -65,7 +62,7 @@ export default function SelectedHabitGraph({ habit }: { habit: Habit }) {
       <Container disableGutters sx={{ display: "flex", justifyContent: "center" }}>
         <BarChart
           dataset={dateData}
-          width={300}
+          width={350}
           height={200}
           margin={{ top: 20, right: 20, bottom: 30, left: 20 }} // remove excess margin
           xAxis={[
