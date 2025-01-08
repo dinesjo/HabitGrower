@@ -66,8 +66,6 @@ export default function Root() {
           height: "calc(100vh - 56px)",
           width: "100%",
           position: "relative",
-          // backgroundImage: "url('/cover.jpg')",
-          // backgroundSize: "cover",
         }}
       >
         {showLoading && <LinearProgress sx={{ position: "absolute", top: 0, left: 0, right: 0 }} />}
@@ -119,6 +117,7 @@ export default function Root() {
           left: 0,
           right: 0,
           zIndex: 1001,
+          borderRadius: 0,
         }}
       >
         {pages.map((page, index) => (
