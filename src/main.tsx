@@ -2,13 +2,11 @@ import "@fontsource/roboto/300.css";
 import "@fontsource/roboto/400.css";
 import "@fontsource/roboto/500.css";
 import "@fontsource/roboto/700.css";
-import React, { useMemo } from "react";
+import React from "react";
 import ReactDOM from "react-dom/client";
-import { createBrowserRouter, createRoutesFromElements, redirect, Route, RouterProvider } from "react-router-dom";
+import { createBrowserRouter, createRoutesFromElements, redirect, Route } from "react-router-dom";
 import Root from "./routes/root";
 import ErrorPage from "./error-page";
-import { ThemeProvider } from "@emotion/react";
-import { CssBaseline, PaletteMode, createTheme } from "@mui/material";
 import "./firebase";
 import { signOut } from "./firebase";
 import AccountView from "./routes/Profile/AccountView";
@@ -17,15 +15,12 @@ import SelectedHabit from "./routes/Index/SelectedHabit";
 import EditHabitForm from "./components/EditHabitForm";
 import { createEmptyHabit, deleteHabit, Habit, unregisterHabitByDate, updateHabit } from "./habitsModel";
 import { requireAuth } from "./utils/requireAuth";
-import { useAtom } from "jotai";
-import { LocalizationProvider } from "@mui/x-date-pickers";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { checkedHabitIdsAtom, store, themeAtom } from "./store";
+import { checkedHabitIdsAtom, store } from "./store";
 import IndexPage from "./routes/Index/IndexView";
-import { DevTools } from "jotai-devtools";
 // Note that this may get included in your production builds. Please import it conditionally if you want to avoid that
 import "jotai-devtools/styles.css";
 import { showSnackBar } from "./utils/helpers";
+import Main from "./components/Main";
 
 export const router = createBrowserRouter(
   createRoutesFromElements(
@@ -90,36 +85,6 @@ export const router = createBrowserRouter(
     </Route>
   )
 );
-
-function Main() {
-  const [themeAtomValue] = useAtom<PaletteMode>(themeAtom);
-
-  const theme = useMemo(
-    () =>
-      createTheme({
-        palette: {
-          mode: themeAtomValue,
-          primary: {
-            main: themeAtomValue === "dark" ? "#90c65b" : "#478523",
-          },
-          secondary: {
-            main: "#7d3dbc",
-          },
-        },
-      }),
-    [themeAtomValue]
-  );
-
-  return (
-    <LocalizationProvider dateAdapter={AdapterDayjs}>
-      <ThemeProvider theme={theme}>
-        <DevTools />
-        <CssBaseline />
-        <RouterProvider router={router} />
-      </ThemeProvider>
-    </LocalizationProvider>
-  );
-}
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
