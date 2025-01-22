@@ -16,6 +16,7 @@ import {
   Card,
   CardContent,
   Chip,
+  Paper,
 } from "@mui/material";
 import { Form, redirect, useLoaderData, useNavigation, useNavigate } from "react-router-dom";
 import { Habit, fetchAllHabits, registerHabitsToday } from "../../habitsModel";
@@ -25,7 +26,7 @@ import { useAtom } from "jotai";
 import { checkedHabitIdsAtom, store, userDayStartsAtAtom, userWeekStartsAtMondayAtom } from "../../store";
 import dayjs from "dayjs";
 import LinearProgressWithLabel from "../../components/LinearProgressWithLabel.tsx";
-import { Check, Done } from "@mui/icons-material";
+import { Check, Checklist } from "@mui/icons-material";
 
 async function loader() {
   return {
@@ -103,9 +104,9 @@ export default function IndexPage() {
   const sortedHabits = habits ? Object.entries(habits).sort(sortHabitsRecordCB) : [];
 
   let greeting = "Good ";
-  if (dayjs().hour() < 10) greeting += "morning! ☀️";
-  else if (dayjs().hour() < 19) greeting += "day! 👋";
-  else greeting += "evening! 🌃";
+  if (dayjs().hour() < 10) greeting += "morning! 🌅";
+  else if (dayjs().hour() < 19) greeting += "day! ☀️";
+  else greeting += "evening! 🌙";
 
   const firstCompletedHabitKey = sortedHabits.find(([, habit]) => {
     const progress = getProgress(habit, false, userWeekStartsAtMonday);
@@ -115,10 +116,12 @@ export default function IndexPage() {
   return (
     <Card sx={{ overflow: "visible", mb: 4 }}>
       <CardContent>
-        <Typography variant="h4" align="center" color="primary.main">
+        <Typography variant="h4" color="primary.main" align="center">
           {greeting}
         </Typography>
-        <Typography variant="subtitle1">Have you kept up with your habits lately?</Typography>
+        <Typography variant="subtitle1" color="text.secondary" align="center">
+          Have you kept up with your habits lately?
+        </Typography>
       </CardContent>
       <Divider />
       <CardContent sx={{ position: "relative" }}>
@@ -143,13 +146,14 @@ export default function IndexPage() {
                 const progressBuffer = getProgressBuffer(habit, dayStartsAt, userWeekStartsAtMonday);
                 const isFirstCompletedHabit = key === firstCompletedHabitKey;
                 return (
-                  <Box key={key}>
+                  <Box key={key} sx={{ mb: 1 }}>
                     {isFirstCompletedHabit && (
                       <Divider sx={{ my: 1 }}>
-                        <Chip label="Completed Habits" size="small" icon={<Done />} />
+                        <Chip label="Completed Habits" size="small" icon={<Checklist />} />
                       </Divider>
                     )}
-                    <Box
+                    <Paper
+                      elevation={0}
                       sx={
                         registeredProgress === 100
                           ? {
@@ -157,9 +161,11 @@ export default function IndexPage() {
                                 filter: "grayscale(100%)",
                               },
                               width: "inherit",
+                              bgcolor: "transparent",
                             }
                           : {
                               width: "inherit",
+                              bgcolor: "transparent",
                             }
                       }
                     >
@@ -179,6 +185,7 @@ export default function IndexPage() {
                             />
                           </>
                         }
+                        sx={{ borderRadius: "inherit", ".MuiListItemButton-root": { borderRadius: "inherit" } }}
                       >
                         <ListItemButton
                           sx={{ py: 0.25, px: 1, display: "flex", flexDirection: "column", alignItems: "start" }}
@@ -229,7 +236,7 @@ export default function IndexPage() {
                           </Box>
                         </ListItemButton>
                       </ListItem>
-                    </Box>
+                    </Paper>
                   </Box>
                 );
               })}

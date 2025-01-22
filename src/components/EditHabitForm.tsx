@@ -1,6 +1,7 @@
 import { Form, LoaderFunctionArgs, useLoaderData, useNavigate, useNavigation, useParams } from "react-router-dom";
 import { Habit, fetchHabitById } from "../habitsModel";
 import {
+  Box,
   Button,
   Card,
   CardActions,
@@ -86,11 +87,19 @@ export default function EditHabitForm() {
                 fullWidth
               />
             </Grid>
-            <Grid item container xs={12} spacing={2} display="flex" alignItems="end">
-              <Grid item xs={4}>
+            <Grid item container xs={12} spacing={2} display="flex" alignItems="start" sx={{ height: "100%" }}>
+              <Grid item xs={"auto"} sx={{ height: "inherit" }}>
                 <FormControl required fullWidth>
                   <InputLabel>Icon</InputLabel>
-                  <Select autoWidth name="icon" label="Icon" defaultValue={habit.icon || ""}>
+                  <Select
+                    autoWidth
+                    name="icon"
+                    label="Icon"
+                    defaultValue={habit.icon || ""}
+                    renderValue={(icon) => {
+                      return <Box sx={{ height: "1em" }}>{IconMap[icon]}</Box>;
+                    }}
+                  >
                     {Object.keys(IconMap).map((icon) => (
                       <MenuItem key={icon} value={icon}>
                         {IconMap[icon]}
@@ -99,7 +108,7 @@ export default function EditHabitForm() {
                   </Select>
                 </FormControl>
               </Grid>
-              <Grid item xs={8}>
+              <Grid item xs>
                 <FormControl fullWidth>
                   <InputLabel>Color</InputLabel>
                   <Select

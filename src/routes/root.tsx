@@ -66,8 +66,6 @@ export default function Root() {
           height: "calc(100vh - 56px)",
           width: "100%",
           position: "relative",
-          backgroundImage: "url('/cover.jpg')",
-          backgroundSize: "cover",
         }}
       >
         {showLoading && <LinearProgress sx={{ position: "absolute", top: 0, left: 0, right: 0 }} />}
@@ -111,42 +109,42 @@ export default function Root() {
           </Snackbar>
         </Container>
       </Box>
-      <Paper
+      <BottomNavigation
+        component={Paper}
         sx={{
           position: "fixed",
           bottom: 0,
           left: 0,
           right: 0,
           zIndex: 1001,
+          borderRadius: 0,
         }}
       >
-        <BottomNavigation>
-          {pages.map((page, index) => (
-            <BottomNavigationAction
-              key={index}
-              component={NavLink}
-              to={page.path}
-              label={page.text}
-              showLabel={location.pathname === page.path}
-              icon={page.icon}
-              sx={{
-                "&.active": {
-                  color: "primary.main",
-                },
-                "&.active .MuiAvatar-root": {
-                  outline: "1px solid",
-                  outlineColor: "primary.main",
-                  outlineOffset: "1px",
-                  mb: 0.5,
-                },
-                "&.pending": {
-                  color: "primary.light",
-                },
-              }}
-            />
-          ))}
-        </BottomNavigation>
-      </Paper>
+        {pages.map((page, index) => (
+          <BottomNavigationAction
+            key={index}
+            component={NavLink}
+            to={page.path}
+            label={page.text}
+            showLabel={location.pathname === page.path}
+            icon={page.icon}
+            sx={{
+              "&.active": {
+                color: "primary.main",
+              },
+              "&.active .MuiAvatar-root": {
+                outline: "1px solid",
+                outlineColor: "primary.main",
+                outlineOffset: "1px",
+                mb: 0.5,
+              },
+              "&.pending": {
+                color: "primary.light",
+              },
+            }}
+          />
+        ))}
+      </BottomNavigation>
     </>
   );
 }
