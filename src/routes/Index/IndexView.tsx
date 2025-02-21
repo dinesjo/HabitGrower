@@ -113,6 +113,11 @@ export default function IndexPage() {
     return progress === 100;
   })?.[0];
 
+  const allHabitsCompleted = sortedHabits.every(([, habit]) => {
+    const progress = getProgress(habit, false, userWeekStartsAtMonday);
+    return progress === 100;
+  });
+
   return (
     <Card sx={{ overflow: "visible", mb: 4 }}>
       <CardContent>
@@ -127,9 +132,15 @@ export default function IndexPage() {
       <CardContent sx={{ position: "relative" }}>
         {habits ? (
           <Form method="post">
-            <Typography variant="subtitle2" color="text.secondary">
-              Register your habits below:
-            </Typography>
+            {allHabitsCompleted ? (
+              <Typography variant="subtitle2" color="primary.main" align="center" sx={{ my: 1 }}>
+                Well done! You completed all habits for now 🎉
+              </Typography>
+            ) : (
+              <Typography variant="subtitle2" color="text.secondary">
+                Register your habits below:
+              </Typography>
+            )}
             <List
               disablePadding
               sx={{
