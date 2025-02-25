@@ -1,5 +1,4 @@
-import { Form, LoaderFunctionArgs, useLoaderData, useNavigate, useNavigation, useParams } from "react-router-dom";
-import { Habit, fetchHabitById } from "../habitsModel";
+import { ColorLens, EventRepeat, Notifications, NotificationsOutlined, Save } from "@mui/icons-material";
 import {
   Box,
   Button,
@@ -11,16 +10,30 @@ import {
   FormControl,
   Grid,
   InputLabel,
+  List,
+  ListItem,
+  ListItemIcon,
+  ListItemText,
   MenuItem,
   Select,
+  Switch,
   TextField,
   Typography,
 } from "@mui/material";
+import { TimePicker } from "@mui/x-date-pickers/TimePicker";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
+import { useState } from "react";
+
+dayjs.extend(utc);
+import { Form, LoaderFunctionArgs, useLoaderData, useNavigate, useNavigation, useParams } from "react-router-dom";
+import { Habit, fetchHabitById } from "../habitsModel";
 import { IconMap } from "../utils/IconMap";
 import { toFriendlyString } from "../utils/helpers";
-import DeleteHabitWithConfirm from "./DeleteHabitWithConfirm";
-import { ColorLens, EventRepeat, Save } from "@mui/icons-material";
 import BackButton from "./BackButton";
+import DeleteHabitWithConfirm from "./DeleteHabitWithConfirm";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 
 async function loader({ params }: LoaderFunctionArgs<{ id: string }>) {
   const { id } = params;
@@ -36,6 +49,8 @@ EditHabitForm.loader = loader;
 
 export default function EditHabitForm() {
   const { habit } = useLoaderData() as { habit: Habit };
+  const [notificationsEnabled, setNotificationsEnabled] = useState(habit.notificationEnabled);
+  const [notificationTime, setNotificationTime] = useState(habit.notificationTime);
   const { id } = useParams();
   const navigate = useNavigate();
   const navigation = useNavigation();
@@ -67,7 +82,7 @@ export default function EditHabitForm() {
         <Typography variant="h5" align="center" gutterBottom>
           Edit Habit: <b>{habit.name}</b>
         </Typography>
-        <CardContent>
+        <CardContent sx={{ maxHeight: "calc(100vh - 320px)", overflowY: "auto" }}>
           <Grid container spacing={2}>
             {/* Section tile */}
             <Grid item xs={12}>
@@ -162,6 +177,58 @@ export default function EditHabitForm() {
                   <MenuItem value="month">Month</MenuItem>
                 </Select>
               </FormControl>
+            </Grid>
+
+            {/* Notifications section */}
+            <Grid item xs={12}>
+              <Divider>
+                <Chip icon={<NotificationsOutlined />} label="NOTIFICATIONS" size="small" />
+              </Divider>
+            </Grid>
+            <Grid item xs={12}>
+              <List disablePadding>
+                <ListItem>
+                  <ListItemIcon>
+                    <Notifications />
+                  </ListItemIcon>
+                  <ListItemText
+                    primary="Daily notifications"
+                    secondary="Get notified so you never miss this habit again!"
+                  />
+                  <Switch
+                    name="notificationEnabled"
+                    defaultChecked={habit.notificationEnabled}
+                    onChange={(e) => setNotificationsEnabled(e.target.checked)}
+                  />
+                </ListItem>
+              </List>
+            </Grid>
+            <Grid item xs={12}>
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <TimePicker
+                  value={notificationTime ? dayjs("2024-01-01T" + notificationTime + "Z") : null}
+                  onChange={(newTime: dayjs.Dayjs | null) => {
+                    /* Save the time as UTC instead of local time.
+                    The notificationTime is what is saved into Firebase. */
+                    if (newTime) {
+                      const utcTime = newTime.utc().format("HH:mm");
+                      setNotificationTime(utcTime);
+                    } else {
+                      setNotificationTime(undefined);
+                    }
+                  }}
+                  ampm={false}
+                  label="Notification time"
+                  disabled={!notificationsEnabled}
+                  slotProps={{
+                    textField: {
+                      helperText: `Get notified at this time every day if "${habit.name}" not completed by then`,
+                      fullWidth: true,
+                    },
+                  }}
+                />
+                <input type="hidden" name="notificationTime" value={notificationTime || ""} />
+              </LocalizationProvider>
             </Grid>
           </Grid>
         </CardContent>

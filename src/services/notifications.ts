@@ -1,4 +1,5 @@
 import { Habit } from "../habitsModel";
+import { showSnackBar } from "../utils/helpers";
 
 export async function requestNotificationPermission() {
   const permission = await Notification.requestPermission();
@@ -24,7 +25,9 @@ export async function scheduleHabitNotification(habit: Habit) {
 
 export async function updateHabitNotifications(habits: Habit[]) {
   const permission = await requestNotificationPermission();
-  if (!permission) return;
+  if (!permission) {
+    showSnackBar("Notifications are disabled. Enable them in your browser/app settings.", "warning");
+  }
 
   habits.forEach((habit) => {
     scheduleHabitNotification(habit);

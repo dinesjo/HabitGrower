@@ -37,7 +37,9 @@ export const router = createBrowserRouter(
               return redirect("/");
             }
             const formData = Object.fromEntries(await request.formData());
-            await updateHabit(params.id, formData as unknown as Habit);
+            const habitData = formData as unknown as Habit;
+            habitData.notificationEnabled = formData.notificationEnabled === "on";
+            await updateHabit(params.id, habitData);
             // Show snackbar
             showSnackBar("Habit updated!", "success");
             return redirect("/");
