@@ -5,22 +5,22 @@ import "@fontsource/roboto/700.css";
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { createBrowserRouter, createRoutesFromElements, redirect, Route } from "react-router-dom";
-import Root from "./routes/root";
-import ErrorPage from "./error-page";
+import EditHabitForm from "./components/EditHabitForm";
+import ErrorPage from "./components/ErrorPage";
 import "./firebase";
 import { signOut } from "./firebase";
+import { createEmptyHabit, deleteHabit, Habit, unregisterHabitByDate, updateHabit } from "./habitsModel";
+import IndexPage from "./routes/Index/IndexView";
+import SelectedHabit from "./routes/Index/SelectedHabit";
 import AccountView from "./routes/Profile/AccountView";
 import SignInView from "./routes/Profile/SignInView";
-import SelectedHabit from "./routes/Index/SelectedHabit";
-import EditHabitForm from "./components/EditHabitForm";
-import { createEmptyHabit, deleteHabit, Habit, unregisterHabitByDate, updateHabit } from "./habitsModel";
-import { requireAuth } from "./utils/requireAuth";
+import Root from "./routes/root";
 import { checkedHabitIdsAtom, store } from "./store";
-import IndexPage from "./routes/Index/IndexView";
+import { requireAuth } from "./utils/requireAuth";
 // Note that this may get included in your production builds. Please import it conditionally if you want to avoid that
 import "jotai-devtools/styles.css";
-import { showSnackBar } from "./utils/helpers";
 import Main from "./components/Main";
+import { showSnackBar } from "./utils/helpers";
 
 export const router = createBrowserRouter(
   createRoutesFromElements(

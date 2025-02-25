@@ -1,24 +1,24 @@
+import { EditOutlined } from "@mui/icons-material";
 import {
-  CardHeader,
-  Typography,
-  Avatar,
-  CardActions,
-  Button,
-  CardContent,
   Alert,
   AlertTitle,
-  Divider,
+  Avatar,
+  Button,
   Card,
+  CardActions,
+  CardContent,
+  CardHeader,
+  Divider,
+  Typography,
 } from "@mui/material";
 import { LoaderFunctionArgs, useLoaderData, useNavigate, useParams } from "react-router-dom";
-import { Habit, fetchHabitById } from "../../habitsModel.tsx";
-import { EditOutlined } from "@mui/icons-material";
-import { IconMap } from "../../utils/IconMap.tsx";
-import { toFriendlyFrequency } from "../../utils/helpers.tsx";
-import SelectedHabitGraph from "./SelectedHabitGraph.tsx";
-import SelectedHabitList from "./SelectedHabitList.tsx";
-import BackButton from "../../components/BackButton.tsx";
-import DeleteHabitWithConfirm from "../../components/DeleteHabitWithConfirm.tsx";
+import BackButton from "../../components/BackButton";
+import DeleteHabitWithConfirm from "../../components/DeleteHabitWithConfirm";
+import { Habit, fetchHabitById } from "../../habitsModel";
+import { IconMap } from "../../utils/IconMap";
+import { toFriendlyFrequency } from "../../utils/helpers";
+import SelectedHabitGraph from "./SelectedHabitGraph";
+import SelectedHabitList from "./SelectedHabitList";
 
 async function loader({ params }: LoaderFunctionArgs<{ id: string }>) {
   const { id } = params;

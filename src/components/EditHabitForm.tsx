@@ -17,10 +17,10 @@ import {
   Typography,
 } from "@mui/material";
 import { IconMap } from "../utils/IconMap";
-import { toFriendlyString } from "../utils/helpers.tsx";
-import DeleteHabitWithConfirm from "./DeleteHabitWithConfirm.tsx";
+import { toFriendlyString } from "../utils/helpers";
+import DeleteHabitWithConfirm from "./DeleteHabitWithConfirm";
 import { ColorLens, EventRepeat, Save } from "@mui/icons-material";
-import BackButton from "./BackButton.tsx";
+import BackButton from "./BackButton";
 
 async function loader({ params }: LoaderFunctionArgs<{ id: string }>) {
   const { id } = params;

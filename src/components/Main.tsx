@@ -1,12 +1,12 @@
 import { createTheme, CssBaseline, PaletteMode, ThemeProvider } from "@mui/material";
-import { useAtom } from "jotai";
-import { themeAtom } from "../store";
-import { useMemo } from "react";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { useAtom } from "jotai";
 import { DevTools } from "jotai-devtools";
+import { useMemo } from "react";
 import { RouterProvider } from "react-router-dom";
 import { router } from "../main";
+import { themeAtom } from "../store";
 
 export default function Main() {
   const [themeAtomValue] = useAtom<PaletteMode>(themeAtom);

@@ -1,9 +1,9 @@
 import { PaletteMode } from "@mui/material";
-import { database, getUser } from "./firebase";
+import dayjs, { Dayjs } from "dayjs";
+import { get, ref, set } from "firebase/database";
 import { atom, getDefaultStore } from "jotai";
 import { atomWithStorage } from "jotai/utils";
-import { get, ref, set } from "firebase/database";
-import dayjs, { Dayjs } from "dayjs";
+import { database, getUser } from "./firebase";
 
 export const store = getDefaultStore();
 export const themeAtom = atomWithStorage<PaletteMode>("theme", "dark");

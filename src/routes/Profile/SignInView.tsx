@@ -4,8 +4,8 @@ import firebase from "firebase/compat/app";
 import * as firebaseui from "firebaseui";
 import "firebaseui/dist/firebaseui.css";
 import { useEffect } from "react";
-import { getUser } from "../../firebase";
 import { redirect } from "react-router-dom";
+import { getUser } from "../../firebase";
 import { router } from "../../main";
 import { showSnackBar } from "../../utils/helpers";
 

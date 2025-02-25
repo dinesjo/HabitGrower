@@ -1,6 +1,6 @@
+import dayjs from "dayjs";
 import { get, push, ref, set } from "firebase/database";
 import { database, getUser } from "./firebase";
-import dayjs from "dayjs";
 
 export interface Habit {
   name: string;

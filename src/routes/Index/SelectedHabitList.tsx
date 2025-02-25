@@ -1,24 +1,24 @@
+import { KeyboardArrowDownOutlined, KeyboardArrowUpOutlined, RemoveOutlined } from "@mui/icons-material";
 import {
+  Box,
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
   IconButton,
   List,
   ListItem,
   ListItemText,
   Typography,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogContentText,
-  DialogActions,
-  Button,
-  Box,
 } from "@mui/material";
 import dayjs from "dayjs";
-import { Habit } from "../../habitsModel";
-import { KeyboardArrowDownOutlined, KeyboardArrowUpOutlined, RemoveOutlined } from "@mui/icons-material";
-import { Form, useNavigation } from "react-router-dom";
-import { useState } from "react";
 import { useAtom, useAtomValue } from "jotai";
 import { atomWithStorage } from "jotai/utils";
+import { useState } from "react";
+import { Form, useNavigation } from "react-router-dom";
+import { Habit } from "../../habitsModel";
 
 const sortDirectionAtom = atomWithStorage<"asc" | "desc">("sortHabitListDirection", "desc");
 

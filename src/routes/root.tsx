@@ -1,5 +1,4 @@
-import { Outlet, useNavigation, NavLink, Form } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { AccountCircle, Home, PlaylistAdd } from "@mui/icons-material";
 import {
   Alert,
   Avatar,
@@ -14,11 +13,12 @@ import {
   Snackbar,
   Tooltip,
 } from "@mui/material";
-import { AccountCircle, Home, PlaylistAdd } from "@mui/icons-material";
 import { getAuth } from "firebase/auth";
 import { useAtom } from "jotai";
-import { snackbarMessageAtom, snackbarOpenAtom, snackbarSeverityAtom } from "../store";
+import { useEffect, useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
+import { Form, NavLink, Outlet, useNavigation } from "react-router-dom";
+import { snackbarMessageAtom, snackbarOpenAtom, snackbarSeverityAtom } from "../store";
 
 export default function Root() {
   // Router

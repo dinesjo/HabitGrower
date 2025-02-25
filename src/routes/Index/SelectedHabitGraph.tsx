@@ -1,9 +1,9 @@
-import { Habit } from "../../habitsModel";
-import dayjs from "dayjs";
-import { BarChart } from "@mui/x-charts";
 import { Box, Container, ToggleButton, ToggleButtonGroup, Typography } from "@mui/material";
+import { BarChart } from "@mui/x-charts";
+import dayjs from "dayjs";
 import { useAtom } from "jotai";
 import { atomWithStorage } from "jotai/utils";
+import { Habit } from "../../habitsModel";
 
 const daysShownMap: Record<number, string> = {
   14: "14 Days",

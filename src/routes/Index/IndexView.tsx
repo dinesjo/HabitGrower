@@ -1,32 +1,32 @@
+import { Check, Checklist } from "@mui/icons-material";
 import {
   Avatar,
+  AvatarGroup,
+  Badge,
+  Box,
+  Card,
+  CardContent,
+  Checkbox,
+  Chip,
+  Divider,
+  Fab,
+  Grow,
   List,
   ListItem,
   ListItemAvatar,
   ListItemButton,
   ListItemText,
-  Typography,
-  Checkbox,
-  Box,
-  Fab,
-  Grow,
-  Divider,
-  Badge,
-  AvatarGroup,
-  Card,
-  CardContent,
-  Chip,
   Paper,
+  Typography,
 } from "@mui/material";
-import { Form, redirect, useLoaderData, useNavigation, useNavigate } from "react-router-dom";
-import { Habit, fetchAllHabits, registerHabitsToday } from "../../habitsModel";
-import { IconMap } from "../../utils/IconMap";
-import { toFriendlyFrequency, getProgress, getProgressBuffer, showSnackBar } from "../../utils/helpers.tsx";
-import { useAtom } from "jotai";
-import { checkedHabitIdsAtom, store, userDayStartsAtAtom, userWeekStartsAtMondayAtom } from "../../store";
 import dayjs from "dayjs";
-import LinearProgressWithLabel from "../../components/LinearProgressWithLabel.tsx";
-import { Check, Checklist } from "@mui/icons-material";
+import { useAtom } from "jotai";
+import { Form, redirect, useLoaderData, useNavigate, useNavigation } from "react-router-dom";
+import LinearProgressWithLabel from "../../components/LinearProgressWithLabel";
+import { Habit, fetchAllHabits, registerHabitsToday } from "../../habitsModel";
+import { checkedHabitIdsAtom, store, userDayStartsAtAtom, userWeekStartsAtMondayAtom } from "../../store";
+import { IconMap } from "../../utils/IconMap";
+import { getProgress, getProgressBuffer, showSnackBar, toFriendlyFrequency } from "../../utils/helpers";
 
 async function loader() {
   return {

@@ -1,3 +1,4 @@
+import { DarkModeOutlined, HotelOutlined, LogoutOutlined, TodayOutlined } from "@mui/icons-material";
 import {
   Avatar,
   Button,
@@ -14,15 +15,14 @@ import {
   Switch,
   Typography,
 } from "@mui/material";
-import { User } from "firebase/auth";
-import { DarkModeOutlined, HotelOutlined, LogoutOutlined, TodayOutlined } from "@mui/icons-material";
-import { Form, redirect, useLoaderData, useNavigation } from "react-router-dom";
-import { getUser } from "../../firebase";
-import { useAtom } from "jotai";
-import { themeAtom, userDayStartsAtAtom, userWeekStartsAtMondayAtom } from "../../store";
 import { TimePicker } from "@mui/x-date-pickers";
 import { Dayjs } from "dayjs";
+import { User } from "firebase/auth";
+import { useAtom } from "jotai";
 import { Suspense } from "react";
+import { Form, redirect, useLoaderData, useNavigation } from "react-router-dom";
+import { getUser } from "../../firebase";
+import { themeAtom, userDayStartsAtAtom, userWeekStartsAtMondayAtom } from "../../store";
 
 async function loader() {
   const user = await getUser();
