@@ -51,6 +51,8 @@ export default defineConfig({
       devOptions: {
         enabled: true,
       },
+      srcDir: 'src',
+      filename: 'custom-sw.js',
     }),
   ],
 });
