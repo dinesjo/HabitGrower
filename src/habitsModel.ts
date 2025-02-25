@@ -31,7 +31,7 @@ export async function fetchAllHabits(): Promise<Habit[]> {
       const habitsData = snapshot.val();
       return Object.entries(habitsData).map(([key, habit]) => ({
         ...(habit as Habit),
-        id: key
+        id: key,
       }));
     }
     return [];
@@ -115,5 +115,5 @@ export async function checkHabitCompletion(habitId: string): Promise<boolean> {
 
 export async function getHabitsForNotification(): Promise<Habit[]> {
   const habits = await fetchAllHabits();
-  return habits.filter(habit => habit.notificationEnabled && habit.notificationTime);
+  return habits.filter((habit) => habit.notificationEnabled && habit.notificationTime);
 }

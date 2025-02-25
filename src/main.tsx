@@ -9,7 +9,14 @@ import EditHabitForm from "./components/EditHabitForm";
 import ErrorPage from "./components/ErrorPage";
 import "./firebase";
 import { signOut } from "./firebase";
-import { createEmptyHabit, deleteHabit, Habit, unregisterHabitByDate, updateHabit } from "./habitsModel";
+import {
+  createEmptyHabit,
+  deleteHabit,
+  Habit,
+  unregisterHabitByDate,
+  updateHabit,
+  getHabitsForNotification,
+} from "./habitsModel";
 import IndexPage from "./routes/Index/IndexView";
 import SelectedHabit from "./routes/Index/SelectedHabit";
 import AccountView from "./routes/Profile/AccountView";
@@ -21,6 +28,18 @@ import { requireAuth } from "./utils/requireAuth";
 import "jotai-devtools/styles.css";
 import Main from "./components/Main";
 import { showSnackBar } from "./utils/helpers";
+import { updateHabitNotifications } from "./services/notifications";
+
+// Add this function
+async function initializeNotifications() {
+  if ("serviceWorker" in navigator) {
+    await navigator.serviceWorker.ready;
+    // Set up notifications for the next 24 hours
+    const habits = await getHabitsForNotification();
+    await updateHabitNotifications(habits);
+    console.log("Notifications initialized");
+  }
+}
 
 export const router = createBrowserRouter(
   createRoutesFromElements(
@@ -93,3 +112,6 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
     <Main />
   </React.StrictMode>
 );
+
+// Initialize notifications
+initializeNotifications();

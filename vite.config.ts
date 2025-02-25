@@ -16,7 +16,11 @@ export default defineConfig({
     mkcert(),
     VitePWA({
       registerType: "autoUpdate",
-      includeAssets: ["favicon.ico", "apple-touch-icon.png", "mask-icon.svg"],
+      devOptions: {
+        enabled: true,
+        type: 'module',
+      },
+      injectRegister: false,
       manifest: {
         name: "HabitGrower",
         short_name: "HabitGrower",
@@ -48,11 +52,6 @@ export default defineConfig({
           },
         ],
       },
-      devOptions: {
-        enabled: true,
-      },
-      srcDir: 'src',
-      filename: 'custom-sw.js',
     }),
   ],
 });
