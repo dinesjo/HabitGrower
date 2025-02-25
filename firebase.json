@@ -8,8 +8,27 @@
     ],
     "rewrites": [
       {
+        "source": "/custom-sw.js",
+        "destination": "/custom-sw.js"
+      },
+      {
         "source": "**",
         "destination": "/index.html"
+      }
+    ],
+    "headers": [
+      {
+        "source": "/custom-sw.js",
+        "headers": [
+          {
+            "key": "Content-Type",
+            "value": "application/javascript"
+          },
+          {
+            "key": "Service-Worker-Allowed",
+            "value": "/"
+          }
+        ]
       }
     ]
   }

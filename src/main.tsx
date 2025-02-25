@@ -16,6 +16,7 @@ import {
   unregisterHabitByDate,
   updateHabit,
   getHabitsForNotification,
+  fetchHabitById,
 } from "./habitsModel";
 import IndexPage from "./routes/Index/IndexView";
 import SelectedHabit from "./routes/Index/SelectedHabit";
@@ -29,6 +30,19 @@ import "jotai-devtools/styles.css";
 import Main from "./components/Main";
 import { showSnackBar } from "./utils/helpers";
 import { updateHabitNotifications } from "./services/notifications";
+
+if ("serviceWorker" in navigator) {
+  // Use environment-aware path
+  const swPath = "/custom-sw.js";
+  navigator.serviceWorker
+    .register(swPath)
+    .then((registration) => {
+      console.log("Service Worker registered with scope:", registration.scope);
+    })
+    .catch((error) => {
+      console.error("Service Worker registration failed:", error);
+    });
+}
 
 // Add this function
 async function initializeNotifications() {
@@ -59,6 +73,11 @@ export const router = createBrowserRouter(
             const habitData = formData as unknown as Habit;
             habitData.notificationEnabled = formData.notificationEnabled === "on";
             await updateHabit(params.id, habitData);
+            // Update notification
+            if (habitData.notificationEnabled) {
+              const habit = await fetchHabitById(params.id);
+              await updateHabitNotifications([habit!]);
+            }
             // Show snackbar
             showSnackBar("Habit updated!", "success");
             return redirect("/");

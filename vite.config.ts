@@ -1,26 +1,30 @@
-import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
-import { VitePWA } from "vite-plugin-pwa";
+import { defineConfig } from "vite";
 import mkcert from "vite-plugin-mkcert";
+import { VitePWA } from "vite-plugin-pwa";
 
-// https://vitejs.dev/config/
 export default defineConfig({
   server: {
-    host: true, // expose to all network interfaces
+    host: true,
     hmr: {
       host: "localhost",
     },
+  },
+  build: {
+    sourcemap: false,
+    outDir: "dist",
   },
   plugins: [
     react(),
     mkcert(),
     VitePWA({
-      registerType: "autoUpdate",
       devOptions: {
         enabled: true,
-        type: 'module',
       },
       injectRegister: false,
+      strategies: "injectManifest",
+      srcDir: "public", // Changed to public
+      filename: "custom-sw.js", // Simplified path
       manifest: {
         name: "HabitGrower",
         short_name: "HabitGrower",
@@ -51,6 +55,12 @@ export default defineConfig({
             purpose: "maskable",
           },
         ],
+      },
+      injectManifest: {
+        injectionPoint: undefined, // Let Workbox handle it
+        swSrc: "./public/custom-sw.js",
+        swDest: "dist/custom-sw.js", // Consistent with the registration path
+        rollupFormat: "iife",
       },
     }),
   ],
