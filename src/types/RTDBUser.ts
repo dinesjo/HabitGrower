@@ -2,7 +2,9 @@ import { Habit } from "../habitsModel";
 
 export interface RTDBUser {
   dayStartsAt: string | undefined;
-  fcmToken: string | undefined;
+  fcmTokens: {
+    [key: string]: string;
+  };
   habits: {
     [key: string]: Habit;
   };

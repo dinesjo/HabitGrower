@@ -34,18 +34,24 @@ export default async function handler(req, res) {
 
     for (const userId in usersIds) {
       const user: RTDBUser = usersIds[userId];
-      if (!user.fcmToken) continue; // Skip users without an FCM token
+      if (!user.fcmTokens) continue; // Skip users without an FCM token
 
-      for (const habitId in user.habits) {
-        const habit = user.habits[habitId];
-        if (habit.notificationEnabled && habit.notificationTime === currentTime) {
-          messages.push({
-            token: user.fcmToken,
-            notification: {
-              title: habit.name,
-              body: `Time to do: ${habit.name}`,
-            },
-          });
+      for (const fcmToken of Object.values(user.fcmTokens)) {
+        for (const habit of Object.values(user.habits)) {
+          if (habit.notificationEnabled && habit.notificationTime === currentTime) {
+            messages.push({
+              token: fcmToken,
+              notification: {
+                title: habit.name,
+              },
+              android: {
+                notification: {
+                  icon: "stock_ticker_update",
+                  color: "#7e55c3",
+                },
+              },
+            });
+          }
         }
       }
     }
