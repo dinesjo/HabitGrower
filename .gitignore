@@ -26,3 +26,5 @@ dev-dist
 *.njsproj
 *.sln
 *.sw?
+habitgrower-firebase-adminsdk-*.json
+.vercel

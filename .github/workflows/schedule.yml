@@ -1,0 +1,13 @@
+name: Check Notifications every minute
+
+on:
+  schedule:
+    - cron: "*/1 * * * *" # Runs every minute
+  workflow_dispatch: # Should allow manual trigger
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call notification API
+        run: curl -X POST "https://habit-grower.vercel.app/api/sendNotificationIfTime"

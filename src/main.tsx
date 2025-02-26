@@ -9,7 +9,15 @@ import EditHabitForm from "./components/EditHabitForm";
 import ErrorPage from "./components/ErrorPage";
 import "./firebase";
 import { signOut } from "./firebase";
-import { createEmptyHabit, deleteHabit, Habit, unregisterHabitByDate, updateHabit } from "./habitsModel";
+import {
+  createEmptyHabit,
+  deleteHabit,
+  fetchHabitById,
+  getHabitsForNotification,
+  Habit,
+  unregisterHabitByDate,
+  updateHabit,
+} from "./habitsModel";
 import IndexPage from "./routes/Index/IndexView";
 import SelectedHabit from "./routes/Index/SelectedHabit";
 import AccountView from "./routes/Profile/AccountView";
@@ -20,7 +28,50 @@ import { requireAuth } from "./utils/requireAuth";
 // Note that this may get included in your production builds. Please import it conditionally if you want to avoid that
 import "jotai-devtools/styles.css";
 import Main from "./components/Main";
+import { updateHabitNotifications } from "./services/notifications";
 import { showSnackBar } from "./utils/helpers";
+
+/* --- Service worker --- */
+if ("serviceWorker" in navigator) {
+  // Use environment-aware path
+  navigator.serviceWorker
+    .register("/firebase-messaging-sw.js")
+    .then((registration) => {
+      console.log("Service Worker registered with scope:", registration.scope);
+    })
+    .catch((error) => {
+      console.error("Service Worker registration failed:", error);
+    });
+}
+if (!("PushManager" in window)) {
+  // Push isn't supported on this browser, disable or hide UI.
+  console.warn("Push notifications are not supported on this browser");
+}
+
+// Subscribe user to push notifications
+// async function subscribeUserToPush() {
+//   try {
+//     const registration = await navigator.serviceWorker.ready;
+//     const subscription = await registration.pushManager.subscribe({
+//       userVisibleOnly: true,
+//       applicationServerKey: "BGrAALqbXgLxsAQlzzQ5CSU7xOgYCYdHAHm4zbLT4Zs0rxUTpAR7JGLOZhFH1Qq6w1zGoQLZHLKXXDMelJv5PGY",
+//     });
+//     console.log("Push subscription:", subscription);
+//     return subscription;
+//   } catch (error) {
+//     console.error("Failed to subscribe to push notifications:", error);
+//   }
+// }
+
+async function initializeNotifications() {
+  if ("serviceWorker" in navigator) {
+    await navigator.serviceWorker.ready;
+    // Set up notifications for the next 24 hours
+    const habits = await getHabitsForNotification();
+    await updateHabitNotifications(habits);
+    console.log("Notifications initialized");
+  }
+}
 
 export const router = createBrowserRouter(
   createRoutesFromElements(
@@ -37,7 +88,14 @@ export const router = createBrowserRouter(
               return redirect("/");
             }
             const formData = Object.fromEntries(await request.formData());
-            await updateHabit(params.id, formData as unknown as Habit);
+            const habitData = formData as unknown as Habit;
+            habitData.notificationEnabled = formData.notificationEnabled === "on";
+            await updateHabit(params.id, habitData);
+            // Update notification
+            if (habitData.notificationEnabled) {
+              const habit = await fetchHabitById(params.id);
+              await updateHabitNotifications([habit!]);
+            }
             // Show snackbar
             showSnackBar("Habit updated!", "success");
             return redirect("/");
@@ -91,3 +149,6 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
     <Main />
   </React.StrictMode>
 );
+
+// Initialize notifications
+initializeNotifications();

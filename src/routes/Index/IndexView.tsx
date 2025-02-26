@@ -54,7 +54,7 @@ IndexPage.loader = loader;
 IndexPage.action = action;
 
 export default function IndexPage() {
-  const { habits } = useLoaderData() as { habits: Record<string, Habit> };
+  const { habits } = useLoaderData() as { habits: Habit[] };
   const navigation = useNavigation();
   const navigate = useNavigate();
   const [checkedHabitIds, setCheckedHabitIds] = useAtom(checkedHabitIdsAtom);
@@ -62,16 +62,16 @@ export default function IndexPage() {
 
   const [dayStartsAt] = useAtom(userDayStartsAtAtom);
 
-  function sortHabitsRecordCB(a: [string, Habit], b: [string, Habit]) {
+  function sortHabitsCB(a: Habit, b: Habit) {
     // If progress is not 100, go first
-    const progressA = getProgress(a[1], false, userWeekStartsAtMonday);
-    const progressB = getProgress(b[1], false, userWeekStartsAtMonday);
+    const progressA = getProgress(a, false, userWeekStartsAtMonday);
+    const progressB = getProgress(b, false, userWeekStartsAtMonday);
     if (progressA < 100 && progressB === 100) return -1;
     if (progressA === 100 && progressB < 100) return 1;
 
     // If no frequency, go by name
-    if (!a[1].frequency || !b[1].frequency || !a[1].frequencyUnit || !b[1].frequencyUnit) {
-      return a[1].name.localeCompare(b[1].name);
+    if (!a.frequency || !b.frequency || !a.frequencyUnit || !b.frequencyUnit) {
+      return a.name.localeCompare(b.name);
     }
 
     function getFrequencyUnitValue(frequencyUnit: string) {
@@ -90,30 +90,30 @@ export default function IndexPage() {
     }
 
     // Go by frequency unit
-    if (getFrequencyUnitValue(a[1].frequencyUnit) < getFrequencyUnitValue(b[1].frequencyUnit)) return -1;
-    if (getFrequencyUnitValue(a[1].frequencyUnit) > getFrequencyUnitValue(b[1].frequencyUnit)) return 1;
+    if (getFrequencyUnitValue(a.frequencyUnit) < getFrequencyUnitValue(b.frequencyUnit)) return -1;
+    if (getFrequencyUnitValue(a.frequencyUnit) > getFrequencyUnitValue(b.frequencyUnit)) return 1;
 
     // If same frequency unit, go by frequency
-    if (b[1].frequency < a[1].frequency) return -1;
-    if (b[1].frequency > a[1].frequency) return 1;
+    if (b.frequency < a.frequency) return -1;
+    if (b.frequency > a.frequency) return 1;
 
     // If same frequency and unit, go by name
-    return a[1].name.localeCompare(b[1].name);
+    return a.name.localeCompare(b.name);
   }
 
-  const sortedHabits = habits ? Object.entries(habits).sort(sortHabitsRecordCB) : [];
+  const sortedHabits = habits ? habits.sort(sortHabitsCB) : [];
 
   let greeting = "Good ";
   if (dayjs().hour() < 10) greeting += "morning! 🌅";
   else if (dayjs().hour() < 19) greeting += "day! ☀️";
   else greeting += "evening! 🌙";
 
-  const firstCompletedHabitKey = sortedHabits.find(([, habit]) => {
+  const firstCompletedHabitId = sortedHabits.find(habit => {
     const progress = getProgress(habit, false, userWeekStartsAtMonday);
     return progress === 100;
-  })?.[0];
+  })?.id;
 
-  const allHabitsCompleted = sortedHabits.every(([, habit]) => {
+  const allHabitsCompleted = sortedHabits.every((habit) => {
     const progress = getProgress(habit, false, userWeekStartsAtMonday);
     return progress === 100;
   });
@@ -150,14 +150,14 @@ export default function IndexPage() {
                 scrollbarColor: "#ccc transparent",
               }}
             >
-              {sortedHabits.map(([key, habit]) => {
-                const isChecked = checkedHabitIds.includes(key);
+              {sortedHabits.map((habit) => {
+                const isChecked = checkedHabitIds.includes(habit.id!);
                 const progress = getProgress(habit, isChecked, userWeekStartsAtMonday);
                 const registeredProgress = getProgress(habit, false, userWeekStartsAtMonday);
                 const progressBuffer = getProgressBuffer(habit, dayStartsAt, userWeekStartsAtMonday);
-                const isFirstCompletedHabit = key === firstCompletedHabitKey;
+                const isFirstCompletedHabit = habit.id === firstCompletedHabitId;
                 return (
-                  <Box key={key} sx={{ mb: 1 }}>
+                  <Box key={habit.id} sx={{ mb: 1 }}>
                     {isFirstCompletedHabit && (
                       <Divider sx={{ my: 1 }}>
                         <Chip label="Completed Habits" size="small" icon={<Checklist />} />
@@ -184,12 +184,12 @@ export default function IndexPage() {
                         disablePadding
                         secondaryAction={
                           <>
-                            {isChecked && <input type="hidden" name="habitIds" value={key} />}
+                            {isChecked && <input type="hidden" name="habitIds" value={habit.id} />}
                             <Checkbox
                               checked={isChecked}
                               onClick={() =>
                                 setCheckedHabitIds((prev) =>
-                                  isChecked ? prev.filter((id) => id !== key) : [...prev, key]
+                                  isChecked ? prev.filter((id) => id !== habit.id) : [...prev, habit.id!]
                                 )
                               }
                               sx={{ "& .MuiSvgIcon-root": { fontSize: 32 } }}
@@ -200,7 +200,7 @@ export default function IndexPage() {
                       >
                         <ListItemButton
                           sx={{ py: 0.25, px: 1, display: "flex", flexDirection: "column", alignItems: "start" }}
-                          onClick={() => navigate(`/${key}`)}
+                          onClick={() => navigate(`/${habit.id}`)}
                         >
                           <Box sx={{ display: "flex", alignItems: "center" }}>
                             <ListItemAvatar sx={{ color: habit.color }}>
@@ -284,11 +284,11 @@ export default function IndexPage() {
                     }}
                     max={5}
                   >
-                    {checkedHabitIds.map((key) => {
-                      const habit = habits[key];
+                    {checkedHabitIds.map((id) => {
+                      const habit = habits.find(h => h.id === id)!;
                       return (
-                        <Grow in key={key} style={{ transformOrigin: "left center 0" }} timeout={500}>
-                          <Avatar key={key} sx={{ bgcolor: habit.color }}>
+                        <Grow in key={id} style={{ transformOrigin: "left center 0" }} timeout={500}>
+                          <Avatar key={id} sx={{ bgcolor: habit.color }}>
                             {IconMap[habit.icon || "default"]}
                           </Avatar>
                         </Grow>
