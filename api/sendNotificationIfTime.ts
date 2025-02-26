@@ -42,8 +42,8 @@ export default async function handler(req, res) {
           messages.push({
             token: user.fcmToken,
             notification: {
-              title: "Reminder",
-              body: `Time to do ${habit.name}!`,
+              title: habit.name,
+              body: `Time to do: ${habit.name}`,
             },
           });
         }
@@ -52,12 +52,10 @@ export default async function handler(req, res) {
 
     if (messages.length > 0) {
       await Promise.all(messages.map((msg) => admin.messaging().send(msg)));
-      res
-        .status(200)
-        .json({
-          success: true,
-          message: "Notifications sent! " + messages.map((msg) => msg.notification!.body).join(", "),
-        });
+      res.status(200).json({
+        success: true,
+        message: "Notifications sent! " + messages.map((msg) => msg.notification!.body).join(", "),
+      });
     } else {
       res.status(200).json({ message: "No notifications due." });
     }
