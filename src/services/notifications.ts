@@ -1,20 +1,22 @@
 import { Habit } from "../habitsModel";
 import { showSnackBar } from "../utils/helpers";
 
-export async function requestNotificationPermission(): Promise<boolean> {
+/**
+ * Request permission to show notifications. Shows a snackbar with the result.
+ *
+ * @returns true if permission was granted, false otherwise
+ */
+async function requestNotificationPermission(): Promise<boolean> {
   try {
-    // First, check if notifications are supported
     if (!("Notification" in window)) {
-      showSnackBar("This browser does not support notifications", "error");
+      showSnackBar("This browser does not support push notifications", "warning");
       return false;
     }
 
-    // Check if we already have permission
     if (Notification.permission === "granted") {
       return true;
     }
 
-    // Request permission
     const permission = await Notification.requestPermission();
 
     if (permission === "granted") {
@@ -31,13 +33,13 @@ export async function requestNotificationPermission(): Promise<boolean> {
   }
 }
 
-export async function scheduleHabitNotification(habit: Habit) {
+/**
+ * Schedule a notification for the given habit.
+ *
+ * @param habit Habit to schedule a notification for
+ */
+async function scheduleHabitNotification(habit: Habit) {
   if (!habit.notificationEnabled || !habit.notificationTime || !habit.id) return;
-
-  if (Notification.permission !== "granted") {
-    const granted = await requestNotificationPermission();
-    if (!granted) return;
-  }
 
   const registration = await navigator.serviceWorker.ready;
   const activeWorker = registration.active;
@@ -47,7 +49,6 @@ export async function scheduleHabitNotification(habit: Habit) {
     return;
   }
 
-  console.log("Dispatching event to service worker");
   activeWorker.postMessage({
     type: "schedule-notification",
     detail: {
@@ -58,12 +59,18 @@ export async function scheduleHabitNotification(habit: Habit) {
   });
 }
 
-export async function updateHabitNotifications(habits: Habit[]) {
-  // Request permission first
+/**
+ * Update notifications for all habits that have notifications enabled.
+ *
+ * Works by requests notification permission and schedules notifications for all given habits.
+ *
+ * @param habits Habits to schedule notifications for
+ * @returns Promise that resolves when all notifications are scheduled
+ */
+export async function updateHabitNotifications(habits: Habit[]): Promise<void> {
   const permission = await requestNotificationPermission();
   if (!permission) return;
 
-  // Schedule notifications for all enabled habits
   for (const habit of habits) {
     await scheduleHabitNotification(habit);
   }

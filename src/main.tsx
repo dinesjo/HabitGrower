@@ -12,11 +12,10 @@ import { signOut } from "./firebase";
 import {
   createEmptyHabit,
   deleteHabit,
+  fetchHabitById,
   Habit,
   unregisterHabitByDate,
   updateHabit,
-  getHabitsForNotification,
-  fetchHabitById,
 } from "./habitsModel";
 import IndexPage from "./routes/Index/IndexView";
 import SelectedHabit from "./routes/Index/SelectedHabit";
@@ -28,14 +27,14 @@ import { requireAuth } from "./utils/requireAuth";
 // Note that this may get included in your production builds. Please import it conditionally if you want to avoid that
 import "jotai-devtools/styles.css";
 import Main from "./components/Main";
-import { showSnackBar } from "./utils/helpers";
 import { updateHabitNotifications } from "./services/notifications";
+import { showSnackBar } from "./utils/helpers";
 
+/* --- Service worker --- */
 if ("serviceWorker" in navigator) {
   // Use environment-aware path
-  const swPath = "/custom-sw.js";
   navigator.serviceWorker
-    .register(swPath)
+    .register("/custom-sw.js")
     .then((registration) => {
       console.log("Service Worker registered with scope:", registration.scope);
     })
@@ -43,17 +42,20 @@ if ("serviceWorker" in navigator) {
       console.error("Service Worker registration failed:", error);
     });
 }
-
-// Add this function
-async function initializeNotifications() {
-  if ("serviceWorker" in navigator) {
-    await navigator.serviceWorker.ready;
-    // Set up notifications for the next 24 hours
-    const habits = await getHabitsForNotification();
-    await updateHabitNotifications(habits);
-    console.log("Notifications initialized");
-  }
+if (!("PushManager" in window)) {
+  // Push isn't supported on this browser, disable or hide UI.
+  console.warn("Push notifications are not supported on this browser");
 }
+
+// async function initializeNotifications() {
+//   if ("serviceWorker" in navigator) {
+//     await navigator.serviceWorker.ready;
+//     // Set up notifications for the next 24 hours
+//     const habits = await getHabitsForNotification();
+//     await updateHabitNotifications(habits);
+//     console.log("Notifications initialized");
+//   }
+// }
 
 export const router = createBrowserRouter(
   createRoutesFromElements(
@@ -133,4 +135,4 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
 );
 
 // Initialize notifications
-initializeNotifications();
+// initializeNotifications();
