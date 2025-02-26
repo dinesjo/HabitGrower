@@ -10,10 +10,6 @@ export default defineConfig({
       host: "localhost",
     },
   },
-  build: {
-    sourcemap: false,
-    outDir: "dist",
-  },
   plugins: [
     react(),
     mkcert(),
@@ -21,10 +17,6 @@ export default defineConfig({
       devOptions: {
         enabled: true,
       },
-      injectRegister: false,
-      strategies: "injectManifest",
-      srcDir: "public", // Changed to public
-      filename: "custom-sw.js", // Simplified path
       manifest: {
         name: "HabitGrower",
         short_name: "HabitGrower",
@@ -55,12 +47,6 @@ export default defineConfig({
             purpose: "maskable",
           },
         ],
-      },
-      injectManifest: {
-        injectionPoint: undefined, // Let Workbox handle it
-        swSrc: "./public/custom-sw.js",
-        swDest: "dist/custom-sw.js", // Consistent with the registration path
-        rollupFormat: "iife",
       },
     }),
   ],

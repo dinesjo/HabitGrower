@@ -3,7 +3,7 @@ name: Check Notifications every minute
 on:
   schedule:
     - cron: "*/1 * * * *" # Runs every minute
-  workflow_dispatch:  # Allows manual trigger
+  workflow_dispatch: # Should allow manual trigger
 
 jobs:
   run:
