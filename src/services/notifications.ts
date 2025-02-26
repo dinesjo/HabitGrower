@@ -1,8 +1,7 @@
-import { getToken } from "firebase/messaging";
-import { Habit } from "../habitsModel";
-import { showSnackBar } from "../utils/helpers";
-import { database, getUser, messaging } from "../firebase";
 import { ref, set } from "firebase/database";
+import { getToken } from "firebase/messaging";
+import { database, getUser, messaging } from "../firebase";
+import { showSnackBar } from "../utils/helpers";
 
 async function storeFCMTokenToCurrentUser(token: string) {
   const user = await getUser();
@@ -24,7 +23,7 @@ async function storeFCMTokenToCurrentUser(token: string) {
  *
  * @returns true if permission was granted, false otherwise
  */
-async function requestNotificationPermission(): Promise<boolean> {
+export async function requestNotificationPermission(): Promise<boolean> {
   try {
     if (!("Notification" in window)) {
       showSnackBar("This browser does not support push notifications", "warning");
@@ -39,9 +38,11 @@ async function requestNotificationPermission(): Promise<boolean> {
     const permission = await Notification.requestPermission();
 
     if (permission === "granted") {
-      //! Not reachable when permission is alraedy OK
       try {
+        const registration = await navigator.serviceWorker.ready;
+
         const token = await getToken(messaging, {
+          serviceWorkerRegistration: registration,
           vapidKey: "BGrAALqbXgLxsAQlzzQ5CSU7xOgYCYdHAHm4zbLT4Zs0rxUTpAR7JGLOZhFH1Qq6w1zGoQLZHLKXXDMelJv5PGY",
         });
         console.log("FCM Token:", token);
@@ -59,48 +60,5 @@ async function requestNotificationPermission(): Promise<boolean> {
     console.error("Error requesting notification permission:", error);
     showSnackBar("Failed to setup notifications", "error");
     return false;
-  }
-}
-
-/**
- * Schedule a notification for the given habit.
- *
- * @param habit Habit to schedule a notification for
- */
-async function scheduleHabitNotification(habit: Habit) {
-  if (!habit.notificationEnabled || !habit.notificationTime || !habit.id) return;
-
-  const registration = await navigator.serviceWorker.ready;
-  const activeWorker = registration.active;
-
-  if (!activeWorker) {
-    console.error("No active service worker found");
-    return;
-  }
-
-  activeWorker.postMessage({
-    type: "schedule-notification",
-    detail: {
-      habitId: habit.id,
-      title: `Time to do: ${habit.name}`,
-      time: habit.notificationTime,
-    },
-  });
-}
-
-/**
- * Update notifications for all habits that have notifications enabled.
- *
- * Works by requests notification permission and schedules notifications for all given habits.
- *
- * @param habits Habits to schedule notifications for
- * @returns Promise that resolves when all notifications are scheduled
- */
-export async function updateHabitNotifications(habits: Habit[]): Promise<void> {
-  const permission = await requestNotificationPermission();
-  if (!permission) return;
-
-  for (const habit of habits) {
-    await scheduleHabitNotification(habit);
   }
 }

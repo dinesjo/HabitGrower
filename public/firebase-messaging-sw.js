@@ -1,6 +1,9 @@
 importScripts("https://www.gstatic.com/firebasejs/10.7.2/firebase-app-compat.js");
 importScripts("https://www.gstatic.com/firebasejs/10.7.2/firebase-messaging-compat.js");
 
+import { precacheAndRoute } from 'workbox-precaching'
+precacheAndRoute(self.__WB_MANIFEST)
+
 firebase.initializeApp({
   apiKey: "AIzaSyDMfCeJUzcBqHpfdfDbi_KQ4KIzmQuwOMs",
   authDomain: "habitgrower.firebaseapp.com",
@@ -15,8 +18,15 @@ firebase.initializeApp({
 const messaging = firebase.messaging();
 
 messaging.onBackgroundMessage((payload) => {
+  // Prevent Firebase from showing its own notification (resulting in duplicate)
+  self.registration.getNotifications().then((notifications) => {
+    notifications.forEach((notification) => {
+      notification.close();
+    });
+  });
+
   self.registration.showNotification(payload.notification.title, {
     body: payload.notification.body,
-    icon: "/icon.png",
+    icon: "/pwa-512x512.png",
   });
 });
