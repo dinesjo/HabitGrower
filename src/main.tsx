@@ -13,6 +13,7 @@ import {
   createEmptyHabit,
   deleteHabit,
   fetchHabitById,
+  getHabitsForNotification,
   Habit,
   unregisterHabitByDate,
   updateHabit,
@@ -34,7 +35,7 @@ import { showSnackBar } from "./utils/helpers";
 if ("serviceWorker" in navigator) {
   // Use environment-aware path
   navigator.serviceWorker
-    .register("/custom-sw.js")
+    .register("/firebase-messaging-sw.js")
     .then((registration) => {
       console.log("Service Worker registered with scope:", registration.scope);
     })
@@ -47,15 +48,30 @@ if (!("PushManager" in window)) {
   console.warn("Push notifications are not supported on this browser");
 }
 
-// async function initializeNotifications() {
-//   if ("serviceWorker" in navigator) {
-//     await navigator.serviceWorker.ready;
-//     // Set up notifications for the next 24 hours
-//     const habits = await getHabitsForNotification();
-//     await updateHabitNotifications(habits);
-//     console.log("Notifications initialized");
+// Subscribe user to push notifications
+// async function subscribeUserToPush() {
+//   try {
+//     const registration = await navigator.serviceWorker.ready;
+//     const subscription = await registration.pushManager.subscribe({
+//       userVisibleOnly: true,
+//       applicationServerKey: "BGrAALqbXgLxsAQlzzQ5CSU7xOgYCYdHAHm4zbLT4Zs0rxUTpAR7JGLOZhFH1Qq6w1zGoQLZHLKXXDMelJv5PGY",
+//     });
+//     console.log("Push subscription:", subscription);
+//     return subscription;
+//   } catch (error) {
+//     console.error("Failed to subscribe to push notifications:", error);
 //   }
 // }
+
+async function initializeNotifications() {
+  if ("serviceWorker" in navigator) {
+    await navigator.serviceWorker.ready;
+    // Set up notifications for the next 24 hours
+    const habits = await getHabitsForNotification();
+    await updateHabitNotifications(habits);
+    console.log("Notifications initialized");
+  }
+}
 
 export const router = createBrowserRouter(
   createRoutesFromElements(
@@ -135,4 +151,4 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
 );
 
 // Initialize notifications
-// initializeNotifications();
+initializeNotifications();

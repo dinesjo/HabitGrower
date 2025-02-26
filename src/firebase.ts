@@ -3,11 +3,12 @@ import { initializeApp } from "firebase/app";
 import { User, getAuth, onAuthStateChanged } from "firebase/auth";
 import firebase from "firebase/compat/app";
 import { getDatabase } from "firebase/database";
+import { getMessaging } from "firebase/messaging";
 import { redirect } from "react-router-dom";
 import { showSnackBar } from "./utils/helpers";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyDMfCeJUzcBqHpfdfDbi_KQ4KIzmQuwOMs",
+  apiKey: "AIzaSyDMfCeJUzcBqHpfdfDbi_KQ4KIzmQuwOMs", // public anyway
   authDomain: "habitgrower.firebaseapp.com",
   databaseURL: "https://habitgrower-default-rtdb.europe-west1.firebasedatabase.app",
   projectId: "habitgrower",
@@ -21,6 +22,8 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 firebase.initializeApp(firebaseConfig);
 const auth = getAuth();
+
+export const messaging = getMessaging();
 
 export const database = getDatabase(app);
 

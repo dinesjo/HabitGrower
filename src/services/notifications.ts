@@ -1,5 +1,23 @@
+import { getToken } from "firebase/messaging";
 import { Habit } from "../habitsModel";
 import { showSnackBar } from "../utils/helpers";
+import { database, getUser, messaging } from "../firebase";
+import { ref, set } from "firebase/database";
+
+async function storeFCMTokenToCurrentUser(token: string) {
+  const user = await getUser();
+  if (!user) {
+    console.error("User not signed in");
+    return;
+  }
+  const db = database;
+  try {
+    await set(ref(db, `users/${user.uid}/fcmToken`), token);
+    console.log("Token stored:", token);
+  } catch (error) {
+    console.error("Error storing token:", error);
+  }
+}
 
 /**
  * Request permission to show notifications. Shows a snackbar with the result.
@@ -13,13 +31,24 @@ async function requestNotificationPermission(): Promise<boolean> {
       return false;
     }
 
-    if (Notification.permission === "granted") {
-      return true;
-    }
+    //? Just update FCM token if already have permission
+    // if (Notification.permission === "granted") {
+    //   return true;
+    // }
 
     const permission = await Notification.requestPermission();
 
     if (permission === "granted") {
+      //! Not reachable when permission is alraedy OK
+      try {
+        const token = await getToken(messaging, {
+          vapidKey: "BGrAALqbXgLxsAQlzzQ5CSU7xOgYCYdHAHm4zbLT4Zs0rxUTpAR7JGLOZhFH1Qq6w1zGoQLZHLKXXDMelJv5PGY",
+        });
+        console.log("FCM Token:", token);
+        storeFCMTokenToCurrentUser(token);
+      } catch (error) {
+        console.error("Error getting FCM token:", error);
+      }
       showSnackBar("Notifications enabled!", "success");
       return true;
     } else {
