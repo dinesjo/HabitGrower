@@ -8,7 +8,7 @@ import { createBrowserRouter, createRoutesFromElements, redirect, Route } from "
 import EditHabitForm from "./components/EditHabitForm";
 import ErrorPage from "./components/ErrorPage";
 import "./firebase";
-import { signOut } from "./firebase";
+import { messaging, signOut } from "./firebase";
 import { createEmptyHabit, deleteHabit, Habit, unregisterHabitByDate, updateHabit } from "./habitsModel";
 import IndexPage from "./routes/Index/IndexView";
 import SelectedHabit from "./routes/Index/SelectedHabit";
@@ -21,7 +21,8 @@ import { requireAuth } from "./utils/requireAuth";
 import "jotai-devtools/styles.css";
 import Main from "./components/Main";
 import { showSnackBar } from "./utils/helpers";
-import { requestNotificationPermission } from "./services/notifications";
+import { getToken } from "firebase/messaging";
+import { storeFCMTokenToCurrentUser } from "./services/notifications";
 
 /* --- Service worker --- */
 if ("serviceWorker" in navigator) {
@@ -40,8 +41,18 @@ if (!("PushManager" in window)) {
   // Push isn't supported on this browser, disable or hide UI.
   console.warn("Push notifications are not supported on this browser");
 }
+async function updateFCMToken() {
+  if (Notification.permission !== "granted") return;
 
-requestNotificationPermission();
+  try {
+    const token = await getToken(messaging, {
+      vapidKey: "BGrAALqbXgLxsAQlzzQ5CSU7xOgYCYdHAHm4zbLT4Zs0rxUTpAR7JGLOZhFH1Qq6w1zGoQLZHLKXXDMelJv5PGY",
+    });
+    storeFCMTokenToCurrentUser(token);
+  } catch (error) {
+    console.error("Error getting FCM token:", error);
+  }
+}
 
 export const router = createBrowserRouter(
   createRoutesFromElements(
@@ -114,3 +125,6 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
     <Main />
   </React.StrictMode>
 );
+
+// Initialize notifications
+updateFCMToken();

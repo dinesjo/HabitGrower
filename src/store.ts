@@ -10,53 +10,45 @@ export const themeAtom = atomWithStorage<PaletteMode>("theme", "dark");
 
 // User
 const userAtom = atom(async () => await getUser());
-export const userDayStartsAtAtom = atomWithStorage<Dayjs | null>(
-  "",
-  null,
-  {
-    getItem: async () => {
-      const userId = (await store.get(userAtom))?.uid;
-      return get(ref(database, "users/" + userId + "/dayStartsAt")).then((snapshot) => {
-        if (snapshot.exists()) {
-          return dayjs(snapshot.val());
-        }
-        return null;
-      });
-    },
-    setItem: async (_, dayStartsAt) => {
-      const userId = (await store.get(userAtom))?.uid;
-      return set(ref(database, "users/" + userId + "/dayStartsAt"), dayStartsAt?.toISOString() || null);
-    },
-    removeItem: async () => {
-      const userId = (await store.get(userAtom))?.uid;
-      return set(ref(database, "users/" + userId + "/dayStartsAt"), null);
-    },
-  }
-);
+export const userDayStartsAtAtom = atomWithStorage<Dayjs | null>("", null, {
+  getItem: async () => {
+    const userId = (await store.get(userAtom))?.uid;
+    return get(ref(database, "users/" + userId + "/dayStartsAt")).then((snapshot) => {
+      if (snapshot.exists()) {
+        return dayjs(snapshot.val());
+      }
+      return null;
+    });
+  },
+  setItem: async (_, dayStartsAt) => {
+    const userId = (await store.get(userAtom))?.uid;
+    return set(ref(database, "users/" + userId + "/dayStartsAt"), dayStartsAt?.toISOString() || null);
+  },
+  removeItem: async () => {
+    const userId = (await store.get(userAtom))?.uid;
+    return set(ref(database, "users/" + userId + "/dayStartsAt"), null);
+  },
+});
 
-export const userWeekStartsAtMondayAtom = atomWithStorage<boolean>(
-  "",
-  false,
-  {
-    getItem: async () => {
-      const userId = (await store.get(userAtom))?.uid;
-      return get(ref(database, "users/" + userId + "/weekStartsAtMonday")).then((snapshot) => {
-        if (snapshot.exists()) {
-          return snapshot.val();
-        }
-        return false;
-      });
-    },
-    setItem: async (_, weekStartsAtMonday) => {
-      const userId = (await store.get(userAtom))?.uid;
-      return set(ref(database, "users/" + userId + "/weekStartsAtMonday"), weekStartsAtMonday);
-    },
-    removeItem: async () => {
-      const userId = (await store.get(userAtom))?.uid;
-      return set(ref(database, "users/" + userId + "/weekStartsAtMonday"), null);
-    },
-  }
-);
+export const userWeekStartsAtMondayAtom = atomWithStorage<boolean>("", false, {
+  getItem: async () => {
+    const userId = (await store.get(userAtom))?.uid;
+    return get(ref(database, "users/" + userId + "/weekStartsAtMonday")).then((snapshot) => {
+      if (snapshot.exists()) {
+        return snapshot.val();
+      }
+      return false;
+    });
+  },
+  setItem: async (_, weekStartsAtMonday) => {
+    const userId = (await store.get(userAtom))?.uid;
+    return set(ref(database, "users/" + userId + "/weekStartsAtMonday"), weekStartsAtMonday);
+  },
+  removeItem: async () => {
+    const userId = (await store.get(userAtom))?.uid;
+    return set(ref(database, "users/" + userId + "/weekStartsAtMonday"), null);
+  },
+});
 
 // Snackbar
 const snackbarMessagePrimitiveAtom = atom<string>("");
@@ -77,3 +69,5 @@ export const snackbarOpenAtom = atom<boolean>((get) => !!get(snackbarMessageAtom
 
 // Checked habits
 export const checkedHabitIdsAtom = atom<string[]>([]);
+
+export const notificationPermissionAtom = atom<typeof Notification.permission>(Notification.permission);

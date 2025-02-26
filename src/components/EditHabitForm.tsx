@@ -1,5 +1,6 @@
 import { ColorLens, EventRepeat, Notifications, NotificationsOutlined, Save } from "@mui/icons-material";
 import {
+  Alert,
   Box,
   Button,
   Card,
@@ -34,6 +35,8 @@ import { toFriendlyString } from "../utils/helpers";
 import BackButton from "./BackButton";
 import DeleteHabitWithConfirm from "./DeleteHabitWithConfirm";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { notificationPermissionAtom } from "../store";
+import { useAtom } from "jotai";
 
 async function loader({ params }: LoaderFunctionArgs<{ id: string }>) {
   const { id } = params;
@@ -48,9 +51,10 @@ async function loader({ params }: LoaderFunctionArgs<{ id: string }>) {
 EditHabitForm.loader = loader;
 
 export default function EditHabitForm() {
+  const [notificationPermission] = useAtom(notificationPermissionAtom);
   const { habit } = useLoaderData() as { habit: Habit };
-  const [notificationsEnabled, setNotificationsEnabled] = useState(habit.notificationEnabled);
   const [notificationTime, setNotificationTime] = useState(habit.notificationTime);
+  const [notificationsEnabled, setNotificationsEnabled] = useState(habit.notificationEnabled);
   const { id } = useParams();
   const navigate = useNavigate();
   const navigation = useNavigation();
@@ -178,12 +182,14 @@ export default function EditHabitForm() {
                 </Select>
               </FormControl>
             </Grid>
-
             {/* Notifications section */}
             <Grid item xs={12}>
               <Divider>
                 <Chip icon={<NotificationsOutlined />} label="NOTIFICATIONS" size="small" />
               </Divider>
+            </Grid>
+            <Grid item xs={12}>
+              <NotificationsPermissionAlert />
             </Grid>
             <Grid item xs={12}>
               <List disablePadding>
@@ -196,6 +202,7 @@ export default function EditHabitForm() {
                     secondary="Get notified so you never miss this habit again!"
                   />
                   <Switch
+                    disabled={notificationPermission !== "granted"}
                     name="notificationEnabled"
                     defaultChecked={habit.notificationEnabled}
                     onChange={(e) => setNotificationsEnabled(e.target.checked)}
@@ -219,7 +226,7 @@ export default function EditHabitForm() {
                   }}
                   ampm={false}
                   label="Notification time"
-                  disabled={!notificationsEnabled}
+                  disabled={notificationPermission !== "granted" || !notificationsEnabled}
                   slotProps={{
                     textField: {
                       helperText: `Get notified at this time every day if "${habit.name}" not completed by then`,
@@ -242,5 +249,40 @@ export default function EditHabitForm() {
         </CardActions>
       </Form>
     </Card>
+  );
+}
+
+function NotificationsPermissionAlert() {
+  const [permission, setPermission] = useAtom(notificationPermissionAtom);
+
+  if (permission === "granted") {
+    return null;
+  }
+
+  if (permission === "denied") {
+    return (
+      <Alert severity="warning">
+        Notifications are blocked. Please enable them in your browser settings to receive notifications.
+      </Alert>
+    );
+  }
+
+  return (
+    <Alert
+      severity="info"
+      action={
+        <Button
+          color="primary"
+          onClick={async () => {
+            const result = await Notification.requestPermission();
+            setPermission(result);
+          }}
+        >
+          Enable
+        </Button>
+      }
+    >
+      Enable notifications to get reminders about your habits.
+    </Alert>
   );
 }

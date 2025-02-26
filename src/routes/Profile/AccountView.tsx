@@ -1,4 +1,11 @@
-import { DarkModeOutlined, HotelOutlined, LogoutOutlined, TodayOutlined } from "@mui/icons-material";
+import {
+  DarkModeOutlined,
+  HotelOutlined,
+  LogoutOutlined,
+  NotificationsActive,
+  NotificationsOffOutlined,
+  TodayOutlined,
+} from "@mui/icons-material";
 import {
   Avatar,
   Button,
@@ -19,7 +26,7 @@ import { TimePicker } from "@mui/x-date-pickers";
 import { Dayjs } from "dayjs";
 import { User } from "firebase/auth";
 import { useAtom } from "jotai";
-import { Suspense } from "react";
+import { Suspense, useState } from "react";
 import { Form, redirect, useLoaderData, useNavigation } from "react-router-dom";
 import { getUser } from "../../firebase";
 import { themeAtom, userDayStartsAtAtom, userWeekStartsAtMondayAtom } from "../../store";
@@ -57,6 +64,7 @@ export default function AccountView() {
         <List disablePadding>
           <DarkModeToggle />
           <Suspense fallback={<LinearProgress />}>
+            <NotificationsStatus />
             <WeekStartPicker />
             <DayStartPicker />
           </Suspense>
@@ -133,6 +141,36 @@ function WeekStartPicker() {
       </ListItemIcon>
       <ListItemText primary="Start week on Monday" />
       <Switch checked={weekStartsAtMonday || false} onChange={() => setWeekStartsAtMonday(!weekStartsAtMonday)} />
+    </ListItem>
+  );
+}
+
+function NotificationsStatus() {
+  const [permission, setPermission] = useState(Notification.permission);
+
+  return (
+    <ListItem>
+      <ListItemIcon>{permission === "granted" ? <NotificationsActive /> : <NotificationsOffOutlined />}</ListItemIcon>
+      <ListItemText primary="Notifications" />
+      {permission === "granted" ? (
+        <Button color="success" disabled>
+          Enabled
+        </Button>
+      ) : permission === "denied" ? (
+        <Button color="error" disabled>
+          Denied
+        </Button>
+      ) : (
+        <Button
+          color="primary"
+          onClick={async () => {
+            const result = await Notification.requestPermission();
+            setPermission(result);
+          }}
+        >
+          Enable
+        </Button>
+      )}
     </ListItem>
   );
 }
