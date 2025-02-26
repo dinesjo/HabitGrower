@@ -188,12 +188,10 @@ export default function EditHabitForm() {
                 <Chip icon={<NotificationsOutlined />} label="NOTIFICATIONS" size="small" />
               </Divider>
             </Grid>
-            <Grid item xs={12}>
-              <NotificationsPermissionAlert />
-            </Grid>
+            <NotificationsPermissionAlert />
             <Grid item xs={12}>
               <List disablePadding>
-                <ListItem>
+                <ListItem sx={{ py: 0 }}>
                   <ListItemIcon>
                     <Notifications />
                   </ListItemIcon>
@@ -261,28 +259,32 @@ function NotificationsPermissionAlert() {
 
   if (permission === "denied") {
     return (
-      <Alert severity="warning">
-        Notifications are blocked. Please enable them in your browser settings to receive notifications.
-      </Alert>
+      <Grid item xs={12}>
+        <Alert severity="warning">
+          Notifications are blocked. Please enable them in your browser settings to receive notifications.
+        </Alert>
+      </Grid>
     );
   }
 
   return (
-    <Alert
-      severity="info"
-      action={
-        <Button
-          color="primary"
-          onClick={async () => {
-            const result = await Notification.requestPermission();
-            setPermission(result);
-          }}
-        >
-          Enable
-        </Button>
-      }
-    >
-      Enable notifications to get reminders about your habits.
-    </Alert>
+    <Grid item xs={12}>
+      <Alert
+        severity="info"
+        action={
+          <Button
+            color="primary"
+            onClick={async () => {
+              const result = await Notification.requestPermission();
+              setPermission(result);
+            }}
+          >
+            Enable
+          </Button>
+        }
+      >
+        Enable notifications to get reminders about your habits.
+      </Alert>
+    </Grid>
   );
 }
