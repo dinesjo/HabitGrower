@@ -1,10 +1,11 @@
 import {
   DarkModeOutlined,
+  DeveloperModeOutlined,
   HotelOutlined,
   LogoutOutlined,
   NotificationsActive,
   NotificationsOffOutlined,
-  TodayOutlined,
+  TodayOutlined
 } from "@mui/icons-material";
 import {
   Avatar,
@@ -20,7 +21,7 @@ import {
   ListItemText,
   Stack,
   Switch,
-  Typography,
+  Typography
 } from "@mui/material";
 import { TimePicker } from "@mui/x-date-pickers";
 import { Dayjs } from "dayjs";
@@ -68,6 +69,8 @@ export default function AccountView() {
             <WeekStartPicker />
             <DayStartPicker />
           </Suspense>
+          <Divider sx={{ my: 1 }} />
+          <ClearServiceWorkers />
         </List>
       </CardContent>
       <Divider />
@@ -171,6 +174,27 @@ function NotificationsStatus() {
           Enable
         </Button>
       )}
+    </ListItem>
+  );
+}
+
+function ClearServiceWorkers() {
+  return (
+    <ListItem>
+      <ListItemIcon>
+        <DeveloperModeOutlined />
+      </ListItemIcon>
+      <ListItemText primary="Clear Service Workers" />
+      <Button
+        color="error"
+        onClick={async () => {
+          const registrations = await navigator.serviceWorker.getRegistrations();
+          registrations.forEach((registration) => registration.unregister());
+          window.location.reload();
+        }}
+      >
+        Clear
+      </Button>
     </ListItem>
   );
 }
