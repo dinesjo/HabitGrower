@@ -24,29 +24,24 @@ import { showSnackBar } from "./utils/helpers";
 import { getToken } from "firebase/messaging";
 import { storeFCMTokenToCurrentUser } from "./services/notifications";
 
-/* --- Service worker --- */
-if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.getRegistration().then((registration) => {
-    if (!registration) {
-      navigator.serviceWorker
-        .register("/firebase-messaging-sw.js")
-        .then((reg) => console.log("✅ Service Worker Registered:", reg))
-        .catch((err) => console.log("❌ Service Worker Registration Failed:", err));
-    } else {
-      console.log("ℹ️ Service Worker already registered.");
+async function registerServiceWorker(): Promise<ServiceWorkerRegistration | undefined> {
+  if ("serviceWorker" in navigator) {
+    try {
+      const registration = await navigator.serviceWorker.register("/firebase-messaging-sw.js");
+      console.log("✅ Service Worker Registered:", registration);
+      return registration;
+    } catch (error) {
+      console.error("❌ Service Worker Registration Failed:", error);
     }
-  });
+  }
 }
-if (!("PushManager" in window)) {
-  // Push isn't supported on this browser, disable or hide UI.
-  console.warn("Push notifications are not supported on this browser");
-}
-async function updateFCMToken() {
-  if (Notification.permission !== "granted") return;
 
+async function updateFCMToken(): Promise<void> {
+  const registration = await registerServiceWorker();
   try {
     const token = await getToken(messaging, {
       vapidKey: "BGrAALqbXgLxsAQlzzQ5CSU7xOgYCYdHAHm4zbLT4Zs0rxUTpAR7JGLOZhFH1Qq6w1zGoQLZHLKXXDMelJv5PGY",
+      serviceWorkerRegistration: registration,
     });
     storeFCMTokenToCurrentUser(token);
   } catch (error) {
