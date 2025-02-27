@@ -23,17 +23,17 @@ export default async function handler(req, res) {
     const now = new Date();
     const currentTime = `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`; // "HH:MM"
 
-    const usersSnapshot = await db.ref("users").once("value");
-    const usersIds = usersSnapshot.val();
+    // Get all users
+    const usersSnap = await db.ref("users").get();
+    const users: RTDBUser[] = usersSnap.val();
 
-    if (!usersIds) {
+    if (!users) {
       return res.status(200).json({ message: "No users found." });
     }
 
     const messages: admin.messaging.Message[] = [];
 
-    for (const userId in usersIds) {
-      const user: RTDBUser = usersIds[userId];
+    for (const user of Object.values(users)) {
       if (!user.fcmTokens) continue; // Skip users without an FCM token
 
       for (const fcmToken of Object.values(user.fcmTokens)) {
@@ -43,12 +43,6 @@ export default async function handler(req, res) {
               token: fcmToken,
               notification: {
                 title: habit.name,
-              },
-              android: {
-                notification: {
-                  icon: "stock_ticker_update",
-                  color: "#7e55c3",
-                },
               },
             });
           }
@@ -60,7 +54,7 @@ export default async function handler(req, res) {
       await Promise.all(messages.map((msg) => admin.messaging().send(msg)));
       res.status(200).json({
         success: true,
-        message: "Notifications sent! " + messages.map((msg) => msg.notification!.body).join(", "),
+        message: messages.length + " notifications sent!",
       });
     } else {
       res.status(200).json({ message: "No notifications due." });
