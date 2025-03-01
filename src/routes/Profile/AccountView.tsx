@@ -1,6 +1,8 @@
 import {
+  Check,
   DarkModeOutlined,
   DeveloperModeOutlined,
+  DoNotDisturbOutlined,
   HotelOutlined,
   LogoutOutlined,
   NotificationsActive,
@@ -13,6 +15,7 @@ import {
   Card,
   CardActions,
   CardContent,
+  Chip,
   Divider,
   LinearProgress,
   List,
@@ -21,7 +24,8 @@ import {
   ListItemText,
   Stack,
   Switch,
-  Typography
+  Tooltip,
+  Typography,
 } from "@mui/material";
 import { TimePicker } from "@mui/x-date-pickers";
 import { Dayjs } from "dayjs";
@@ -156,13 +160,11 @@ function NotificationsStatus() {
       <ListItemIcon>{permission === "granted" ? <NotificationsActive /> : <NotificationsOffOutlined />}</ListItemIcon>
       <ListItemText primary="Notifications" />
       {permission === "granted" ? (
-        <Button color="success" disabled>
-          Enabled
-        </Button>
+        <Chip label="Enabled" color="success" icon={<Check />} sx={{ fontWeight: "bold" }} />
       ) : permission === "denied" ? (
-        <Button color="error" disabled>
-          Denied
-        </Button>
+        <Tooltip title="Enable notifications in your browser settings">
+          <Chip label="Denied" color="warning" icon={<DoNotDisturbOutlined />} sx={{ fontWeight: "bold" }} />
+        </Tooltip>
       ) : (
         <Button
           color="primary"

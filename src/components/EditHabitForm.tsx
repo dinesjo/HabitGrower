@@ -1,4 +1,10 @@
-import { ColorLens, EventRepeat, Notifications, NotificationsOutlined, Save } from "@mui/icons-material";
+import {
+  ColorLens,
+  EditNotificationsOutlined,
+  EventRepeat,
+  Notifications,
+  Save
+} from "@mui/icons-material";
 import {
   Alert,
   Box,
@@ -21,22 +27,22 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import { TimePicker } from "@mui/x-date-pickers/TimePicker";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { TimePicker } from "@mui/x-date-pickers/TimePicker";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
+import { useAtom } from "jotai";
 import { useState } from "react";
-
-dayjs.extend(utc);
 import { Form, LoaderFunctionArgs, useLoaderData, useNavigate, useNavigation, useParams } from "react-router-dom";
 import { Habit, fetchHabitById } from "../habitsModel";
+import { notificationPermissionAtom } from "../store";
 import { IconMap } from "../utils/IconMap";
 import { toFriendlyString } from "../utils/helpers";
 import BackButton from "./BackButton";
 import DeleteHabitWithConfirm from "./DeleteHabitWithConfirm";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { notificationPermissionAtom } from "../store";
-import { useAtom } from "jotai";
+
+dayjs.extend(utc);
 
 async function loader({ params }: LoaderFunctionArgs<{ id: string }>) {
   const { id } = params;
@@ -185,7 +191,7 @@ export default function EditHabitForm() {
             {/* Notifications section */}
             <Grid item xs={12}>
               <Divider>
-                <Chip icon={<NotificationsOutlined />} label="NOTIFICATIONS" size="small" />
+                <Chip icon={<EditNotificationsOutlined />} label="NOTIFICATIONS" size="small" />
               </Divider>
             </Grid>
             <NotificationsPermissionAlert />
