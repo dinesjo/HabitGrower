@@ -1,10 +1,4 @@
-import {
-  ColorLens,
-  EditNotificationsOutlined,
-  EventRepeat,
-  Notifications,
-  Save
-} from "@mui/icons-material";
+import { ColorLens, EditNotificationsOutlined, EventRepeat, NotificationsOutlined, Save } from "@mui/icons-material";
 import {
   Alert,
   Box,
@@ -35,9 +29,11 @@ import utc from "dayjs/plugin/utc";
 import { useAtom } from "jotai";
 import { useState } from "react";
 import { Form, LoaderFunctionArgs, useLoaderData, useNavigate, useNavigation, useParams } from "react-router-dom";
-import { Habit, fetchHabitById } from "../habitsModel";
+import { fetchHabitById } from "../services/habitsPersistance";
 import { notificationPermissionAtom } from "../store";
-import { IconMap } from "../utils/IconMap";
+import { frequencyUnits } from "../constants/frequencyUnits";
+import { Habit } from "../types/Habit";
+import { iconMap } from "../constants/iconMap";
 import { toFriendlyString } from "../utils/helpers";
 import BackButton from "./BackButton";
 import DeleteHabitWithConfirm from "./DeleteHabitWithConfirm";
@@ -77,7 +73,7 @@ export default function EditHabitForm() {
     "Orange",
     "PaleVioletRed",
     "SandyBrown",
-  ];
+  ] as const;
 
   const handleBack = () => {
     navigate(`/${id}`);
@@ -120,14 +116,14 @@ export default function EditHabitForm() {
                     autoWidth
                     name="icon"
                     label="Icon"
-                    defaultValue={habit.icon || ""}
+                    defaultValue={habit.icon}
                     renderValue={(icon) => {
-                      return <Box sx={{ height: "1em" }}>{IconMap[icon]}</Box>;
+                      return <Box sx={{ height: "1em" }}>{iconMap[icon]}</Box>;
                     }}
                   >
-                    {Object.keys(IconMap).map((icon) => (
+                    {Object.keys(iconMap).map((icon) => (
                       <MenuItem key={icon} value={icon}>
-                        {IconMap[icon]}
+                        {iconMap[icon]}
                       </MenuItem>
                     ))}
                   </Select>
@@ -182,9 +178,14 @@ export default function EditHabitForm() {
                   fullWidth
                 >
                   <MenuItem value="">None</MenuItem>
-                  <MenuItem value="day">Day</MenuItem>
-                  <MenuItem value="week">Week</MenuItem>
-                  <MenuItem value="month">Month</MenuItem>
+                  {
+                    // Loop through the FrequencyUnit type to create a list of options
+                    frequencyUnits.map((unit) => (
+                      <MenuItem key={unit} value={unit}>
+                        {toFriendlyString(unit)}
+                      </MenuItem>
+                    ))
+                  }
                 </Select>
               </FormControl>
             </Grid>
@@ -199,7 +200,7 @@ export default function EditHabitForm() {
               <List disablePadding>
                 <ListItem sx={{ py: 0 }}>
                   <ListItemIcon>
-                    <Notifications />
+                    <NotificationsOutlined />
                   </ListItemIcon>
                   <ListItemText
                     primary="Daily notifications"

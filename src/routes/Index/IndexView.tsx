@@ -23,9 +23,11 @@ import dayjs from "dayjs";
 import { useAtom } from "jotai";
 import { Form, redirect, useLoaderData, useNavigate, useNavigation } from "react-router-dom";
 import LinearProgressWithLabel from "../../components/LinearProgressWithLabel";
-import { Habit, fetchAllHabits, registerHabitsToday } from "../../habitsModel";
+import { fetchAllHabits, registerHabitsToday } from "../../services/habitsPersistance";
+import { Habit } from "../../types/Habit";
+import { FrequencyUnit } from "../../types/FrequencyUnit";
 import { checkedHabitIdsAtom, store, userDayStartsAtAtom, userWeekStartsAtMondayAtom } from "../../store";
-import { IconMap } from "../../utils/IconMap";
+import { iconMap } from "../../constants/iconMap";
 import { getProgress, getProgressBuffer, showSnackBar, toFriendlyFrequency } from "../../utils/helpers";
 
 async function loader() {
@@ -59,7 +61,6 @@ export default function IndexPage() {
   const navigate = useNavigate();
   const [checkedHabitIds, setCheckedHabitIds] = useAtom(checkedHabitIdsAtom);
   const [userWeekStartsAtMonday] = useAtom(userWeekStartsAtMondayAtom);
-
   const [dayStartsAt] = useAtom(userDayStartsAtAtom);
 
   function sortHabitsCB(a: Habit, b: Habit) {
@@ -74,24 +75,16 @@ export default function IndexPage() {
       return a.name.localeCompare(b.name);
     }
 
-    function getFrequencyUnitValue(frequencyUnit: string) {
-      switch (frequencyUnit) {
-        case "day":
-          return 1;
-        case "week":
-          return 2;
-        case "month":
-          return 3;
-        case "year":
-          return 4;
-        default:
-          return 0;
-      }
-    }
+    // Hierarchical sorting. Day -> Week -> Month
+    const frequencyUnitMap: Record<FrequencyUnit, number> = {
+      day: 1,
+      week: 2,
+      month: 3,
+    };
 
     // Go by frequency unit
-    if (getFrequencyUnitValue(a.frequencyUnit) < getFrequencyUnitValue(b.frequencyUnit)) return -1;
-    if (getFrequencyUnitValue(a.frequencyUnit) > getFrequencyUnitValue(b.frequencyUnit)) return 1;
+    if (frequencyUnitMap[a.frequencyUnit] < frequencyUnitMap[b.frequencyUnit]) return -1;
+    if (frequencyUnitMap[a.frequencyUnit] > frequencyUnitMap[b.frequencyUnit]) return 1;
 
     // If same frequency unit, go by frequency
     if (b.frequency < a.frequency) return -1;
@@ -215,7 +208,7 @@ export default function IndexPage() {
                                     bgcolor: habit.color || "text.primary",
                                   }}
                                 >
-                                  {IconMap[habit.icon || "default"]}
+                                  {iconMap[habit.icon]}
                                 </Avatar>
                               </Badge>
                             </ListItemAvatar>
@@ -299,7 +292,7 @@ export default function IndexPage() {
                       return (
                         <Grow in key={id} style={{ transformOrigin: "left center 0" }} timeout={500}>
                           <Avatar key={id} sx={{ bgcolor: habit.color }}>
-                            {IconMap[habit.icon || "default"]}
+                            {iconMap[habit.icon]}
                           </Avatar>
                         </Grow>
                       );

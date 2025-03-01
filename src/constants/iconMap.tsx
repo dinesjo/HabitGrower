@@ -21,11 +21,7 @@ import {
   WorkTwoTone,
 } from "@mui/icons-material";
 
-export interface IconMap {
-  [key: string]: JSX.Element;
-}
-
-export const IconMap: IconMap = {
+export const iconMap: Record<string, JSX.Element> = {
   Default: <AbcTwoTone />,
   WaterDrop: <WaterDropTwoTone />,
   House: <HouseTwoTone />,
@@ -46,4 +42,4 @@ export const IconMap: IconMap = {
   LocalLaundryService: <LocalLaundryServiceTwoTone />,
   Savings: <SavingsTwoTone />,
   Group: <GroupTwoTone />,
-};
+} as const;

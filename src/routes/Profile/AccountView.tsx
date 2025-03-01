@@ -1,7 +1,6 @@
 import {
   Check,
   DarkModeOutlined,
-  DeveloperModeOutlined,
   DoNotDisturbOutlined,
   HotelOutlined,
   LogoutOutlined,
@@ -31,10 +30,10 @@ import { TimePicker } from "@mui/x-date-pickers";
 import { Dayjs } from "dayjs";
 import { User } from "firebase/auth";
 import { useAtom } from "jotai";
-import { Suspense, useState } from "react";
+import { Suspense } from "react";
 import { Form, redirect, useLoaderData, useNavigation } from "react-router-dom";
 import { getUser } from "../../firebase";
-import { themeAtom, userDayStartsAtAtom, userWeekStartsAtMondayAtom } from "../../store";
+import { notificationPermissionAtom, themeAtom, userDayStartsAtAtom, userWeekStartsAtMondayAtom } from "../../store";
 
 async function loader() {
   const user = await getUser();
@@ -73,8 +72,6 @@ export default function AccountView() {
             <WeekStartPicker />
             <DayStartPicker />
           </Suspense>
-          <Divider sx={{ my: 1 }} />
-          <ClearServiceWorkers />
         </List>
       </CardContent>
       <Divider />
@@ -153,7 +150,7 @@ function WeekStartPicker() {
 }
 
 function NotificationsStatus() {
-  const [permission, setPermission] = useState(Notification.permission);
+  const [permission, setPermission] = useAtom(notificationPermissionAtom);
 
   return (
     <ListItem>
@@ -176,27 +173,6 @@ function NotificationsStatus() {
           Enable
         </Button>
       )}
-    </ListItem>
-  );
-}
-
-function ClearServiceWorkers() {
-  return (
-    <ListItem>
-      <ListItemIcon>
-        <DeveloperModeOutlined />
-      </ListItemIcon>
-      <ListItemText primary="Clear Service Workers" />
-      <Button
-        color="error"
-        onClick={async () => {
-          const registrations = await navigator.serviceWorker.getRegistrations();
-          registrations.forEach((registration) => registration.unregister());
-          window.location.reload();
-        }}
-      >
-        Clear
-      </Button>
     </ListItem>
   );
 }

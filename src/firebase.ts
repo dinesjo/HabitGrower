@@ -5,11 +5,11 @@ import firebase from "firebase/compat/app";
 import { getDatabase } from "firebase/database";
 import { getMessaging, getToken } from "firebase/messaging";
 import { redirect } from "react-router-dom";
+import { storeFCMTokenToCurrentUser } from "./services/fcmTokenPersistance";
 import { showSnackBar } from "./utils/helpers";
-import { storeFCMTokenToCurrentUser } from "./services/notifications";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyDMfCeJUzcBqHpfdfDbi_KQ4KIzmQuwOMs", // public anyway
+  apiKey: "AIzaSyDMfCeJUzcBqHpfdfDbi_KQ4KIzmQuwOMs",
   authDomain: "habitgrower.firebaseapp.com",
   databaseURL: "https://habitgrower-default-rtdb.europe-west1.firebasedatabase.app",
   projectId: "habitgrower",
@@ -24,7 +24,7 @@ const app = initializeApp(firebaseConfig);
 firebase.initializeApp(firebaseConfig);
 const auth = getAuth();
 
-export const messaging = getMessaging();
+const messaging = getMessaging();
 
 if (Notification.permission === "granted") {
   getToken(messaging, {

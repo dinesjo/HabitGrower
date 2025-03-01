@@ -1,5 +1,5 @@
 import dayjs from "dayjs";
-import { Habit } from "../habitsModel";
+import { Habit } from "../types/Habit";
 import { snackbarMessageAtom, snackbarSeverityAtom, store } from "../store";
 
 /**

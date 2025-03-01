@@ -2,7 +2,7 @@ import { DeleteForever, DeleteOutlined } from "@mui/icons-material";
 import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from "@mui/material";
 import { useState } from "react";
 import { Form, useNavigation } from "react-router-dom";
-import { Habit } from "../habitsModel";
+import { Habit } from "../types/Habit";
 
 export default function DeleteHabitWithConfirm({ habit, id }: { habit: Habit; id: string }) {
   const navigation = useNavigation();

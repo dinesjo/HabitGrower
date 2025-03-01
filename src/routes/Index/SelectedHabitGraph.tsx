@@ -2,16 +2,14 @@ import { Box, Container, ToggleButton, ToggleButtonGroup, Typography } from "@mu
 import { BarChart } from "@mui/x-charts";
 import dayjs from "dayjs";
 import { useAtom } from "jotai";
-import { atomWithStorage } from "jotai/utils";
-import { Habit } from "../../habitsModel";
+import { daysShownAtom } from "../../store";
+import { Habit } from "../../types/Habit";
 
 const daysShownMap: Record<number, string> = {
   14: "14 Days",
   30: "30 Days",
   90: "3 Months",
 } as const;
-
-const daysShownAtom = atomWithStorage<number>("daysShown", 30);
 
 export default function SelectedHabitGraph({ habit }: { habit: Habit }) {
   const [daysShown] = useAtom(daysShownAtom);

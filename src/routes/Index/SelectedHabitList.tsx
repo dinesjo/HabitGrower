@@ -18,7 +18,7 @@ import { useAtom, useAtomValue } from "jotai";
 import { atomWithStorage } from "jotai/utils";
 import { useState } from "react";
 import { Form, useNavigation } from "react-router-dom";
-import { Habit } from "../../habitsModel";
+import { Habit } from "../../types/Habit";
 
 const sortDirectionAtom = atomWithStorage<"asc" | "desc">("sortHabitListDirection", "desc");
 

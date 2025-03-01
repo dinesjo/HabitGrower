@@ -14,8 +14,9 @@ import {
 import { LoaderFunctionArgs, useLoaderData, useNavigate, useParams } from "react-router-dom";
 import BackButton from "../../components/BackButton";
 import DeleteHabitWithConfirm from "../../components/DeleteHabitWithConfirm";
-import { Habit, fetchHabitById } from "../../habitsModel";
-import { IconMap } from "../../utils/IconMap";
+import { fetchHabitById } from "../../services/habitsPersistance";
+import { Habit } from "../../types/Habit";
+import { iconMap } from "../../constants/iconMap";
 import { toFriendlyFrequency } from "../../utils/helpers";
 import SelectedHabitGraph from "./SelectedHabitGraph";
 import SelectedHabitList from "./SelectedHabitList";
@@ -57,7 +58,7 @@ export default function SelectedHabit() {
                   bgcolor: habit.color || "text.primary",
                 }}
               >
-                {IconMap[habit.icon || "default"]}
+                {iconMap[habit.icon]}
               </Avatar>
             }
             title={

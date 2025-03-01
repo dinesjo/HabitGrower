@@ -1,4 +1,4 @@
-import { Habit } from "../habitsModel";
+import { Habit } from "./Habit";
 
 export interface RTDBUser {
   dayStartsAt?: string;

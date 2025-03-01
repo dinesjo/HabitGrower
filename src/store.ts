@@ -8,7 +8,7 @@ import { database, getUser } from "./firebase";
 export const store = getDefaultStore();
 export const themeAtom = atomWithStorage<PaletteMode>("theme", "dark");
 
-// User
+/* User config */
 const userAtom = atom(async () => await getUser());
 export const userDayStartsAtAtom = atomWithStorage<Dayjs | null>("", null, {
   getItem: async () => {
@@ -29,7 +29,6 @@ export const userDayStartsAtAtom = atomWithStorage<Dayjs | null>("", null, {
     return set(ref(database, "users/" + userId + "/dayStartsAt"), null);
   },
 });
-
 export const userWeekStartsAtMondayAtom = atomWithStorage<boolean>("", false, {
   getItem: async () => {
     const userId = (await store.get(userAtom))?.uid;
@@ -50,7 +49,7 @@ export const userWeekStartsAtMondayAtom = atomWithStorage<boolean>("", false, {
   },
 });
 
-// Snackbar
+/* Snackbar */
 const snackbarMessagePrimitiveAtom = atom<string>("");
 export const snackbarMessageAtom = atom(
   (get) => get(snackbarMessagePrimitiveAtom),
@@ -67,7 +66,11 @@ export const snackbarSeverityAtom = atom(
 );
 export const snackbarOpenAtom = atom<boolean>((get) => !!get(snackbarMessageAtom));
 
-// Checked habits
+/* Habits */
 export const checkedHabitIdsAtom = atom<string[]>([]);
 
+/* Notifications */
 export const notificationPermissionAtom = atom<typeof Notification.permission>(Notification.permission);
+
+/* Days shown in the graph */
+export const daysShownAtom = atomWithStorage<number>("daysShown", 30);
