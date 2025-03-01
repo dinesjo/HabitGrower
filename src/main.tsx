@@ -8,7 +8,7 @@ import { createBrowserRouter, createRoutesFromElements, redirect, Route } from "
 import EditHabitForm from "./components/EditHabitForm";
 import ErrorPage from "./components/ErrorPage";
 import "./firebase";
-import { messaging, signOut } from "./firebase";
+import { signOut } from "./firebase";
 import { createEmptyHabit, deleteHabit, Habit, unregisterHabitByDate, updateHabit } from "./habitsModel";
 import IndexPage from "./routes/Index/IndexView";
 import SelectedHabit from "./routes/Index/SelectedHabit";
@@ -21,51 +21,7 @@ import { requireAuth } from "./utils/requireAuth";
 import "jotai-devtools/styles.css";
 import Main from "./components/Main";
 import { showSnackBar } from "./utils/helpers";
-import { getToken } from "firebase/messaging";
-import { storeFCMTokenToCurrentUser } from "./services/notifications";
 
-async function clearExistingServiceWorkers() {
-  if ("serviceWorker" in navigator) {
-    const registrations = await navigator.serviceWorker.getRegistrations();
-    for (const registration of registrations) {
-      if (registration.scope.includes(location.origin)) {
-        console.log("🗑️ Removing old service worker:", registration);
-        await registration.unregister();
-      }
-    }
-  }
-}
-
-async function registerServiceWorker(): Promise<ServiceWorkerRegistration | undefined> {
-  await clearExistingServiceWorkers();
-  if ("serviceWorker" in navigator) {
-    try {
-      const registration = await navigator.serviceWorker.register("/firebase-messaging-sw.js");
-      console.log("✅ Service Worker Registered:", registration);
-      return registration;
-    } catch (error) {
-      console.error("❌ Service Worker Registration Failed:", error);
-    }
-  }
-}
-
-async function updateFCMToken(): Promise<void> {
-  const isStandalone = window.matchMedia("(display-mode: standalone)").matches;
-  console.log("🖥️ Running as PWA:", isStandalone);
-  if (!isStandalone) {
-    return; // No notifications for non-PWA
-  }
-  const registration = await registerServiceWorker();
-  try {
-    const token = await getToken(messaging, {
-      vapidKey: "BGrAALqbXgLxsAQlzzQ5CSU7xOgYCYdHAHm4zbLT4Zs0rxUTpAR7JGLOZhFH1Qq6w1zGoQLZHLKXXDMelJv5PGY",
-      serviceWorkerRegistration: registration,
-    });
-    storeFCMTokenToCurrentUser(token);
-  } catch (error) {
-    console.error("Error getting FCM token:", error);
-  }
-}
 
 export const router = createBrowserRouter(
   createRoutesFromElements(
@@ -138,6 +94,3 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
     <Main />
   </React.StrictMode>
 );
-
-// Initialize notifications
-updateFCMToken();

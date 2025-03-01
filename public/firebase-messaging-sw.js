@@ -1,9 +1,12 @@
 importScripts("https://www.gstatic.com/firebasejs/10.7.2/firebase-app-compat.js");
 importScripts("https://www.gstatic.com/firebasejs/10.7.2/firebase-messaging-compat.js");
 
+// importScripts('https://www.gstatic.com/firebasejs/9.2.0/firebase-app-compat.js');
+// importScripts('https://www.gstatic.com/firebasejs/9.2.0/firebase-messaging-compat.js');
+
 //! This needs to be here for build, but must be removed for local development
-import { precacheAndRoute } from 'workbox-precaching'
-precacheAndRoute(self.__WB_MANIFEST)
+// import { precacheAndRoute } from 'workbox-precaching'
+// precacheAndRoute(self.__WB_MANIFEST)
 
 firebase.initializeApp({
   apiKey: "AIzaSyDMfCeJUzcBqHpfdfDbi_KQ4KIzmQuwOMs",
@@ -16,18 +19,25 @@ firebase.initializeApp({
   measurementId: "G-JWYJH25B7E",
 });
 
+
 const messaging = firebase.messaging();
 
-messaging.onBackgroundMessage((payload) => {
-  // Prevent Firebase from showing its own notification (resulting in duplicate)
-  self.registration.getNotifications().then((notifications) => {
-    notifications.forEach((notification) => {
-      notification.close();
-    });
-  });
+// If you would like to customize notifications that are received in the
+// background (Web app is closed or not in browser focus) then you should
+// implement this optional method.
+// Keep in mind that FCM will still show notification messages automatically 
+// and you should use data messages for custom notifications.
+// For more info see: 
+// https://firebase.google.com/docs/cloud-messaging/concept-options
+// messaging.onBackgroundMessage(function (payload) {
+//   console.log('[firebase-messaging-sw.js] Received background message ', payload);
+//   // Customize notification here
+//   const notificationTitle = 'Background Message Title';
+//   const notificationOptions = {
+//     body: 'Background Message body.',
+//     icon: '/firebase-logo.png'
+//   };
 
-  self.registration.showNotification(payload.notification.title, {
-    body: payload.notification.body,
-    icon: "/pwa-512x512.png",
-  });
-});
+//   self.registration.showNotification(notificationTitle,
+//     notificationOptions);
+// });
