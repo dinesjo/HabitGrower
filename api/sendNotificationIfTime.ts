@@ -34,18 +34,20 @@ export default async function handler(req, res) {
     const promises: Promise<string>[] = [];
 
     for (const user of Object.values(users)) {
-      if (!user.fcmToken) continue; // Skip users without an FCM token
+      if (!user.fcmTokens) continue; // Skip users without an FCM token
 
-      for (const habit of Object.values(user.habits)) {
-        if (habit.notificationEnabled && habit.notificationTime === currentTime) {
-          promises.push(
-            admin.messaging().send({
-              token: user.fcmToken,
-              notification: {
-                title: habit.name,
-              },
-            })
-          );
+      for (const fcmToken of Object.values(user.fcmTokens)) {
+        for (const habit of Object.values(user.habits)) {
+          if (habit.notificationEnabled && habit.notificationTime === currentTime) {
+            promises.push(
+              admin.messaging().send({
+                token: fcmToken,
+                notification: {
+                  title: habit.name,
+                },
+              })
+            );
+          }
         }
       }
     }

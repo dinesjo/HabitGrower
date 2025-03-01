@@ -1,4 +1,4 @@
-import { ref, set } from "firebase/database";
+import { push, ref, set } from "firebase/database";
 import { database, getUser } from "../firebase";
 
 export async function storeFCMTokenToCurrentUser(newToken: string) {
@@ -8,7 +8,7 @@ export async function storeFCMTokenToCurrentUser(newToken: string) {
     return;
   }
   try {
-    await set(ref(database, `users/${user.uid}/fcmToken`), newToken);
+    await push(ref(database, `users/${user.uid}/fcmTokens`), newToken);
   } catch (error) {
     console.error("Error storing token:", error);
   }

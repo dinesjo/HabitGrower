@@ -1,4 +1,4 @@
-import { Check, Checklist } from "@mui/icons-material";
+import { Check, Checklist, NotificationsActiveOutlined } from "@mui/icons-material";
 import {
   Avatar,
   AvatarGroup,
@@ -108,7 +108,7 @@ export default function IndexPage() {
   else if (dayjs().hour() < 19) greeting += "day! ☀️";
   else greeting += "evening! 🌙";
 
-  const firstCompletedHabitId = sortedHabits.find(habit => {
+  const firstCompletedHabitId = sortedHabits.find((habit) => {
     const progress = getProgress(habit, false, userWeekStartsAtMonday);
     return progress === 100;
   })?.id;
@@ -220,7 +220,17 @@ export default function IndexPage() {
                               </Badge>
                             </ListItemAvatar>
                             <ListItemText
-                              primary={<Typography sx={{ color: habit.color }}>{habit.name}</Typography>}
+                              primary={
+                                <Box sx={{ color: habit.color, display: "flex", alignItems: "center", gap: 1 }}>
+                                  <Typography>{habit.name}</Typography>
+                                  {habit.notificationEnabled && (
+                                    <>
+                                      <Divider variant="middle" orientation="vertical" flexItem />
+                                      <NotificationsActiveOutlined fontSize="small" />
+                                    </>
+                                  )}
+                                </Box>
+                              }
                               secondary={toFriendlyFrequency(habit)}
                             />
                           </Box>
@@ -285,7 +295,7 @@ export default function IndexPage() {
                     max={5}
                   >
                     {checkedHabitIds.map((id) => {
-                      const habit = habits.find(h => h.id === id)!;
+                      const habit = habits.find((h) => h.id === id)!;
                       return (
                         <Grow in key={id} style={{ transformOrigin: "left center 0" }} timeout={500}>
                           <Avatar key={id} sx={{ bgcolor: habit.color }}>

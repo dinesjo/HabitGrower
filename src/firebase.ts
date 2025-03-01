@@ -25,15 +25,19 @@ firebase.initializeApp(firebaseConfig);
 const auth = getAuth();
 
 export const messaging = getMessaging();
-getToken(messaging, {
-  vapidKey: "BGrAALqbXgLxsAQlzzQ5CSU7xOgYCYdHAHm4zbLT4Zs0rxUTpAR7JGLOZhFH1Qq6w1zGoQLZHLKXXDMelJv5PGY",
-}).then((token) => {
-  storeFCMTokenToCurrentUser(token);
-  console.log("FCM token:", token);
-}).catch((error) => {
-  console.error("Error getting FCM token:", error);
-});
 
+if (Notification.permission === "granted") {
+  getToken(messaging, {
+    vapidKey: "BGrAALqbXgLxsAQlzzQ5CSU7xOgYCYdHAHm4zbLT4Zs0rxUTpAR7JGLOZhFH1Qq6w1zGoQLZHLKXXDMelJv5PGY",
+  })
+    .then((token) => {
+      storeFCMTokenToCurrentUser(token);
+      console.log("FCM token:", token);
+    })
+    .catch((error) => {
+      console.error("Error getting FCM token:", error);
+    });
+}
 
 export const database = getDatabase(app);
 
