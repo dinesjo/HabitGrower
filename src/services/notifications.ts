@@ -1,4 +1,4 @@
-import { push, ref, set } from "firebase/database";
+import { push, ref } from "firebase/database";
 import { database, getUser } from "../firebase";
 
 export async function storeFCMTokenToCurrentUser(newToken: string) {
