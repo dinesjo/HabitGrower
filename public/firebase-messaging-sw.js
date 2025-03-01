@@ -5,8 +5,8 @@ importScripts("https://www.gstatic.com/firebasejs/10.7.2/firebase-messaging-comp
 // importScripts('https://www.gstatic.com/firebasejs/9.2.0/firebase-messaging-compat.js');
 
 //! This needs to be here for build, but must be removed for local development
-// import { precacheAndRoute } from 'workbox-precaching'
-// precacheAndRoute(self.__WB_MANIFEST)
+import { precacheAndRoute } from 'workbox-precaching'
+precacheAndRoute(self.__WB_MANIFEST)
 
 firebase.initializeApp({
   apiKey: "AIzaSyDMfCeJUzcBqHpfdfDbi_KQ4KIzmQuwOMs",

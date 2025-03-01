@@ -20,8 +20,8 @@ export default async function handler(req, res) {
   }
 
   try {
-    // const now = new Date();
-    // const currentTime = `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`; // "HH:MM"
+    const now = new Date();
+    const currentTime = `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`; // "HH:MM"
 
     // Get all users
     const usersSnap = await db.ref("users").get();
@@ -37,7 +37,7 @@ export default async function handler(req, res) {
       if (!user.fcmToken) continue; // Skip users without an FCM token
 
       for (const habit of Object.values(user.habits)) {
-        if (habit.notificationEnabled){// && habit.notificationTime === currentTime) {
+        if (habit.notificationEnabled && habit.notificationTime === currentTime) {
           promises.push(
             admin.messaging().send({
               token: user.fcmToken,
@@ -52,8 +52,7 @@ export default async function handler(req, res) {
 
     if (promises.length > 0) {
       await Promise.all(promises);
-      res.status(200).json({
-        success: true,
+      res.status(201).json({
         message: promises.length + " notifications sent!",
       });
     } else {
