@@ -1,5 +1,7 @@
 import admin from "firebase-admin";
 import { RTDBUser } from "../src/types/RTDBUser";
+import dayjs from "dayjs";
+import { Habit } from "../src/habitsModel";
 
 if (!admin.apps.length) {
   admin.initializeApp({
@@ -31,21 +33,31 @@ export default async function handler(req, res) {
       return res.status(200).json({ message: "No users found." });
     }
 
-    const promises: Promise<string>[] = [];
+    const promises: Promise<string | void>[] = [];
 
-    for (const user of Object.values(users)) {
+    for (const [userId, user] of Object.entries(users)) {
       if (!user.fcmTokens) continue; // Skip users without an FCM token
 
-      for (const fcmToken of Object.values(user.fcmTokens)) {
+      for (const [fcmTokenKey, fcmToken] of Object.entries(user.fcmTokens)) {
         for (const habit of Object.values(user.habits)) {
-          if (habit.notificationEnabled && habit.notificationTime === currentTime) {
+          const habitComplete = getProgress(habit, false, user.weekStartsAtMonday || false) === 100;
+
+          if (habit.notificationEnabled && !habitComplete && habit.notificationTime === currentTime) {
             promises.push(
-              admin.messaging().send({
-                token: fcmToken,
-                notification: {
-                  title: habit.name,
-                },
-              })
+              admin
+                .messaging()
+                .send({
+                  token: fcmToken,
+                  notification: {
+                    title: habit.name,
+                  },
+                })
+                .catch(async (error) => {
+                  if (error.code === "messaging/registration-token-not-registered") {
+                    console.warn("Removing invalid FCM token:", fcmToken);
+                    await db.ref(`users/${userId}/fcmTokens/${fcmTokenKey}`).remove();
+                  }
+                })
             );
           }
         }
@@ -53,9 +65,10 @@ export default async function handler(req, res) {
     }
 
     if (promises.length > 0) {
-      await Promise.all(promises);
+      const results = await Promise.allSettled(promises);
+      const successfulCount = results.filter((result) => result.status === "fulfilled").length;
       res.status(201).json({
-        message: promises.length + " notifications sent!",
+        message: successfulCount + " notifications sent!",
       });
     } else {
       res.status(200).json({ message: "No notifications due." });
@@ -64,4 +77,52 @@ export default async function handler(req, res) {
     console.error("Error sending notifications:", error);
     res.status(500).json({ error: "Failed to send notifications" });
   }
+}
+
+/*
+ * COPIED FROM src/utils/helpers.ts
+ */
+function getFrequencyUnitStart(frequencyUnit: string, userWeekStartsAtMonday: boolean | null) {
+  // Day, should be todays date in UTC
+  const todayStart = dayjs().startOf("day");
+  // Week
+  let weekStart = dayjs().startOf("week").add(Number(userWeekStartsAtMonday), "day");
+  if (userWeekStartsAtMonday && dayjs().day() === 0) {
+    // edge case for Sunday and userWeekStartsAtMonday
+    weekStart = weekStart.subtract(1, "week");
+  }
+  // Month
+  const monthStart = dayjs().startOf("month");
+
+  let chosenStart = todayStart;
+  if (frequencyUnit === "day") {
+    chosenStart = todayStart;
+  } else if (frequencyUnit === "week") {
+    chosenStart = weekStart;
+  } else if (frequencyUnit === "month") {
+    chosenStart = monthStart;
+  }
+
+  return chosenStart;
+}
+
+function getProgress(habit: Habit, isChecked: boolean, userWeekStartsAtMonday: boolean) {
+  if (!habit.frequency || !habit.frequencyUnit) {
+    return 0;
+  }
+
+  const frequencyUnitStart = getFrequencyUnitStart(habit.frequencyUnit, userWeekStartsAtMonday);
+
+  // Count the number of completed dates after the chosen start date
+  let completedDates = Number(isChecked);
+  if (habit.dates) {
+    completedDates += Object.keys(habit.dates).reduce((acc, date) => {
+      if (dayjs(date).isAfter(frequencyUnitStart)) {
+        return acc + Number(habit.dates![date]); // habit.dates![date] is true or 1
+      }
+      return acc;
+    }, 0);
+  }
+
+  return Math.min((completedDates / habit.frequency) * 100, 100);
 }

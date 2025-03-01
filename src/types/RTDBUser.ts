@@ -1,12 +1,12 @@
 import { Habit } from "../habitsModel";
 
 export interface RTDBUser {
-  dayStartsAt: string | undefined;
+  dayStartsAt?: string;
   fcmTokens?: {
     [key: string]: string;
   };
   habits: {
     [key: string]: Habit;
   };
-  weekStartsAtMonday: boolean | undefined;
+  weekStartsAtMonday?: boolean;
 }
