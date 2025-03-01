@@ -93,7 +93,7 @@ export default function EditHabitForm() {
             {/* Section tile */}
             <Grid item xs={12}>
               <Divider>
-                <Chip icon={<ColorLens />} label="APPEARANCE" size="small" />
+                <Chip icon={<ColorLens />} label="Appearance" size="small" />
               </Divider>
             </Grid>
             <Grid item xs={12} sm={6}>
@@ -154,7 +154,7 @@ export default function EditHabitForm() {
             {/* Section tile */}
             <Grid item xs={12}>
               <Divider>
-                <Chip icon={<EventRepeat />} label="HOW OFTEN?" size="small" />
+                <Chip icon={<EventRepeat />} label="How often?" size="small" />
               </Divider>
             </Grid>
             <Grid item xs={5}>
@@ -192,7 +192,7 @@ export default function EditHabitForm() {
             {/* Notifications section */}
             <Grid item xs={12}>
               <Divider>
-                <Chip icon={<EditNotificationsOutlined />} label="NOTIFICATIONS" size="small" />
+                <Chip icon={<EditNotificationsOutlined />} label="Notifications" size="small" />
               </Divider>
             </Grid>
             <NotificationsPermissionAlert />

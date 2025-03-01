@@ -125,13 +125,9 @@ export default function IndexPage() {
       <CardContent sx={{ position: "relative" }}>
         {habits ? (
           <Form method="post">
-            {allHabitsCompleted ? (
+            {allHabitsCompleted && (
               <Typography variant="subtitle2" color="primary.main" align="center" sx={{ my: 1 }}>
                 Well done! You completed all habits for now 🎉
-              </Typography>
-            ) : (
-              <Typography variant="subtitle2" color="text.secondary">
-                Register your habits below:
               </Typography>
             )}
             <List
@@ -153,7 +149,7 @@ export default function IndexPage() {
                   <Box key={habit.id} sx={{ mb: 1 }}>
                     {isFirstCompletedHabit && (
                       <Divider sx={{ my: 1 }}>
-                        <Chip label="Completed Habits" size="small" icon={<Checklist />} />
+                        <Chip label="Completed" size="small" icon={<Checklist />} />
                       </Divider>
                     )}
                     <Paper
