@@ -3,9 +3,10 @@ import { initializeApp } from "firebase/app";
 import { User, getAuth, onAuthStateChanged } from "firebase/auth";
 import firebase from "firebase/compat/app";
 import { getDatabase } from "firebase/database";
-import { getMessaging } from "firebase/messaging";
+import { getMessaging, getToken } from "firebase/messaging";
 import { redirect } from "react-router-dom";
 import { showSnackBar } from "./utils/helpers";
+import { storeFCMTokenToCurrentUser } from "./services/notifications";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDMfCeJUzcBqHpfdfDbi_KQ4KIzmQuwOMs", // public anyway
@@ -24,6 +25,19 @@ firebase.initializeApp(firebaseConfig);
 const auth = getAuth();
 
 export const messaging = getMessaging();
+
+if (Notification.permission === "granted") {
+  getToken(messaging, {
+    vapidKey: "BGrAALqbXgLxsAQlzzQ5CSU7xOgYCYdHAHm4zbLT4Zs0rxUTpAR7JGLOZhFH1Qq6w1zGoQLZHLKXXDMelJv5PGY",
+  })
+    .then((token) => {
+      storeFCMTokenToCurrentUser(token);
+      console.log("FCM token:", token);
+    })
+    .catch((error) => {
+      console.error("Error getting FCM token:", error);
+    });
+}
 
 export const database = getDatabase(app);
 

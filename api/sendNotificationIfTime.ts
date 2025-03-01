@@ -31,31 +31,31 @@ export default async function handler(req, res) {
       return res.status(200).json({ message: "No users found." });
     }
 
-    const messages: admin.messaging.Message[] = [];
     const promises: Promise<string>[] = [];
 
     for (const user of Object.values(users)) {
-      if (!user.fcmToken) continue; // Skip users without an FCM token
+      if (!user.fcmTokens) continue; // Skip users without an FCM token
 
-      for (const habit of Object.values(user.habits)) {
-        if (habit.notificationEnabled && habit.notificationTime === currentTime) {
-          promises.push(
-            admin.messaging().send({
-              token: user.fcmToken,
-              notification: {
-                title: habit.name,
-              },
-            })
-          );
+      for (const fcmToken of Object.values(user.fcmTokens)) {
+        for (const habit of Object.values(user.habits)) {
+          if (habit.notificationEnabled && habit.notificationTime === currentTime) {
+            promises.push(
+              admin.messaging().send({
+                token: fcmToken,
+                notification: {
+                  title: habit.name,
+                },
+              })
+            );
+          }
         }
       }
     }
 
-    if (messages.length > 0) {
+    if (promises.length > 0) {
       await Promise.all(promises);
-      res.status(200).json({
-        success: true,
-        message: messages.length + " notifications sent!",
+      res.status(201).json({
+        message: promises.length + " notifications sent!",
       });
     } else {
       res.status(200).json({ message: "No notifications due." });
