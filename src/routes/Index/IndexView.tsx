@@ -1,4 +1,4 @@
-import { Check, Checklist, NotificationsActiveOutlined } from "@mui/icons-material";
+import { Check, Checklist } from "@mui/icons-material";
 import {
   Avatar,
   AvatarGroup,
@@ -22,12 +22,13 @@ import {
 import dayjs from "dayjs";
 import { useAtom } from "jotai";
 import { Form, redirect, useLoaderData, useNavigate, useNavigation } from "react-router-dom";
+import HabitNotificationIndicator from "../../components/HabitNotificationIndicator";
 import LinearProgressWithLabel from "../../components/LinearProgressWithLabel";
-import { fetchAllHabits, registerHabitsToday } from "../../services/habitsPersistance";
-import { Habit } from "../../types/Habit";
-import { FrequencyUnit } from "../../types/FrequencyUnit";
-import { checkedHabitIdsAtom, store, userDayStartsAtAtom, userWeekStartsAtMondayAtom } from "../../store";
 import { iconMap } from "../../constants/iconMap";
+import { fetchAllHabits, registerHabitsToday } from "../../services/habitsPersistance";
+import { checkedHabitIdsAtom, store, userDayStartsAtAtom, userWeekStartsAtMondayAtom } from "../../store";
+import { FrequencyUnit } from "../../types/FrequencyUnit";
+import { Habit } from "../../types/Habit";
 import { getProgress, getProgressBuffer, showSnackBar, toFriendlyFrequency } from "../../utils/helpers";
 
 async function loader() {
@@ -210,14 +211,13 @@ export default function IndexPage() {
                             </ListItemAvatar>
                             <ListItemText
                               primary={
-                                <Box sx={{ color: habit.color, display: "flex", alignItems: "center", gap: 1 }}>
+                                <Box
+                                  sx={{
+                                    color: habit.color,
+                                  }}
+                                >
                                   <Typography>{habit.name}</Typography>
-                                  {habit.notificationEnabled && (
-                                    <>
-                                      <Divider variant="middle" orientation="vertical" flexItem />
-                                      <NotificationsActiveOutlined fontSize="small" />
-                                    </>
-                                  )}
+                                  <HabitNotificationIndicator habit={habit} />
                                 </Box>
                               }
                               secondary={toFriendlyFrequency(habit)}

@@ -3,6 +3,7 @@ import {
   Alert,
   AlertTitle,
   Avatar,
+  Box,
   Button,
   Card,
   CardActions,
@@ -20,6 +21,7 @@ import { iconMap } from "../../constants/iconMap";
 import { toFriendlyFrequency } from "../../utils/helpers";
 import SelectedHabitGraph from "./SelectedHabitGraph";
 import SelectedHabitList from "./SelectedHabitList";
+import HabitNotificationIndicator from "../../components/HabitNotificationIndicator";
 
 async function loader({ params }: LoaderFunctionArgs<{ id: string }>) {
   const { id } = params;
@@ -71,7 +73,12 @@ export default function SelectedHabit() {
                 {habit.name}
               </Typography>
             }
-            subheader={habit.description}
+            subheader={
+              <Box>
+                <HabitNotificationIndicator sx={{ color: habit.color }} habit={habit} />
+                {habit.description}
+              </Box>
+            }
           />
           <CardContent
             sx={{ maxHeight: "60vh", overflowY: "auto", scrollbarWidth: "thin", scrollbarColor: "#ccc #222" }}
