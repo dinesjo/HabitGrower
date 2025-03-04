@@ -18,7 +18,7 @@ import { useAtom } from "jotai";
 import { useEffect, useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { Form, NavLink, Outlet, useNavigation } from "react-router-dom";
-import { snackbarMessageAtom, snackbarOpenAtom, snackbarSeverityAtom } from "../store";
+import { snackbarActionAtom, snackbarMessageAtom, snackbarOpenAtom, snackbarSeverityAtom } from "../store";
 
 export default function Root() {
   // Router
@@ -33,6 +33,7 @@ export default function Root() {
   const [snackbarOpen] = useAtom(snackbarOpenAtom);
   const [snackbarMessage, setSnackbarMessage] = useAtom(snackbarMessageAtom);
   const [snackbarSeverity] = useAtom(snackbarSeverityAtom);
+  const [snackbarAction] = useAtom(snackbarActionAtom);
 
   useEffect(() => {
     let timeoutId: NodeJS.Timeout;
@@ -92,13 +93,18 @@ export default function Root() {
           )}
           <Snackbar
             open={snackbarOpen}
-            autoHideDuration={3000}
+            autoHideDuration={snackbarAction ? null : 3000}
             onClose={() => setSnackbarMessage("")}
             sx={{
               bottom: "calc(56px + 0.5rem)",
             }}
           >
-            <Alert onClose={() => setSnackbarMessage("")} severity={snackbarSeverity} sx={{ width: "100%" }}>
+            <Alert
+              onClose={() => setSnackbarMessage("")}
+              severity={snackbarSeverity}
+              sx={{ width: "100%" }}
+              action={snackbarAction}
+            >
               {snackbarMessage}
             </Alert>
           </Snackbar>

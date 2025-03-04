@@ -64,6 +64,13 @@ export const snackbarSeverityAtom = atom(
     set(snackbarSeverityPrimitiveAtom, severity);
   }
 );
+const snackbarActionPrimitiveAtom = atom<React.JSX.Element | undefined>(undefined);
+export const snackbarActionAtom = atom(
+  (get) => get(snackbarActionPrimitiveAtom),
+  (_, set, action: React.JSX.Element | undefined) => {
+    set(snackbarActionPrimitiveAtom, action);
+  }
+);
 export const snackbarOpenAtom = atom<boolean>((get) => !!get(snackbarMessageAtom));
 
 /* Habits */

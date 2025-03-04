@@ -19,7 +19,7 @@ export default function DeleteHabitWithConfirm({ habit, id }: { habit: Habit; id
         <Form action={`/${id}/delete`} method="post">
           <DialogTitle id={"delete-confirm-title"}>Delete "{habit.name}"?</DialogTitle>
           <DialogContent>
-            <DialogContentText>This action cannot be undone.</DialogContentText>
+            <DialogContentText>This action will permanently delete the habit "{habit.name}".</DialogContentText>
           </DialogContent>
           <DialogActions>
             <Button onClick={handleClose} color="inherit" disabled={navigation.state === "submitting"}>

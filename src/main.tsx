@@ -9,20 +9,26 @@ import EditHabitForm from "./components/EditHabitForm";
 import ErrorPage from "./components/ErrorPage";
 import "./firebase";
 import { signOut } from "./firebase";
-import { createEmptyHabit, deleteHabit, unregisterHabitByDate, updateHabit } from "./services/habitsPersistance";
-import { Habit } from "./types/Habit";
 import IndexPage from "./routes/Index/IndexView";
 import SelectedHabit from "./routes/Index/SelectedHabit";
 import AccountView from "./routes/Profile/AccountView";
 import SignInView from "./routes/Profile/SignInView";
 import Root from "./routes/root";
+import {
+  createEmptyHabit,
+  deleteHabit,
+  fetchHabitById,
+  unregisterHabitByDate,
+  updateHabit,
+} from "./services/habitsPersistance";
 import { checkedHabitIdsAtom, store } from "./store";
+import { Habit } from "./types/Habit";
 import { requireAuth } from "./utils/requireAuth";
 // Note that this may get included in your production builds. Please import it conditionally if you want to avoid that
+import { Button } from "@mui/material";
 import "jotai-devtools/styles.css";
 import Main from "./components/Main";
 import { showSnackBar } from "./utils/helpers";
-
 
 export const router = createBrowserRouter(
   createRoutesFromElements(
@@ -42,7 +48,6 @@ export const router = createBrowserRouter(
             const habitData = formData as unknown as Habit;
             habitData.notificationEnabled = formData.notificationEnabled === "on";
             await updateHabit(params.id, habitData);
-            // Show snackbar
             showSnackBar("Habit updated!", "success");
             return redirect("/");
           }}
@@ -53,11 +58,31 @@ export const router = createBrowserRouter(
             if (!params.id) {
               return redirect("/");
             }
+
+            // Store habit for undo action
+            const habit = await fetchHabitById(params.id);
+            if (!habit) {
+              return redirect("/");
+            }
+            const restoreHabit = async () => {
+              if (!habit || !params.id) {
+                showSnackBar("Failed to restore habit.", "error");
+                return;
+              }
+              await updateHabit(params.id, habit);
+              showSnackBar("Habit restored!", "success");
+              router.navigate("/");
+            };
+
             await deleteHabit(params.id);
-            // Remove from checkedHabitIds
             store.set(checkedHabitIdsAtom, (checkedHabitIds) => checkedHabitIds.filter((id) => id !== params.id));
-            // Show snackbar
-            showSnackBar("Habit deleted!", "success");
+            showSnackBar(
+              "Habit deleted!",
+              "success",
+              <Button color="inherit" size="small" onClick={restoreHabit}>
+                UNDO
+              </Button>
+            );
             return redirect("/");
           }}
         />
@@ -68,7 +93,6 @@ export const router = createBrowserRouter(
               return redirect("/" + params.id);
             }
             await unregisterHabitByDate(params.id, params.date);
-            // Show snackbar
             showSnackBar("Unregistered successfully!", "success");
             return redirect("/" + params.id);
           }}
