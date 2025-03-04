@@ -98,12 +98,7 @@ export default function Root() {
               bottom: "calc(56px + 0.5rem)",
             }}
           >
-            <Alert
-              onClose={() => setSnackbarMessage("")}
-              severity={snackbarSeverity}
-              variant="filled"
-              sx={{ width: "100%" }}
-            >
+            <Alert onClose={() => setSnackbarMessage("")} severity={snackbarSeverity} sx={{ width: "100%" }}>
               {snackbarMessage}
             </Alert>
           </Snackbar>
@@ -137,6 +132,7 @@ export default function Root() {
                 outlineColor: "primary.main",
                 outlineOffset: "1px",
                 mb: 0.5,
+                transform: "scale(0.75) translateY(0.45rem)",
               },
               "&.pending": {
                 color: "primary.light",

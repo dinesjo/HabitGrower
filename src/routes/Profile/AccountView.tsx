@@ -4,7 +4,7 @@ import {
   DoNotDisturbOutlined,
   HotelOutlined,
   LogoutOutlined,
-  NotificationsActive,
+  NotificationsActiveOutlined,
   NotificationsOffOutlined,
   TodayOutlined
 } from "@mui/icons-material";
@@ -154,7 +154,7 @@ function NotificationsStatus() {
 
   return (
     <ListItem>
-      <ListItemIcon>{permission === "granted" ? <NotificationsActive /> : <NotificationsOffOutlined />}</ListItemIcon>
+      <ListItemIcon>{permission === "granted" ? <NotificationsActiveOutlined /> : <NotificationsOffOutlined />}</ListItemIcon>
       <ListItemText primary="Notifications" />
       {permission === "granted" ? (
         <Chip label="Enabled" color="success" icon={<Check />} sx={{ fontWeight: "bold" }} />

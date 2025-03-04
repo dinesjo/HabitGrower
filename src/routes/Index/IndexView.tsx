@@ -47,7 +47,7 @@ async function action({ request }: { request: Request }) {
   store.set(checkedHabitIdsAtom, []);
 
   // Show confirmation snackbar
-  showSnackBar("Habit(s) registered successfully!", "success");
+  showSnackBar(`Habit${habitIds.length > 1 ? "s" : ""} registered successfully!`, "success");
 
   return redirect("/");
 }
