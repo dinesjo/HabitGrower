@@ -14,16 +14,6 @@ export default defineConfig({
     react(),
     mkcert(),
     VitePWA({
-      mode: "development",
-      injectManifest: {
-        globPatterns: ["**/*"],
-      },
-      strategies: "injectManifest",
-      srcDir: "public",
-      filename: "firebase-messaging-sw.js",
-      devOptions: {
-        type: "module",
-      },
       manifest: {
         name: "HabitGrower",
         short_name: "HabitGrower",

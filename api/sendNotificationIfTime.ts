@@ -1,7 +1,7 @@
-import admin from "firebase-admin";
-import { RTDBUser } from "../src/types/RTDBUser";
 import dayjs from "dayjs";
-import { Habit } from "../src/habitsModel";
+import admin from "firebase-admin";
+import { Habit } from "../src/types/Habit";
+import { RTDBUser } from "../src/types/RTDBUser";
 
 if (!admin.apps.length) {
   admin.initializeApp({
@@ -20,6 +20,8 @@ export default async function handler(req, res) {
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method Not Allowed" });
   }
+
+  const bypass = req.query.bypass as string | undefined;
 
   try {
     const now = new Date();
@@ -42,13 +44,13 @@ export default async function handler(req, res) {
         for (const habit of Object.values(user.habits)) {
           const habitComplete = getProgress(habit, false, user.weekStartsAtMonday || false) === 100;
 
-          if (habit.notificationEnabled && !habitComplete && habit.notificationTime === currentTime) {
+          if (habit.notificationEnabled && (bypass || (!habitComplete && habit.notificationTime === currentTime))) {
             promises.push(
               admin
                 .messaging()
                 .send({
                   token: fcmToken,
-                  notification: {
+                  data: {
                     title: habit.name,
                   },
                 })
