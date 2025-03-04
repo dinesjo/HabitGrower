@@ -18,9 +18,24 @@ messaging.onBackgroundMessage(function (payload) {
   console.log('[firebase-messaging-sw.js] Received background message ', payload);
   // Customize notification here
   const notificationTitle = payload.data.title;
+  let frequenctUnitFriendly;
+  switch (payload.data.frequencyUnit) {
+    case 'day':
+      frequenctUnitFriendly = 'today';
+      break;
+    case 'week':
+      frequenctUnitFriendly = 'this week';
+      break;
+    case 'month':
+      frequenctUnitFriendly = 'this month';
+      break;
+    default:
+      frequenctUnitFriendly = '';
+  }
   const notificationOptions = {
-    body: "Don't forget to complete your habit today",
+    body: `${payload.data.progressPercent}% done${payload.data.frequencyUnit ? ` ${frequenctUnitFriendly}` : ''}`,
     icon: '/pwa-512x512.png',
+    badge: '/pwa-192x192.png',
   };
 
   self.registration.showNotification(notificationTitle,

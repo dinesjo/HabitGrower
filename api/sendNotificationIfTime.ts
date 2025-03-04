@@ -42,7 +42,8 @@ export default async function handler(req, res) {
 
       for (const [fcmTokenKey, fcmToken] of Object.entries(user.fcmTokens)) {
         for (const habit of Object.values(user.habits)) {
-          const habitComplete = getProgress(habit, false, user.weekStartsAtMonday || false) === 100;
+          const habitProgressPercent = getProgress(habit, false, user.weekStartsAtMonday || false);
+          const habitComplete = habitProgressPercent >= 100;
 
           if (habit.notificationEnabled && (bypass || (!habitComplete && habit.notificationTime === currentTime))) {
             promises.push(
@@ -52,6 +53,8 @@ export default async function handler(req, res) {
                   token: fcmToken,
                   data: {
                     title: habit.name,
+                    progressPercent: String(habitProgressPercent.toFixed(0)),
+                    frequencyUnit: habit.frequencyUnit || "",
                   },
                 })
                 .catch(async (error) => {
