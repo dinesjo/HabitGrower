@@ -62,6 +62,12 @@ self.addEventListener('notificationclick', function (event) {
       })
       .then(async (clientList) => {
         if (event.action === 'registerHabitNow') {
+          self.registration.showNotification('Registering habit...', {
+            icon: '/pwa-512x512.png',
+            badge: '/pwa-192x192.png',
+            tag: event.notification.data.habitId,
+          });
+
           await fetch(`https://habit-grower.vercel.app/api/registerHabitNow?userId=${event.notification.data.userId}&habitId=${event.notification.data.habitId}`, {
             method: 'POST',
             headers: {
@@ -70,7 +76,6 @@ self.addEventListener('notificationclick', function (event) {
           }).then((response) => {
             if (response.ok) {
               return self.registration.showNotification('Habit registered successfully', {
-                body: 'You have registered the habit successfully',
                 icon: '/pwa-512x512.png',
                 badge: '/pwa-192x192.png',
                 tag: event.notification.data.habitId,
