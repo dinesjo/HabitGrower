@@ -32,7 +32,7 @@ messaging.onBackgroundMessage(function (payload) {
       frequenctUnitFriendly = '';
   }
   const notificationOptions = {
-    body: `${payload.data.progressPercent}% done${payload.data.frequencyUnit ? ` ${frequenctUnitFriendly}` : ''}`,
+    body: `${payload.data.progressPercent}% complete${payload.data.frequencyUnit ? ` ${frequenctUnitFriendly}` : ''}`,
     icon: '/pwa-512x512.png',
     badge: '/pwa-192x192.png',
     data: {
@@ -61,7 +61,7 @@ self.addEventListener('notificationclick', function (event) {
         type: "window",
       })
       .then(async (clientList) => {
-        if (event.notification.actions[0].action === 'registerHabitNow') {
+        if (event.action === 'registerHabitNow') {
           await fetch(`https://habit-grower.vercel.app/api/registerHabitNow?userId=${event.notification.data.userId}&habitId=${event.notification.data.habitId}`, {
             method: 'POST',
             headers: {
