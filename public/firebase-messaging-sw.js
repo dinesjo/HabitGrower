@@ -37,14 +37,15 @@ messaging.onBackgroundMessage(function (payload) {
     badge: '/pwa-192x192.png',
     data: {
       habitId: payload.data.habitId,
-      userId: payload.data.userId
+      userId: payload.data.userId,
     },
     actions: [
       {
         action: 'registerHabitNow',
         title: 'Register now',
       }
-    ]
+    ],
+    tag: payload.data.habitId,
   };
 
   self.registration.showNotification(notificationTitle,
@@ -53,7 +54,6 @@ messaging.onBackgroundMessage(function (payload) {
 
 self.addEventListener('notificationclick', function (event) {
   console.log('[firebase-messaging-sw.js] Notification click Received.', event.notification);
-  event.notification.close();
 
   event.waitUntil(
     self.clients
@@ -71,24 +71,33 @@ self.addEventListener('notificationclick', function (event) {
             if (response.ok) {
               return self.registration.showNotification('Habit registered successfully', {
                 body: 'You have registered the habit successfully',
+                icon: '/pwa-512x512.png',
                 badge: '/pwa-192x192.png',
+                tag: event.notification.data.habitId,
               });
             } else {
               console.error('Habit registration failed');
               return self.registration.showNotification('Habit registered FAILED!', {
                 body: 'Could not register the habit, open the app to do so',
+                icon: '/pwa-512x512.png',
                 badge: '/pwa-192x192.png',
+                tag: event.notification.data.habitId,
               });
             }
           }).catch((error) => {
             console.error('Habit registration failed', error);
             return self.registration.showNotification('Habit registered FAILED!', {
               body: 'Could not register the habit, open the app to do so',
+              icon: '/pwa-512x512.png',
               badge: '/pwa-192x192.png',
+              tag: event.notification.data.habitId,
             });
           });
+
           return;
         }
+
+        event.notification.close();
 
         for (const client of clientList) {
           // Check if the client URL is the root URL and if it can be focused
