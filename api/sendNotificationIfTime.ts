@@ -57,6 +57,7 @@ export default async function handler(req, res) {
                     frequencyUnit: habit.frequencyUnit || "",
                     habitId: habitId,
                     userId: userId,
+                    habitIcon: habit.icon,
                   },
                 })
                 .catch(async (error) => {
