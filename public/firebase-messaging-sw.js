@@ -16,7 +16,6 @@ const messaging = self.firebase.messaging();
 
 messaging.onBackgroundMessage(function (payload) {
   console.log('[firebase-messaging-sw.js] Received background message ', payload);
-  // Customize notification here
   const notificationTitle = payload.data.title;
   let frequenctUnitFriendly;
   switch (payload.data.frequencyUnit) {
@@ -34,7 +33,7 @@ messaging.onBackgroundMessage(function (payload) {
   }
   const notificationOptions = {
     body: `${payload.data.progressPercent}% done${payload.data.frequencyUnit ? ` ${frequenctUnitFriendly}` : ''}`,
-    // icon: '/pwa-512x512.png',
+    icon: '/pwa-512x512.png',
     badge: '/pwa-192x192.png',
     data: {
       habitId: payload.data.habitId,
@@ -44,7 +43,7 @@ messaging.onBackgroundMessage(function (payload) {
       {
         action: 'registerHabitNow',
         title: 'Register now',
-      },
+      }
     ]
   };
 
@@ -88,6 +87,7 @@ self.addEventListener('notificationclick', function (event) {
               badge: '/pwa-192x192.png',
             });
           });
+          return;
         }
 
         for (const client of clientList) {
