@@ -71,7 +71,7 @@ export async function deleteHabit(id: string): Promise<void> {
   await set(habitRef, null);
 }
 
-export async function registerHabitsToday(ids: string[]): Promise<void> {
+export async function registerHabitsNow(ids: string[]): Promise<void> {
   const userId = await getUserIdOrThrow();
 
   const today = dayjs();

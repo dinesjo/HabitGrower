@@ -34,8 +34,18 @@ messaging.onBackgroundMessage(function (payload) {
   }
   const notificationOptions = {
     body: `${payload.data.progressPercent}% done${payload.data.frequencyUnit ? ` ${frequenctUnitFriendly}` : ''}`,
-    icon: '/pwa-512x512.png',
+    // icon: '/pwa-512x512.png',
     badge: '/pwa-192x192.png',
+    data: {
+      habitId: payload.data.habitId,
+      userId: payload.data.userId
+    },
+    actions: [
+      {
+        action: 'registerHabitNow',
+        title: 'Register now',
+      },
+    ]
   };
 
   self.registration.showNotification(notificationTitle,
@@ -51,11 +61,46 @@ self.addEventListener('notificationclick', function (event) {
       .matchAll({
         type: "window",
       })
-      .then((clientList) => {
-        for (const client of clientList) {
-          if (client.url === "/" && "focus" in client) return client.focus();
+      .then(async (clientList) => {
+        if (event.notification.actions[0].action === 'registerHabitNow') {
+          await fetch(`https://habit-grower.vercel.app/api/registerHabitNow?userId=${event.notification.data.userId}&habitId=${event.notification.data.habitId}`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          }).then((response) => {
+            if (response.ok) {
+              return self.registration.showNotification('Habit registered successfully', {
+                body: 'You have registered the habit successfully',
+                badge: '/pwa-192x192.png',
+              });
+            } else {
+              console.error('Habit registration failed');
+              return self.registration.showNotification('Habit registered FAILED!', {
+                body: 'Could not register the habit, open the app to do so',
+                badge: '/pwa-192x192.png',
+              });
+            }
+          }).catch((error) => {
+            console.error('Habit registration failed', error);
+            return self.registration.showNotification('Habit registered FAILED!', {
+              body: 'Could not register the habit, open the app to do so',
+              badge: '/pwa-192x192.png',
+            });
+          });
         }
-        if (self.clients.openWindow) return self.clients.openWindow("/");
+
+        for (const client of clientList) {
+          // Check if the client URL is the root URL and if it can be focused
+          if (client.url === "/" && "focus" in client) {
+            return client.focus(); // Focus the client and stop further execution
+          }
+        }
+
+        // If no matching client is found, open a new window with the root URL
+        if (self.clients.openWindow) {
+          return self.clients.openWindow("/");
+        }
       }),
   );
 });

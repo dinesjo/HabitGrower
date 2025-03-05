@@ -25,7 +25,7 @@ import { Form, redirect, useLoaderData, useNavigate, useNavigation } from "react
 import HabitNotificationIndicator from "../../components/HabitNotificationIndicator";
 import LinearProgressWithLabel from "../../components/LinearProgressWithLabel";
 import { iconMap } from "../../constants/iconMap";
-import { fetchAllHabits, registerHabitsToday } from "../../services/habitsPersistance";
+import { fetchAllHabits, registerHabitsNow } from "../../services/habitsPersistance";
 import { checkedHabitIdsAtom, store, userDayStartsAtAtom, userWeekStartsAtMondayAtom } from "../../store";
 import { FrequencyUnit } from "../../types/FrequencyUnit";
 import { Habit } from "../../types/Habit";
@@ -42,7 +42,7 @@ async function action({ request }: { request: Request }) {
   // Get IDs from formData and register
   const formData = await request.formData();
   const habitIds = formData.getAll("habitIds") as string[];
-  await registerHabitsToday(habitIds);
+  await registerHabitsNow(habitIds);
 
   // Clear checked habits
   store.set(checkedHabitIdsAtom, []);
@@ -141,7 +141,7 @@ export default function IndexPage() {
               }}
             >
               {sortedHabits.map((habit) => {
-                const isChecked = checkedHabitIds.includes(habit.id!);
+                const isChecked = checkedHabitIds.includes(habit.id);
                 const progress = getProgress(habit, isChecked, userWeekStartsAtMonday);
                 const registeredProgress = getProgress(habit, false, userWeekStartsAtMonday);
                 const progressBuffer = getProgressBuffer(habit, dayStartsAt, userWeekStartsAtMonday);
@@ -179,7 +179,7 @@ export default function IndexPage() {
                               checked={isChecked}
                               onClick={() =>
                                 setCheckedHabitIds((prev) =>
-                                  isChecked ? prev.filter((id) => id !== habit.id) : [...prev, habit.id!]
+                                  isChecked ? prev.filter((id) => id !== habit.id) : [...prev, habit.id]
                                 )
                               }
                               sx={{ "& .MuiSvgIcon-root": { fontSize: 32 } }}
