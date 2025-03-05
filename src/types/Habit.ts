@@ -1,7 +1,7 @@
 import { FrequencyUnit } from "./FrequencyUnit";
 
 export interface Habit {
-  id?: string;
+  id: string;
   name: string;
   description?: string;
   icon: string;

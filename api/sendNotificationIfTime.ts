@@ -41,7 +41,7 @@ export default async function handler(req, res) {
       if (!user.fcmTokens) continue; // Skip users without an FCM token
 
       for (const [fcmTokenKey, fcmToken] of Object.entries(user.fcmTokens)) {
-        for (const habit of Object.values(user.habits)) {
+        for (const [habitId, habit] of Object.entries(user.habits)) {
           const habitProgressPercent = getProgress(habit, false, user.weekStartsAtMonday || false);
           const habitComplete = habitProgressPercent >= 100;
 
@@ -55,6 +55,8 @@ export default async function handler(req, res) {
                     title: habit.name,
                     progressPercent: String(habitProgressPercent.toFixed(0)),
                     frequencyUnit: habit.frequencyUnit || "",
+                    habitId: habitId,
+                    userId: userId,
                   },
                 })
                 .catch(async (error) => {
