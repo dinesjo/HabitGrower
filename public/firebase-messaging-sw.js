@@ -16,7 +16,6 @@ const messaging = self.firebase.messaging();
 
 messaging.onBackgroundMessage(function (payload) {
   console.log('[firebase-messaging-sw.js] Received background message ', payload);
-  // Customize notification here
   const notificationTitle = payload.data.title;
   let frequenctUnitFriendly;
   switch (payload.data.frequencyUnit) {
@@ -33,9 +32,21 @@ messaging.onBackgroundMessage(function (payload) {
       frequenctUnitFriendly = '';
   }
   const notificationOptions = {
-    body: `${payload.data.progressPercent}% done${payload.data.frequencyUnit ? ` ${frequenctUnitFriendly}` : ''}`,
-    icon: '/pwa-512x512.png',
+    body: `${payload.data.progressPercent}% complete${payload.data.frequencyUnit ? ` ${frequenctUnitFriendly}` : ''}`,
+    icon: `/${payload.data.habitIcon}.svg`,
     badge: '/pwa-192x192.png',
+    data: {
+      habitId: payload.data.habitId,
+      userId: payload.data.userId,
+      icon: payload.data.habitIcon,
+    },
+    actions: [
+      {
+        action: 'registerHabitNow',
+        title: 'Register now',
+      }
+    ],
+    tag: payload.data.habitId,
   };
 
   self.registration.showNotification(notificationTitle,
@@ -44,18 +55,67 @@ messaging.onBackgroundMessage(function (payload) {
 
 self.addEventListener('notificationclick', function (event) {
   console.log('[firebase-messaging-sw.js] Notification click Received.', event.notification);
-  event.notification.close();
 
   event.waitUntil(
     self.clients
       .matchAll({
         type: "window",
       })
-      .then((clientList) => {
-        for (const client of clientList) {
-          if (client.url === "/" && "focus" in client) return client.focus();
+      .then(async (clientList) => {
+        if (event.action === 'registerHabitNow') {
+          self.registration.showNotification('Registering...', {
+            icon: `/${event.notification.data.icon}.svg`,
+            badge: '/pwa-192x192.png',
+            tag: event.notification.data.habitId,
+          });
+
+          await fetch(`https://habit-grower.vercel.app/api/registerHabitNow?userId=${event.notification.data.userId}&habitId=${event.notification.data.habitId}`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          }).then((response) => {
+            if (response.ok) {
+              return self.registration.showNotification('✅ Habit has been registered', {
+                icon: `/${event.notification.data.icon}.svg`,
+                badge: '/pwa-192x192.png',
+                tag: event.notification.data.habitId,
+              });
+            } else {
+              console.error('Habit registration failed');
+              return self.registration.showNotification('⚠️ Habit could NOT be registered', {
+                body: 'Could not register the habit, open the app to do so',
+                icon: `/${event.notification.data.icon}.svg`,
+                badge: '/pwa-192x192.png',
+                tag: event.notification.data.habitId,
+              });
+            }
+          }).catch((error) => {
+            console.error('Habit registration failed', error);
+            return self.registration.showNotification('⚠️ Habit could NOT be registered', {
+              body: 'Could not register the habit, open the app to do so',
+              icon: `/${event.notification.data.icon}.svg`,
+              badge: '/pwa-192x192.png',
+              tag: event.notification.data.habitId,
+            });
+          });
+
+          return;
         }
-        if (self.clients.openWindow) return self.clients.openWindow("/");
+
+        event.notification.close();
+
+        for (const client of clientList) {
+          // Check if the client URL is the root URL and if it can be focused
+          if (client.url === "/" && "focus" in client) {
+            return client.focus(); // Focus the client and stop further execution
+          }
+        }
+
+        // If no matching client is found, open a new window with the root URL
+        if (self.clients.openWindow) {
+          return self.clients.openWindow("/");
+        }
       }),
   );
 });
