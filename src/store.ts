@@ -4,6 +4,7 @@ import { get, ref, set } from "firebase/database";
 import { atom, getDefaultStore } from "jotai";
 import { atomWithStorage } from "jotai/utils";
 import { database, getUser } from "./firebase";
+import { fetchFcmToken } from "./services/fetchFcmToken";
 
 export const store = getDefaultStore();
 export const themeAtom = atomWithStorage<PaletteMode>("theme", "dark");
@@ -77,7 +78,16 @@ export const snackbarOpenAtom = atom<boolean>((get) => !!get(snackbarMessageAtom
 export const checkedHabitIdsAtom = atom<string[]>([]);
 
 /* Notifications */
-export const notificationPermissionAtom = atom<typeof Notification.permission>(Notification.permission);
+const notificationPermissionPrimitiveAtom = atom<typeof Notification.permission>(Notification.permission);
+export const notificationPermissionAtom = atom(
+  (get) => get(notificationPermissionPrimitiveAtom),
+  (_, set, permission: typeof Notification.permission) => {
+    set(notificationPermissionPrimitiveAtom, permission);
+    if (permission === "granted") {
+      fetchFcmToken();
+    }
+  }
+);
 
 /* Days shown in the graph */
 export const daysShownAtom = atomWithStorage<number>("daysShown", 30);
