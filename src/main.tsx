@@ -9,7 +9,7 @@ import EditHabitForm from "./components/EditHabitForm";
 import ErrorPage from "./components/ErrorPage";
 import "./firebase";
 import { signOut } from "./firebase";
-import IndexPage from "./routes/Index/IndexView";
+import IndexView from "./routes/Index/IndexView";
 import SelectedHabit from "./routes/Index/SelectedHabit";
 import AccountView from "./routes/Profile/AccountView";
 import SignInView from "./routes/Profile/SignInView";
@@ -34,7 +34,7 @@ export const router = createBrowserRouter(
   createRoutesFromElements(
     <Route element={<Root />} id="root" errorElement={<ErrorPage />}>
       <Route path="/">
-        <Route index element={<IndexPage />} loader={requireAuth(IndexPage.loader)} action={IndexPage.action} />
+        <Route index element={<IndexView />} loader={requireAuth(IndexView.loader)} action={IndexView.action} />
         <Route path=":id" element={<SelectedHabit />} loader={requireAuth(SelectedHabit.loader)} />
         <Route
           path=":id/edit"

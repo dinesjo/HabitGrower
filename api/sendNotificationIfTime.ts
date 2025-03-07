@@ -41,6 +41,8 @@ export default async function handler(req, res) {
       if (!user.fcmTokens) continue; // Skip users without an FCM token
 
       for (const [fcmTokenKey, fcmToken] of Object.entries(user.fcmTokens)) {
+        if (!user.habits) continue; // Skip users without habits
+
         for (const [habitId, habit] of Object.entries(user.habits)) {
           const habitProgressPercent = getProgress(habit, false, user.weekStartsAtMonday || false);
           const habitComplete = habitProgressPercent >= 100;

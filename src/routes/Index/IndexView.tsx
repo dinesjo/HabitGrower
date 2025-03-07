@@ -53,10 +53,10 @@ async function action({ request }: { request: Request }) {
   return redirect("/");
 }
 
-IndexPage.loader = loader;
-IndexPage.action = action;
+IndexView.loader = loader;
+IndexView.action = action;
 
-export default function IndexPage() {
+export default function IndexView() {
   const { habits } = useLoaderData() as { habits: Habit[] };
   const navigation = useNavigation();
   const navigate = useNavigate();
