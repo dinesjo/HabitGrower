@@ -6,7 +6,7 @@ import {
   LogoutOutlined,
   NotificationsActiveOutlined,
   NotificationsOffOutlined,
-  TodayOutlined
+  TodayOutlined,
 } from "@mui/icons-material";
 import {
   Avatar,
@@ -82,7 +82,8 @@ export default function AccountView() {
             variant="outlined"
             color="error"
             type="submit"
-            disabled={navigation.state === "submitting"}
+            loading={navigation.state === "submitting"}
+            loadingPosition="start"
           >
             Sign out
           </Button>
@@ -154,7 +155,9 @@ function NotificationsStatus() {
 
   return (
     <ListItem>
-      <ListItemIcon>{permission === "granted" ? <NotificationsActiveOutlined /> : <NotificationsOffOutlined />}</ListItemIcon>
+      <ListItemIcon>
+        {permission === "granted" ? <NotificationsActiveOutlined /> : <NotificationsOffOutlined />}
+      </ListItemIcon>
       <ListItemText primary="Notifications" />
       {permission === "granted" ? (
         <Chip label="Enabled" color="success" icon={<Check />} sx={{ fontWeight: "bold" }} />

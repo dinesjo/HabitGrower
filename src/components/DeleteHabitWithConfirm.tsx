@@ -22,7 +22,7 @@ export default function DeleteHabitWithConfirm({ habit, id }: { habit: Habit; id
             <DialogContentText>This action will permanently delete the habit "{habit.name}".</DialogContentText>
           </DialogContent>
           <DialogActions>
-            <Button onClick={handleClose} color="inherit" disabled={navigation.state === "submitting"}>
+            <Button onClick={handleClose} color="inherit">
               Cancel
             </Button>
             <Button
@@ -30,7 +30,8 @@ export default function DeleteHabitWithConfirm({ habit, id }: { habit: Habit; id
               variant="contained"
               type="submit"
               color="error"
-              disabled={navigation.state === "submitting"}
+              loading={navigation.state === "submitting"}
+              loadingPosition="start"
             >
               Delete
             </Button>

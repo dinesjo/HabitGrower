@@ -52,7 +52,13 @@ export default function SelectedHabitList({ habit }: { habit: Habit }) {
             <Button color="inherit" onClick={() => setOpen(false)}>
               Cancel
             </Button>
-            <Button color="error" variant="contained" type="submit" disabled={navigation.state === "submitting"}>
+            <Button
+              color="error"
+              variant="contained"
+              type="submit"
+              loading={navigation.state === "submitting"}
+              loadingPosition="start"
+            >
               Unregister
             </Button>
           </DialogActions>

@@ -9,7 +9,7 @@ import {
   Chip,
   Divider,
   FormControl,
-  Grid,
+  Grid2,
   InputLabel,
   List,
   ListItem,
@@ -89,17 +89,17 @@ export default function EditHabitForm() {
           Edit Habit: <b>{habit.name}</b>
         </Typography>
         <CardContent sx={{ maxHeight: "calc(100vh - 320px)", overflowY: "auto" }}>
-          <Grid container spacing={2}>
+          <Grid2 container spacing={2}>
             {/* Section tile */}
-            <Grid item xs={12}>
+            <Grid2 size={12}>
               <Divider>
                 <Chip icon={<ColorLens />} label="Appearance" size="small" />
               </Divider>
-            </Grid>
-            <Grid item xs={12} sm={6}>
+            </Grid2>
+            <Grid2 size={{ xs: 12, sm: 6 }}>
               <TextField required name="name" label="Habit Name" defaultValue={habit.name} fullWidth />
-            </Grid>
-            <Grid item xs={12} sm={6}>
+            </Grid2>
+            <Grid2 size={{ xs: 12, sm: 6 }}>
               <TextField
                 name="description"
                 label="Description"
@@ -107,9 +107,9 @@ export default function EditHabitForm() {
                 multiline
                 fullWidth
               />
-            </Grid>
-            <Grid item container xs={12} spacing={2} display="flex" alignItems="start" sx={{ height: "100%" }}>
-              <Grid item xs={"auto"} sx={{ height: "inherit" }}>
+            </Grid2>
+            <Grid2 container size={12} spacing={2} display="flex" alignItems="start" sx={{ height: "100%" }}>
+              <Grid2 size={"auto"} sx={{ height: "inherit" }}>
                 <FormControl required fullWidth>
                   <InputLabel>Icon</InputLabel>
                   <Select
@@ -128,8 +128,8 @@ export default function EditHabitForm() {
                     ))}
                   </Select>
                 </FormControl>
-              </Grid>
-              <Grid item xs>
+              </Grid2>
+              <Grid2 size="grow">
                 <FormControl fullWidth>
                   <InputLabel>Color</InputLabel>
                   <Select
@@ -149,15 +149,15 @@ export default function EditHabitForm() {
                     ))}
                   </Select>
                 </FormControl>
-              </Grid>
-            </Grid>
+              </Grid2>
+            </Grid2>
             {/* Section tile */}
-            <Grid item xs={12}>
+            <Grid2 size={12}>
               <Divider>
                 <Chip icon={<EventRepeat />} label="How often?" size="small" />
               </Divider>
-            </Grid>
-            <Grid item xs={5}>
+            </Grid2>
+            <Grid2 size={5}>
               <TextField
                 name="frequency"
                 label="Frequency"
@@ -166,8 +166,8 @@ export default function EditHabitForm() {
                 defaultValue={habit.frequency || ""}
                 fullWidth
               />
-            </Grid>
-            <Grid item xs={7}>
+            </Grid2>
+            <Grid2 size={7}>
               <FormControl fullWidth>
                 <InputLabel id="frequencyUnit">Every</InputLabel>
                 <Select
@@ -188,15 +188,15 @@ export default function EditHabitForm() {
                   }
                 </Select>
               </FormControl>
-            </Grid>
+            </Grid2>
             {/* Notifications section */}
-            <Grid item xs={12}>
+            <Grid2 size={12}>
               <Divider>
                 <Chip icon={<EditNotificationsOutlined />} label="Notifications" size="small" />
               </Divider>
-            </Grid>
+            </Grid2>
             <NotificationsPermissionAlert />
-            <Grid item xs={12}>
+            <Grid2 size={12}>
               <List disablePadding>
                 <ListItem sx={{ py: 0 }}>
                   <ListItemIcon>
@@ -214,8 +214,8 @@ export default function EditHabitForm() {
                   />
                 </ListItem>
               </List>
-            </Grid>
-            <Grid item xs={12}>
+            </Grid2>
+            <Grid2 size={12}>
               <LocalizationProvider dateAdapter={AdapterDayjs}>
                 <TimePicker
                   value={notificationTime ? dayjs("2024-01-01T" + notificationTime + "Z") : null}
@@ -241,12 +241,18 @@ export default function EditHabitForm() {
                 />
                 <input type="hidden" name="notificationTime" value={notificationTime || ""} />
               </LocalizationProvider>
-            </Grid>
-          </Grid>
+            </Grid2>
+          </Grid2>
         </CardContent>
         <Divider />
         <CardActions>
-          <Button startIcon={<Save />} variant="contained" type="submit" disabled={navigation.state === "submitting"}>
+          <Button
+            loading={navigation.state === "submitting"}
+            loadingPosition="start"
+            startIcon={<Save />}
+            variant="contained"
+            type="submit"
+          >
             Save
           </Button>
           <Button onClick={handleBack}>Cancel</Button>
@@ -266,16 +272,16 @@ function NotificationsPermissionAlert() {
 
   if (permission === "denied") {
     return (
-      <Grid item xs={12}>
+      <Grid2 size={12}>
         <Alert severity="warning">
           Notifications are blocked. Please enable them in your browser settings to receive notifications.
         </Alert>
-      </Grid>
+      </Grid2>
     );
   }
 
   return (
-    <Grid item xs={12}>
+    <Grid2 size={12}>
       <Alert
         severity="info"
         action={
@@ -292,6 +298,6 @@ function NotificationsPermissionAlert() {
       >
         Enable notifications to get reminders about your habits.
       </Alert>
-    </Grid>
+    </Grid2>
   );
 }
