@@ -213,11 +213,14 @@ export default function IndexView() {
                               primary={
                                 <Box
                                   sx={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                    pr: 2,
                                     color: habit.color,
                                   }}
                                 >
-                                  <Typography>{habit.name}</Typography>
-                                  <HabitNotificationIndicator habit={habit} />
+                                  <Typography lineHeight={1.25}>{habit.name}</Typography>
+                                  <HabitNotificationIndicator sx={{ ml: 1 }} habit={habit} />
                                 </Box>
                               }
                               secondary={toFriendlyFrequency(habit)}
