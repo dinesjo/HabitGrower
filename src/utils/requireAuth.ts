@@ -10,13 +10,13 @@ import { getUser } from "../firebase";
  * @returns A function that enforces authentication and runs the loader function.
  */
 export function requireAuth(loader: LoaderFunction) {
-  return async function (...args: LoaderFunctionArgs[]) {
+  return async function (args: LoaderFunctionArgs, handlerCtx?: unknown) {
     const user = await getUser();
     if (!user) {
       // If the user is not authorized, redirect to the sign-in page
       return redirect("/profile/signin");
     }
-    // If the user is authorized, run the loader
-    return loader(args[0]);
+    // If the user is authorized, run the loader with both arguments
+    return loader(args, handlerCtx);
   };
 }
