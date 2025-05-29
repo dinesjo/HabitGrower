@@ -17,9 +17,10 @@ export default function HabitNotificationIndicator({ habit, ...props }: { habit:
         >
           <NotificationsActiveOutlined sx={{ fontSize: "1rem" }} />•
           <Typography variant="caption">
-            {dayjs("2020-01-01 " + habit.notificationTime + " Z")
-              .local()
-              .format("HH:mm")}
+            {(() => {
+              const [hours, minutes] = habit.notificationTime.split(":");
+              return dayjs.utc().set("hour", parseInt(hours)).set("minute", parseInt(minutes)).local().format("HH:mm");
+            })()}
           </Typography>
         </Box>
       </>
