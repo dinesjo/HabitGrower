@@ -25,7 +25,7 @@ export default async function handler(req, res) {
 
   try {
     const now = new Date();
-    const currentTime = `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`; // "HH:MM"
+    const currentTime = `${String(now.getUTCHours()).padStart(2, "0")}:${String(now.getUTCMinutes()).padStart(2, "0")}`; // "HH:MM"
 
     // Get all users
     const usersSnap = await db.ref("users").get();
@@ -116,7 +116,15 @@ function getFrequencyUnitStart(frequencyUnit: string, userWeekStartsAtMonday: bo
   return chosenStart;
 }
 
-function getProgress(habit: Habit, isChecked: boolean, userWeekStartsAtMonday: boolean) {
+/**
+ * COPIED FROM src/utils/helpers.ts
+ *
+ * Calculates the progress of a habit based on its dates property.
+ * @param habit - The habit object.
+ * @param isChecked - Whether the habit is checked or not (+1 date).
+ * @returns The progress percentage of the habit (0-100).
+ */
+export function getProgress(habit: Habit, isChecked: boolean, userWeekStartsAtMonday: boolean) {
   if (!habit.frequency || !habit.frequencyUnit) {
     return 0;
   }

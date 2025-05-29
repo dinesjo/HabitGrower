@@ -21,19 +21,17 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { TimePicker } from "@mui/x-date-pickers/TimePicker";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import { useAtom } from "jotai";
 import { useState } from "react";
 import { Form, LoaderFunctionArgs, useLoaderData, useNavigate, useNavigation, useParams } from "react-router-dom";
+import { frequencyUnits } from "../constants/frequencyUnits";
+import { iconMap } from "../constants/iconMap";
 import { fetchHabitById } from "../services/habitsPersistance";
 import { notificationPermissionAtom } from "../store";
-import { frequencyUnits } from "../constants/frequencyUnits";
 import { Habit } from "../types/Habit";
-import { iconMap } from "../constants/iconMap";
 import { toFriendlyString } from "../utils/helpers";
 import BackButton from "./BackButton";
 import DeleteHabitWithConfirm from "./DeleteHabitWithConfirm";
@@ -216,31 +214,37 @@ export default function EditHabitForm() {
               </List>
             </Grid2>
             <Grid2 size={12}>
-              <LocalizationProvider dateAdapter={AdapterDayjs}>
-                <TimePicker
-                  value={notificationTime ? dayjs("2024-01-01T" + notificationTime + "Z") : null}
-                  onChange={(newTime: dayjs.Dayjs | null) => {
-                    /* Save the time as UTC instead of local time.
+              <TimePicker
+                value={
+                  notificationTime
+                    ? (() => {
+                        const [hours, minutes] = notificationTime.split(":");
+                        return dayjs.utc().set("hour", parseInt(hours)).set("minute", parseInt(minutes)).local();
+                      })()
+                    : null
+                }
+                onChange={(newTime: dayjs.Dayjs | null) => {
+                  /* Save the time as UTC instead of local time.
                     The notificationTime is what is saved into Firebase. */
-                    if (newTime) {
-                      const utcTime = newTime.utc().format("HH:mm");
-                      setNotificationTime(utcTime);
-                    } else {
-                      setNotificationTime(undefined);
-                    }
-                  }}
-                  ampm={false}
-                  label="Notification time"
-                  disabled={notificationPermission !== "granted" || !notificationsEnabled}
-                  slotProps={{
-                    textField: {
-                      helperText: `Get notified at this time every day if "${habit.name}" not completed by then`,
-                      fullWidth: true,
-                    },
-                  }}
-                />
-                <input type="hidden" name="notificationTime" value={notificationTime || ""} />
-              </LocalizationProvider>
+                  if (newTime) {
+                    // Convert the selected local time to UTC
+                    const utcTime = newTime.utc().format("HH:mm");
+                    setNotificationTime(utcTime);
+                  } else {
+                    setNotificationTime(undefined);
+                  }
+                }}
+                ampm={false}
+                label="Notification time"
+                disabled={notificationPermission !== "granted" || !notificationsEnabled}
+                slotProps={{
+                  textField: {
+                    helperText: `Get notified at this time every day if "${habit.name}" not completed by then`,
+                    fullWidth: true,
+                  },
+                }}
+              />
+              <input type="hidden" name="notificationTime" value={notificationTime || ""} />
             </Grid2>
           </Grid2>
         </CardContent>
