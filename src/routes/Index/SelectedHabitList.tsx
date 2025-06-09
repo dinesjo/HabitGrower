@@ -11,16 +11,27 @@ import {
   List,
   ListItem,
   ListItemText,
+  Slide,
   Typography,
 } from "@mui/material";
+import { TransitionProps } from "@mui/material/transitions";
 import dayjs from "dayjs";
 import { useAtom, useAtomValue } from "jotai";
 import { atomWithStorage } from "jotai/utils";
-import { useState } from "react";
+import { forwardRef, ReactElement, Ref, useState } from "react";
 import { Form, useNavigation } from "react-router-dom";
 import { Habit } from "../../types/Habit";
 
 const sortDirectionAtom = atomWithStorage<"asc" | "desc">("sortHabitListDirection", "desc");
+
+const Transition = forwardRef(function Transition(
+  props: TransitionProps & {
+    children: ReactElement;
+  },
+  ref: Ref<unknown>
+) {
+  return <Slide direction="up" ref={ref} {...props} />;
+});
 
 export default function SelectedHabitList({ habit }: { habit: Habit }) {
   const navigation = useNavigation();
@@ -42,7 +53,14 @@ export default function SelectedHabitList({ habit }: { habit: Habit }) {
       <Box sx={{ display: "flex", justifyContent: "end" }}>
         <SortDirectionButton />
       </Box>
-      <Dialog open={open} onClose={() => setOpen(false)}>
+      <Dialog 
+        open={open} 
+        onClose={() => setOpen(false)}
+        TransitionComponent={Transition}
+        keepMounted
+        maxWidth="xs"
+        fullWidth
+      >
         <Form action={"unregister/" + dateToDelete} method="delete" onSubmit={() => setOpen(false)}>
           <DialogTitle>Unregister?</DialogTitle>
           <DialogContent>

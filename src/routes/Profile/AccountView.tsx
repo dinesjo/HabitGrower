@@ -10,12 +10,10 @@ import {
 } from "@mui/icons-material";
 import {
   Avatar,
+  Box,
   Button,
-  Card,
-  CardActions,
-  CardContent,
   Chip,
-  Divider,
+  Grow,
   LinearProgress,
   List,
   ListItem,
@@ -51,45 +49,91 @@ export default function AccountView() {
   const { displayName, email, photoURL } = user!;
 
   return (
-    <Card>
-      <CardContent>
-        <Stack direction="row" spacing={2} justifyContent="center" alignItems="center">
-          <Typography variant="h5" textAlign="center" color="primary.main">
-            Hi, {displayName || "there"}!
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        height: "100%",
+        overflow: "hidden",
+      }}
+    >
+      {/* Header Section */}
+      <Grow in={true} timeout={400}>
+        <Box
+          sx={{
+            px: 2,
+            py: 2,
+            bgcolor: "background.paper",
+            borderBottom: 1,
+            borderColor: "divider",
+          }}
+        >
+          <Stack direction="row" spacing={2} justifyContent="center" alignItems="center">
+            <Typography variant="h5" textAlign="center" color="primary.main" sx={{ fontWeight: 500 }}>
+              Hi, {displayName || "there"}!
+            </Typography>
+            {photoURL && <Avatar alt={"Profile Picture"} src={photoURL} />}
+          </Stack>
+          <Typography variant="body2" textAlign="center" color="text.secondary">
+            You are logged in as <b>{email || "Unknown Email"}</b>.
           </Typography>
-          {photoURL && <Avatar alt={"Profile Picture"} src={photoURL} />}
-        </Stack>
-        <Typography variant="body2" textAlign="center" color="text.secondary">
-          You are logged in as <b>{email || "Unknown Email"}</b>.
-        </Typography>
-      </CardContent>
-      <Divider />
-      <CardContent>
-        <List disablePadding>
-          <DarkModeToggle />
-          <Suspense fallback={<LinearProgress />}>
-            <NotificationsStatus />
-            <WeekStartPicker />
-            <DayStartPicker />
-          </Suspense>
-        </List>
-      </CardContent>
-      <Divider />
-      <CardActions>
-        <Form method="post" action="signout">
-          <Button
-            startIcon={<LogoutOutlined />}
-            variant="outlined"
-            color="error"
-            type="submit"
-            loading={navigation.state === "submitting"}
-            loadingPosition="start"
-          >
-            Sign out
-          </Button>
-        </Form>
-      </CardActions>
-    </Card>
+        </Box>
+      </Grow>
+
+      {/* Content Section */}
+      <Grow in={true} timeout={600}>
+        <Box
+          sx={{
+            flex: 1,
+            position: "relative",
+            overflow: "auto",
+            pt: 1.5,
+            px: 2,
+          }}
+        >
+          <List disablePadding>
+            <DarkModeToggle />
+            <Suspense fallback={<LinearProgress />}>
+              <NotificationsStatus />
+              <WeekStartPicker />
+              <DayStartPicker />
+            </Suspense>
+          </List>
+        </Box>
+      </Grow>
+
+      {/* Footer Section */}
+      <Grow in={true} timeout={800}>
+        <Box
+          sx={{
+            px: 2,
+            py: 2,
+            bgcolor: "background.paper",
+            borderTop: 1,
+            borderColor: "divider",
+          }}
+        >
+          <Form method="post" action="signout">
+            <Button
+              startIcon={<LogoutOutlined />}
+              variant="outlined"
+              color="error"
+              type="submit"
+              loading={navigation.state === "submitting"}
+              loadingPosition="start"
+              fullWidth
+              sx={{
+                py: 1.5,
+                borderRadius: 2,
+                fontWeight: 500,
+              }}
+            >
+              Sign out
+            </Button>
+          </Form>
+        </Box>
+      </Grow>
+    </Box>
   );
 }
 

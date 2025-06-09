@@ -2,12 +2,12 @@ import { Check, Checklist } from "@mui/icons-material";
 import {
   Avatar,
   AvatarGroup,
+  Backdrop,
   Badge,
   Box,
-  Card,
-  CardContent,
   Checkbox,
   Chip,
+  CircularProgress,
   Divider,
   Fab,
   Grow,
@@ -113,187 +113,495 @@ export default function IndexView() {
   });
 
   return (
-    <Card sx={{ overflow: "visible", mb: 4 }}>
-      <CardContent>
-        <Typography variant="h4" color="primary.main" align="center">
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        height: "100%",
+        overflow: "hidden",
+      }}
+    >
+      {/* Header Section */}
+      <Box
+        sx={{
+          px: 2,
+          py: 2,
+          bgcolor: "background.paper",
+          borderBottom: 1,
+          borderColor: "divider",
+        }}
+      >
+        <Typography variant="h5" color="primary.main" align="center" sx={{ fontWeight: 500 }}>
           {greeting}
         </Typography>
-        <Typography variant="subtitle1" color="text.secondary" align="center">
+        <Typography variant="body2" color="text.secondary" align="center">
           Have you kept up with your habits lately?
         </Typography>
-      </CardContent>
-      <Divider />
-      <CardContent sx={{ position: "relative" }}>
+      </Box>
+
+      {/* Content Section */}
+      <Box
+        sx={{
+          flex: 1,
+          position: "relative",
+          overflow: "hidden",
+          pt: 1.5, // Add consistent top padding
+          px: 1,
+        }}
+      >
         {habits ? (
-          <Form method="post">
+          <Form method="post" style={{ height: "100%", display: "flex", flexDirection: "column" }}>
             {allHabitsCompleted && (
-              <Typography variant="subtitle2" color="primary.main" align="center" sx={{ my: 1 }}>
-                Well done! You completed all habits for now 🎉
-              </Typography>
+              <Grow in={true} timeout={800}>
+                <Box
+                  sx={{
+                    py: 2,
+                    px: 2,
+                    mx: 1,
+                    mb: 2,
+                    background: "linear-gradient(135deg, #4caf50 0%, #81c784 100%)",
+                    color: "white",
+                    borderRadius: 2,
+                    textAlign: "center",
+                    boxShadow: "0 4px 12px rgba(76, 175, 80, 0.3)",
+                    position: "relative",
+                    overflow: "hidden",
+                    "&::before": {
+                      content: '""',
+                      position: "absolute",
+                      top: 0,
+                      left: "-100%",
+                      width: "100%",
+                      height: "100%",
+                      background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent)",
+                      animation: "shimmer 2s infinite",
+                    },
+                    "@keyframes shimmer": {
+                      "0%": { left: "-100%" },
+                      "100%": { left: "100%" },
+                    },
+                  }}
+                >
+                  <Typography variant="h6" sx={{ fontWeight: 600, mb: 0.5 }}>
+                    🎉 Congratulations!
+                  </Typography>
+                  <Typography variant="body2" sx={{ opacity: 0.9 }}>
+                    You've completed all your habits for now
+                  </Typography>
+                </Box>
+              </Grow>
             )}
             <List
               disablePadding
               sx={{
-                maxHeight: "calc(100vh - 16.5rem)", // IMPORTANT for height
+                flex: 1,
                 overflow: "auto",
                 scrollbarWidth: "thin",
                 scrollbarColor: "#ccc transparent",
+                px: 1,
+                pb: 10, // Space for register FAB
+                "&::-webkit-scrollbar": {
+                  width: "4px",
+                },
+                "&::-webkit-scrollbar-track": {
+                  background: "transparent",
+                },
+                "&::-webkit-scrollbar-thumb": {
+                  background: "rgba(0,0,0,0.2)",
+                  borderRadius: "2px",
+                  "&:hover": {
+                    background: "rgba(0,0,0,0.3)",
+                  },
+                },
+                // Add scroll shadows for better UX
+                background: `
+                  linear-gradient(white 30%, rgba(255,255,255,0)),
+                  linear-gradient(rgba(255,255,255,0), white 70%),
+                  radial-gradient(50% 0, farthest-side, rgba(0,0,0,.1), rgba(0,0,0,0)),
+                  radial-gradient(50% 100%, farthest-side, rgba(0,0,0,.1), rgba(0,0,0,0))
+                `,
+                backgroundRepeat: "no-repeat",
+                backgroundSize: "100% 40px, 100% 40px, 100% 14px, 100% 14px",
+                backgroundAttachment: "local, local, scroll, scroll",
               }}
             >
-              {sortedHabits.map((habit) => {
+              {sortedHabits.map((habit, index) => {
                 const isChecked = checkedHabitIds.includes(habit.id);
                 const progress = getProgress(habit, isChecked, userWeekStartsAtMonday);
                 const registeredProgress = getProgress(habit, false, userWeekStartsAtMonday);
                 const progressBuffer = getProgressBuffer(habit, dayStartsAt, userWeekStartsAtMonday);
                 const isFirstCompletedHabit = habit.id === firstCompletedHabitId;
                 return (
-                  <Box key={habit.id} sx={{ mb: 1 }}>
-                    {isFirstCompletedHabit && (
-                      <Divider sx={{ my: 1 }}>
-                        <Chip label="Completed" size="small" icon={<Checklist />} />
-                      </Divider>
-                    )}
-                    <Paper
-                      elevation={0}
-                      sx={
-                        registeredProgress === 100
-                          ? {
-                              "div:not(.MuiSvgIcon-root) div": {
-                                filter: "grayscale(100%)",
-                              },
-                              width: "inherit",
-                              bgcolor: "transparent",
-                            }
-                          : {
-                              width: "inherit",
-                              bgcolor: "transparent",
-                            }
-                      }
-                    >
-                      <ListItem
-                        disablePadding
-                        secondaryAction={
-                          <>
-                            {isChecked && <input type="hidden" name="habitIds" value={habit.id} />}
-                            <Checkbox
-                              checked={isChecked}
-                              onClick={() =>
-                                setCheckedHabitIds((prev) =>
-                                  isChecked ? prev.filter((id) => id !== habit.id) : [...prev, habit.id]
-                                )
+                  <Grow key={habit.id} in={true} timeout={300 + index * 100} style={{ transformOrigin: "0 0 0" }}>
+                    <Box sx={{ mb: 1.5 }}>
+                      {isFirstCompletedHabit && (
+                        <Divider sx={{ my: 2 }}>
+                          <Chip label="Completed" size="small" icon={<Checklist />} color="success" variant="filled" />
+                        </Divider>
+                      )}
+                      <Paper
+                        elevation={1}
+                        sx={{
+                          borderRadius: 2,
+                          overflow: "hidden",
+                          transition: "all 0.2s ease-in-out",
+                          "&:hover": {
+                            elevation: 2,
+                            transform: "translateY(-1px)",
+                          },
+                          ...(registeredProgress === 100
+                            ? {
+                                "div:not(.MuiSvgIcon-root) div": {
+                                  filter: "grayscale(100%)",
+                                },
+                                opacity: 0.7,
+                                bgcolor: "background.default",
                               }
-                              sx={{ "& .MuiSvgIcon-root": { fontSize: 32 } }}
-                            />
-                          </>
-                        }
-                        sx={{ borderRadius: "inherit", ".MuiListItemButton-root": { borderRadius: "inherit" } }}
+                            : {
+                                bgcolor: "background.paper",
+                              }),
+                        }}
                       >
-                        <ListItemButton
-                          sx={{ py: 0.25, px: 1, display: "flex", flexDirection: "column", alignItems: "start" }}
-                          onClick={() => navigate(`/${habit.id}`)}
-                        >
-                          <Box sx={{ display: "flex", alignItems: "center" }}>
-                            <ListItemAvatar sx={{ color: habit.color }}>
-                              <Badge
-                                invisible={progress !== 100}
-                                badgeContent={"Done!"}
-                                color="success"
-                                anchorOrigin={{ vertical: "top", horizontal: "right" }}
-                              >
-                                <Avatar
-                                  sx={{
-                                    bgcolor: habit.color || "text.primary",
-                                  }}
-                                >
-                                  {iconMap[habit.icon]}
-                                </Avatar>
-                              </Badge>
-                            </ListItemAvatar>
-                            <ListItemText
-                              primary={
-                                <Box
-                                  sx={{
-                                    display: "flex",
-                                    alignItems: "center",
-                                    pr: 2,
-                                    color: habit.color,
-                                  }}
-                                >
-                                  <Typography lineHeight={1.25}>{habit.name}</Typography>
-                                  <HabitNotificationIndicator sx={{ ml: 1 }} habit={habit} />
-                                </Box>
-                              }
-                              secondary={toFriendlyFrequency(habit)}
-                            />
-                          </Box>
-                          <Box sx={{ width: "100%", pr: 1 }}>
-                            {habit.frequency && habit.frequencyUnit && (
-                              <LinearProgressWithLabel
-                                variant="buffer"
-                                valueBuffer={progressBuffer}
-                                value={progress}
+                        <ListItem
+                          disablePadding
+                          secondaryAction={
+                            <>
+                              {isChecked && <input type="hidden" name="habitIds" value={habit.id} />}
+                              <Checkbox
+                                checked={isChecked}
+                                onClick={() =>
+                                  setCheckedHabitIds((prev) =>
+                                    isChecked ? prev.filter((id) => id !== habit.id) : [...prev, habit.id]
+                                  )
+                                }
                                 sx={{
-                                  ".MuiLinearProgress-bar1Buffer": {
-                                    backgroundColor: habit.color,
+                                  "& .MuiSvgIcon-root": { fontSize: 32 },
+                                  color: habit.color,
+                                  "&.Mui-checked": {
+                                    color: habit.color,
                                   },
-                                  ".MuiLinearProgress-bar2Buffer": {
-                                    backgroundColor: habit.color,
-                                    opacity: 0.3,
-                                  },
-                                  ".MuiLinearProgress-dashed": {
-                                    display: "none",
+                                  "&:hover": {
+                                    backgroundColor: `${habit.color}20`,
                                   },
                                 }}
                               />
-                            )}
-                          </Box>
-                        </ListItemButton>
-                      </ListItem>
-                    </Paper>
-                  </Box>
+                            </>
+                          }
+                          sx={{ borderRadius: "inherit", ".MuiListItemButton-root": { borderRadius: "inherit" } }}
+                        >
+                          <ListItemButton
+                            sx={{
+                              py: 1.5,
+                              px: 2,
+                              display: "flex",
+                              flexDirection: "column",
+                              alignItems: "start",
+                              borderRadius: 2,
+                              position: "relative",
+                              overflow: "hidden",
+                              "&:hover": {
+                                bgcolor: "action.hover",
+                              },
+                              "&:active": {
+                                bgcolor: "action.selected",
+                              },
+                              // Add ripple effect styles
+                              "&::after": {
+                                content: '""',
+                                position: "absolute",
+                                top: 0,
+                                left: 0,
+                                width: "100%",
+                                height: "100%",
+                                background: `radial-gradient(circle, ${habit.color}40 1px, transparent 1px)`,
+                                opacity: 0,
+                                transform: "scale(0)",
+                                transition: "transform 0.3s, opacity 0.3s",
+                                pointerEvents: "none",
+                              },
+                              "&:active::after": {
+                                opacity: 1,
+                                transform: "scale(1)",
+                                transition: "transform 0.1s, opacity 0.1s",
+                              },
+                            }}
+                            onClick={() => navigate(`/${habit.id}`)}
+                          >
+                            <Box sx={{ display: "flex", alignItems: "center" }}>
+                              <ListItemAvatar sx={{ color: habit.color }}>
+                                <Badge
+                                  invisible={progress !== 100}
+                                  badgeContent={"Done!"}
+                                  color="success"
+                                  anchorOrigin={{ vertical: "top", horizontal: "right" }}
+                                >
+                                  <Avatar
+                                    sx={{
+                                      bgcolor: habit.color || "text.primary",
+                                      width: 48,
+                                      height: 48,
+                                      fontSize: "1.5rem",
+                                    }}
+                                  >
+                                    {iconMap[habit.icon]}
+                                  </Avatar>
+                                </Badge>
+                              </ListItemAvatar>
+                              <ListItemText
+                                primary={
+                                  <Box
+                                    sx={{
+                                      display: "flex",
+                                      alignItems: "center",
+                                      pr: 2,
+                                    }}
+                                  >
+                                    <Typography
+                                      lineHeight={1.25}
+                                      sx={{
+                                        color: habit.color,
+                                        fontWeight: 500,
+                                        fontSize: "1.1rem",
+                                      }}
+                                    >
+                                      {habit.name}
+                                    </Typography>
+                                    <HabitNotificationIndicator sx={{ ml: 1 }} habit={habit} />
+                                  </Box>
+                                }
+                                secondary={
+                                  <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+                                    {toFriendlyFrequency(habit)}
+                                  </Typography>
+                                }
+                              />
+                            </Box>
+                            <Box sx={{ width: "100%", pr: 1, mt: 1 }}>
+                              {habit.frequency && habit.frequencyUnit && (
+                                <LinearProgressWithLabel
+                                  variant="buffer"
+                                  valueBuffer={progressBuffer}
+                                  value={progress}
+                                  sx={{
+                                    height: 6,
+                                    borderRadius: 3,
+                                    ".MuiLinearProgress-bar1Buffer": {
+                                      backgroundColor: habit.color,
+                                      borderRadius: 3,
+                                    },
+                                    ".MuiLinearProgress-bar2Buffer": {
+                                      backgroundColor: habit.color,
+                                      opacity: 0.3,
+                                      borderRadius: 3,
+                                    },
+                                    ".MuiLinearProgress-dashed": {
+                                      display: "none",
+                                    },
+                                    ".MuiLinearProgress-root": {
+                                      backgroundColor: "rgba(0,0,0,0.08)",
+                                    },
+                                  }}
+                                />
+                              )}
+                            </Box>
+                          </ListItemButton>
+                        </ListItem>
+                      </Paper>
+                    </Box>
+                  </Grow>
                 );
               })}
             </List>
+            {/* Register FAB */}
             <Box
               sx={{
-                position: "absolute",
+                position: "fixed",
                 width: "100%",
                 display: "flex",
                 justifyContent: "center",
-                bottom: "-2rem",
+                bottom: 88, // Above bottom navigation
+                left: 0,
+                zIndex: 1000,
               }}
             >
-              <Grow in={checkedHabitIds.length > 0}>
+              <Grow in={checkedHabitIds.length > 0} timeout={300}>
                 <Fab
                   variant="extended"
                   color="primary"
                   type="submit"
                   disabled={!checkedHabitIds.length || navigation.state === "submitting"}
+                  sx={{
+                    borderRadius: 4,
+                    px: 3,
+                    py: 1.5,
+                    minWidth: 120,
+                    height: 56,
+                    fontSize: "1rem",
+                    fontWeight: 500,
+                    background: "linear-gradient(135deg, #478523 0%, #5a9c2d 50%, #6db13c 100%)",
+                    boxShadow: "0 6px 16px rgba(71, 133, 35, 0.3)",
+                    position: "relative",
+                    overflow: "hidden",
+                    "&:hover": {
+                      boxShadow: "0 8px 20px rgba(71, 133, 35, 0.4)",
+                      transform: "translateY(-2px) scale(1.02)",
+                      background: "linear-gradient(135deg, #5a9c2d 0%, #6db13c 50%, #7ec247 100%)",
+                    },
+                    "&:active": {
+                      transform: "translateY(0px) scale(0.98)",
+                    },
+                    "&.Mui-disabled": {
+                      bgcolor: "action.disabledBackground",
+                      color: "action.disabled",
+                      background: "none",
+                    },
+                    transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+                    // Shimmer effect on hover
+                    "&::before": {
+                      content: '""',
+                      position: "absolute",
+                      top: 0,
+                      left: "-100%",
+                      width: "100%",
+                      height: "100%",
+                      background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent)",
+                      transition: "left 0.6s ease-in-out",
+                    },
+                    "&:hover::before": {
+                      left: "100%",
+                    },
+                  }}
                 >
-                  <Check sx={{ mr: 1 }} />
-                  Register
+                  {navigation.state === "submitting" ? (
+                    <>
+                      <CircularProgress size={20} sx={{ mr: 1, color: "inherit" }} />
+                      Registering...
+                    </>
+                  ) : (
+                    <>
+                      <Check sx={{ 
+                        mr: 1,
+                        transition: "transform 0.2s ease-in-out",
+                        "&:hover": {
+                          transform: "rotate(360deg)",
+                        }
+                      }} />
+                      Register
+                    </>
+                  )}
                   <AvatarGroup
                     sx={{
-                      ml: 1,
+                      ml: 1.5,
+                      position: "relative",
                       ".MuiAvatar-root": {
                         width: 24,
                         height: 24,
                         fontSize: "0.75rem",
+                        border: "2px solid rgba(255,255,255,0.8)",
+                        boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
+                        transition: "all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)",
+                        opacity: 0,
+                        transform: "translateX(100px) scale(0)",
+                        // Enhanced hover effects
+                        "&:hover": {
+                          transform: "scale(1.2) rotate(5deg)",
+                          zIndex: 10,
+                          boxShadow: "0 4px 12px rgba(0,0,0,0.25)",
+                        },
+                        // Pulse effect
+                        "&::after": {
+                          content: '""',
+                          position: "absolute",
+                          top: -2,
+                          left: -2,
+                          right: -2,
+                          bottom: -2,
+                          border: "2px solid currentColor",
+                          borderRadius: "50%",
+                          opacity: 0,
+                          transform: "scale(1)",
+                          animation: "avatarPulse 2s infinite",
+                        },
+                        // Shimmer effect
+                        "&::before": {
+                          content: '""',
+                          position: "absolute",
+                          top: 0,
+                          left: "-100%",
+                          width: "100%",
+                          height: "100%",
+                          background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent)",
+                          transition: "left 0.5s",
+                          borderRadius: "50%",
+                        },
+                        "&:hover::before": {
+                          left: "100%",
+                        },
                       },
                       ".MuiSvgIcon-root": {
                         fontSize: "1rem",
                       },
+                      // Define keyframes for the container
+                      "@keyframes slideInFromBehind": {
+                        "0%": {
+                          opacity: 0,
+                          transform: "translateX(100px) scale(0)",
+                        },
+                        "50%": {
+                          opacity: 0.8,
+                          transform: "translateX(20px) scale(1.1)",
+                        },
+                        "100%": {
+                          opacity: 1,
+                          transform: "translateX(0) scale(1)",
+                        },
+                      },
+                      "@keyframes avatarPulse": {
+                        "0%": {
+                          opacity: 0.7,
+                          transform: "scale(1)",
+                        },
+                        "70%": {
+                          opacity: 0,
+                          transform: "scale(1.4)",
+                        },
+                        "100%": {
+                          opacity: 0,
+                          transform: "scale(1)",
+                        },
+                      },
+                      // Animate each avatar with staggered timing
+                      ".MuiAvatar-root:nth-of-type(1)": {
+                        animation: "slideInFromBehind 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.0s both",
+                      },
+                      ".MuiAvatar-root:nth-of-type(2)": {
+                        animation: "slideInFromBehind 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.1s both",
+                      },
+                      ".MuiAvatar-root:nth-of-type(3)": {
+                        animation: "slideInFromBehind 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.2s both",
+                      },
+                      ".MuiAvatar-root:nth-of-type(4)": {
+                        animation: "slideInFromBehind 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.3s both",
+                      },
+                      ".MuiAvatar-root:nth-of-type(n+5)": {
+                        animation: "slideInFromBehind 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.4s both",
+                      },
                     }}
-                    max={5}
+                    max={4}
                   >
                     {checkedHabitIds.map((id) => {
                       const habit = habits.find((h) => h.id === id)!;
                       return (
-                        <Grow in key={id} style={{ transformOrigin: "left center 0" }} timeout={500}>
-                          <Avatar key={id} sx={{ bgcolor: habit.color }}>
-                            {iconMap[habit.icon]}
-                          </Avatar>
-                        </Grow>
+                        <Avatar
+                          key={id}
+                          sx={{
+                            bgcolor: habit.color,
+                            // Add gradient backgrounds for more visual appeal
+                            background: `linear-gradient(135deg, ${habit.color} 0%, ${habit.color}cc 100%)`,
+                          }}
+                        >
+                          {iconMap[habit.icon]}
+                        </Avatar>
                       );
                     })}
                   </AvatarGroup>
@@ -302,11 +610,71 @@ export default function IndexView() {
             </Box>
           </Form>
         ) : (
-          <Typography variant="body2" align="center" color="text.secondary">
-            No habits found.
-          </Typography>
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              height: "60%",
+              textAlign: "center",
+              px: 4,
+            }}
+          >
+            <Box
+              sx={{
+                width: 120,
+                height: 120,
+                borderRadius: "50%",
+                bgcolor: "primary.light",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                mb: 3,
+                opacity: 0.1,
+              }}
+            >
+              <Check sx={{ fontSize: 60, color: "primary.main" }} />
+            </Box>
+            <Typography variant="h6" color="text.primary" sx={{ mb: 1, fontWeight: 500 }}>
+              No habits yet
+            </Typography>
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 3, lineHeight: 1.6 }}>
+              Start building better habits by tapping the + button below
+            </Typography>
+            <Typography variant="caption" color="text.secondary" sx={{ opacity: 0.7 }}>
+              Your journey to a better you begins with one small step
+            </Typography>
+          </Box>
         )}
-      </CardContent>
-    </Card>
+      </Box>
+
+      {/* Loading Backdrop for habit registration */}
+      <Backdrop
+        sx={{
+          color: "#fff",
+          zIndex: 2000,
+          flexDirection: "column",
+          gap: 2,
+        }}
+        open={navigation.state === "submitting"}
+      >
+        <CircularProgress
+          color="primary"
+          size={48}
+          sx={{
+            "& .MuiCircularProgress-circle": {
+              strokeLinecap: "round",
+            },
+          }}
+        />
+        <Typography variant="h6" color="inherit">
+          Registering habits...
+        </Typography>
+        <Typography variant="body2" color="inherit" sx={{ opacity: 0.8 }}>
+          Just a moment while we save your progress
+        </Typography>
+      </Backdrop>
+    </Box>
   );
 }

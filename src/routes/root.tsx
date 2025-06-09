@@ -1,4 +1,4 @@
-import { AccountCircle, Home, PlaylistAdd } from "@mui/icons-material";
+import { AccountCircle, Add, Home } from "@mui/icons-material";
 import {
   Alert,
   Avatar,
@@ -6,12 +6,12 @@ import {
   BottomNavigationAction,
   Box,
   CircularProgress,
-  Container,
   Fab,
   LinearProgress,
   Paper,
+  Slide,
   Snackbar,
-  Tooltip,
+  Zoom,
 } from "@mui/material";
 import { getAuth } from "firebase/auth";
 import { useAtom } from "jotai";
@@ -64,54 +64,125 @@ export default function Root() {
     <>
       <Box
         sx={{
-          height: "calc(100vh - 56px)",
+          height: "100vh",
           width: "100%",
           position: "relative",
+          display: "flex",
+          flexDirection: "column",
         }}
       >
-        {showLoading && <LinearProgress sx={{ position: "absolute", top: 0, left: 0, right: 0 }} />}
-        <Container
-          maxWidth="xs"
+        {showLoading && (
+          <LinearProgress
+            sx={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              right: 0,
+              zIndex: 1002,
+              height: 3,
+              "& .MuiLinearProgress-bar": {
+                backgroundColor: "primary.main",
+              },
+            }}
+          />
+        )}
+        <Box
           sx={{
+            flex: 1,
+            overflow: "auto",
+            pb: "72px", // Space for bottom navigation
             position: "relative",
-            height: "100%",
-            maxWidth: "max-content",
-            display: "flex",
-            flexDirection: "column",
-            justifyContent: "center",
           }}
         >
           <Outlet />
+
+          {/* Enhanced Floating Action Button */}
           {user && (
-            <Form action="/new-habit" method="post">
-              <Tooltip title="New Habit" placement="left">
-                <Fab type="submit" color="secondary" sx={{ position: "absolute", bottom: 6, right: 6 }}>
-                  <PlaylistAdd />
+            <Zoom in={true} timeout={300}>
+              <Form action="/new-habit" method="post">
+                <Fab
+                  type="submit"
+                  color="primary"
+                  size="large"
+                  sx={{
+                    position: "fixed",
+                    bottom: 88, // Above bottom navigation
+                    right: 16,
+                    zIndex: 1000,
+                    boxShadow: 6,
+                    background: "linear-gradient(45deg, #478523 30%, #90c65b 90%)",
+                    "&::before": {
+                      content: '""',
+                      position: "absolute",
+                      top: 0,
+                      left: 0,
+                      right: 0,
+                      bottom: 0,
+                      borderRadius: "inherit",
+                      background: "linear-gradient(45deg, #5a9342 30%, #a8d675 90%)",
+                      opacity: 0,
+                      transition: "opacity 0.2s ease-in-out",
+                      zIndex: -1,
+                    },
+                    "&:hover": {
+                      boxShadow: 12,
+                      transform: "scale(1.1) rotate(90deg)",
+                      "&::before": {
+                        opacity: 1,
+                      },
+                    },
+                    "&:active": {
+                      transform: "scale(0.95) rotate(90deg)",
+                    },
+                    transition: "all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)",
+                  }}
+                  aria-label="Add new habit"
+                >
+                  <Add />
                 </Fab>
-              </Tooltip>
-            </Form>
+              </Form>
+            </Zoom>
           )}
-          <Snackbar
-            open={snackbarOpen}
-            autoHideDuration={snackbarAction ? null : 3000}
-            onClose={() => setSnackbarMessage("")}
-            sx={{
-              bottom: "calc(56px + 0.5rem)",
-            }}
-          >
-            <Alert
+
+          {/* Enhanced Snackbar */}
+          <Slide direction="up" in={snackbarOpen}>
+            <Snackbar
+              open={snackbarOpen}
+              autoHideDuration={snackbarAction ? null : 4000}
               onClose={() => setSnackbarMessage("")}
-              severity={snackbarSeverity}
-              sx={{ width: "100%" }}
-              action={snackbarAction}
+              sx={{
+                bottom: "88px", // Above bottom navigation
+                "& .MuiSnackbarContent-root": {
+                  borderRadius: 2,
+                  minWidth: "280px",
+                },
+              }}
             >
-              {snackbarMessage}
-            </Alert>
-          </Snackbar>
-        </Container>
+              <Alert
+                onClose={() => setSnackbarMessage("")}
+                severity={snackbarSeverity}
+                sx={{
+                  width: "100%",
+                  borderRadius: 2,
+                  "& .MuiAlert-icon": {
+                    fontSize: "1.2rem",
+                  },
+                }}
+                action={snackbarAction}
+                elevation={6}
+                variant="filled"
+              >
+                {snackbarMessage}
+              </Alert>
+            </Snackbar>
+          </Slide>
+        </Box>
       </Box>
-      <BottomNavigation
-        component={Paper}
+
+      {/* Enhanced Bottom Navigation */}
+      <Paper
+        component={BottomNavigation}
+        elevation={8}
         sx={{
           position: "fixed",
           bottom: 0,
@@ -119,6 +190,69 @@ export default function Root() {
           right: 0,
           zIndex: 1001,
           borderRadius: 0,
+          height: 72,
+          borderTop: "1px solid",
+          borderTopColor: "divider",
+          backdropFilter: "blur(10px)",
+          backgroundColor: (theme) =>
+            theme.palette.mode === "dark" ? "rgba(31, 30, 35, 0.95)" : "rgba(255, 255, 255, 0.95)",
+          "&:before": {
+            content: '""',
+            position: "absolute",
+            top: 0,
+            left: 0,
+            right: 0,
+            height: "1px",
+            background: (theme) =>
+              theme.palette.mode === "dark"
+                ? "linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent)"
+                : "linear-gradient(90deg, transparent, rgba(0,0,0,0.1), transparent)",
+          },
+          "& .MuiBottomNavigationAction-root": {
+            color: "text.secondary",
+            borderRadius: 2,
+            margin: "4px 2px",
+            transition: "all 0.2s ease-in-out",
+            "&.active": {
+              color: "primary.main",
+              // Remove background color - only highlight text
+              "& .MuiBottomNavigationAction-label": {
+                fontSize: "0.75rem",
+                fontWeight: 600,
+                color: "primary.main",
+              },
+              "& .MuiSvgIcon-root": {
+                color: "primary.main",
+              },
+            },
+            "&.pending": {
+              color: "primary.light",
+              "& .MuiSvgIcon-root": {
+                animation: "pulse 1.5s ease-in-out infinite",
+              },
+              "@keyframes pulse": {
+                "0%": { opacity: 1 },
+                "50%": { opacity: 0.5 },
+                "100%": { opacity: 1 },
+              },
+            },
+            "&:hover": {
+              backgroundColor: "action.hover",
+              transform: "scale(1.02)",
+            },
+            minWidth: 64,
+            maxWidth: 168,
+            padding: "8px 12px",
+            "& .MuiSvgIcon-root": {
+              fontSize: "1.5rem",
+              transition: "all 0.2s ease-in-out",
+            },
+            "& .MuiBottomNavigationAction-label": {
+              fontSize: "0.7rem",
+              fontWeight: 500,
+              marginTop: "4px",
+            },
+          },
         }}
       >
         {pages.map((page, index) => (
@@ -127,26 +261,19 @@ export default function Root() {
             component={NavLink}
             to={page.path}
             label={page.text}
-            showLabel={location.pathname === page.path}
+            showLabel={true}
             icon={page.icon}
             sx={{
-              "&.active": {
-                color: "primary.main",
-              },
               "&.active .MuiAvatar-root": {
-                outline: "1px solid",
+                outline: "2px solid",
                 outlineColor: "primary.main",
-                outlineOffset: "1px",
-                mb: 0.5,
-                transform: "scale(0.75) translateY(0.45rem)",
-              },
-              "&.pending": {
-                color: "primary.light",
+                outlineOffset: "2px",
+                transform: "scale(0.9)",
               },
             }}
           />
         ))}
-      </BottomNavigation>
+      </Paper>
     </>
   );
 }

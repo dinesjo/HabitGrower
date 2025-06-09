@@ -3,13 +3,10 @@ import {
   Alert,
   Box,
   Button,
-  Card,
-  CardActions,
-  CardContent,
   Chip,
-  Divider,
   FormControl,
   Grid2,
+  Grow,
   InputLabel,
   List,
   ListItem,
@@ -78,21 +75,66 @@ export default function EditHabitForm() {
   };
 
   return (
-    <Card>
-      <CardActions>
-        <BackButton />
-      </CardActions>
-      <Form autoComplete="off" method="post">
-        <Typography variant="h5" align="center" gutterBottom>
-          Edit Habit: <b>{habit.name}</b>
-        </Typography>
-        <CardContent sx={{ maxHeight: "calc(100vh - 320px)", overflowY: "auto" }}>
-          <Grid2 container spacing={2}>
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        height: "calc(100vh - 72px)", // Account for bottom navigation
+        bgcolor: "background.default",
+      }}
+    >
+      <Form autoComplete="off" method="post" style={{ display: "flex", flexDirection: "column", height: "100%" }}>
+        {/* Header */}
+        <Grow in={true} timeout={400}>
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              p: 2,
+              gap: 2,
+              borderBottom: 1,
+              borderColor: "divider",
+            }}
+          >
+            <BackButton />
+            <Typography variant="h6" sx={{ fontWeight: 600, flexGrow: 1 }}>
+              Edit Habit:{" "}
+              <Box component="span" sx={{ color: "primary.main", fontWeight: 700 }}>
+                {habit.name}
+              </Box>
+            </Typography>
+          </Box>
+        </Grow>
+
+        {/* Content */}
+        <Grow in={true} timeout={600}>
+          <Box
+            sx={{
+              flexGrow: 1,
+              pt: 1.5,
+              px: 2,
+              overflowY: "auto",
+            }}
+          >
+            <Grid2 container spacing={2}>
             {/* Section tile */}
             <Grid2 size={12}>
-              <Divider>
-                <Chip icon={<ColorLens />} label="Appearance" size="small" />
-              </Divider>
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 1,
+                  mb: 2,
+                  "&::before, &::after": {
+                    content: '""',
+                    flexGrow: 1,
+                    height: 1,
+                    bgcolor: "divider",
+                  },
+                }}
+              >
+                <Chip icon={<ColorLens />} label="Appearance" size="small" variant="outlined" />
+              </Box>
             </Grid2>
             <Grid2 size={{ xs: 12, sm: 6 }}>
               <TextField required name="name" label="Habit Name" defaultValue={habit.name} fullWidth />
@@ -151,9 +193,22 @@ export default function EditHabitForm() {
             </Grid2>
             {/* Section tile */}
             <Grid2 size={12}>
-              <Divider>
-                <Chip icon={<EventRepeat />} label="How often?" size="small" />
-              </Divider>
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 1,
+                  mb: 2,
+                  "&::before, &::after": {
+                    content: '""',
+                    flexGrow: 1,
+                    height: 1,
+                    bgcolor: "divider",
+                  },
+                }}
+              >
+                <Chip icon={<EventRepeat />} label="How often?" size="small" variant="outlined" />
+              </Box>
             </Grid2>
             <Grid2 size={5}>
               <TextField
@@ -189,9 +244,22 @@ export default function EditHabitForm() {
             </Grid2>
             {/* Notifications section */}
             <Grid2 size={12}>
-              <Divider>
-                <Chip icon={<EditNotificationsOutlined />} label="Notifications" size="small" />
-              </Divider>
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 1,
+                  mb: 2,
+                  "&::before, &::after": {
+                    content: '""',
+                    flexGrow: 1,
+                    height: 1,
+                    bgcolor: "divider",
+                  },
+                }}
+              >
+                <Chip icon={<EditNotificationsOutlined />} label="Notifications" size="small" variant="outlined" />
+              </Box>
             </Grid2>
             <NotificationsPermissionAlert />
             <Grid2 size={12}>
@@ -247,23 +315,48 @@ export default function EditHabitForm() {
               <input type="hidden" name="notificationTime" value={notificationTime || ""} />
             </Grid2>
           </Grid2>
-        </CardContent>
-        <Divider />
-        <CardActions>
-          <Button
-            loading={navigation.state === "submitting"}
-            loadingPosition="start"
-            startIcon={<Save />}
-            variant="contained"
-            type="submit"
+          </Box>
+        </Grow>
+
+        {/* Footer */}
+        <Grow in={true} timeout={800}>
+          <Box
+            sx={{
+              p: 2,
+              borderTop: 1,
+              borderColor: "divider",
+              display: "flex",
+              gap: 1,
+            }}
           >
-            Save
-          </Button>
-          <Button onClick={handleBack}>Cancel</Button>
-          <DeleteHabitWithConfirm habit={habit} id={id!} />
-        </CardActions>
+            <Button
+              loading={navigation.state === "submitting"}
+              loadingPosition="start"
+              startIcon={<Save />}
+              variant="contained"
+              type="submit"
+              sx={{
+                borderRadius: 2,
+                textTransform: "none",
+                fontWeight: 500,
+              }}
+            >
+              Save
+            </Button>
+            <Button
+              onClick={handleBack}
+              sx={{
+                borderRadius: 2,
+                textTransform: "none",
+              }}
+            >
+              Cancel
+            </Button>
+            <DeleteHabitWithConfirm habit={habit} id={id!} />
+          </Box>
+        </Grow>
       </Form>
-    </Card>
+    </Box>
   );
 }
 

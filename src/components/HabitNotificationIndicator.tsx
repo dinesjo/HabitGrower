@@ -12,6 +12,7 @@ export default function HabitNotificationIndicator({ habit, ...props }: { habit:
             display: "flex",
             alignItems: "center",
             gap: 0.5,
+            color: habit.color,
             ...props.sx,
           }}
         >

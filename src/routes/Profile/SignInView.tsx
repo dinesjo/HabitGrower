@@ -1,5 +1,5 @@
 import { useTheme } from "@emotion/react";
-import { Card, CardContent, CircularProgress, Theme, Typography } from "@mui/material";
+import { Box, CircularProgress, Grow, Theme, Typography } from "@mui/material";
 import firebase from "firebase/compat/app";
 import * as firebaseui from "firebaseui";
 import "firebaseui/dist/firebaseui.css";
@@ -57,19 +57,40 @@ export default function SignInView() {
   });
 
   return (
-    <Card>
-      <CardContent>
-        <Typography variant="h5" textAlign="center">
-          Welcome to <span style={{ color: (theme as Theme).palette.primary.main }}>HabitGrower</span>!
-        </Typography>
-        <Typography variant="body2" textAlign="center">
-          Please sign in to continue
-        </Typography>
-        <div id="firebaseui-auth-container"></div>
-        <div id="loader">
-          <CircularProgress />
-        </div>
-      </CardContent>
-    </Card>
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        height: "calc(100vh - 72px)", // Account for bottom navigation
+        bgcolor: "background.default",
+        justifyContent: "center",
+        alignItems: "center",
+        px: 2,
+      }}
+    >
+      <Grow in={true} timeout={600}>
+        <Box
+          sx={{
+            maxWidth: 400,
+            width: "100%",
+            p: 3,
+            bgcolor: "background.paper",
+            borderRadius: 2,
+            boxShadow: 3,
+          }}
+        >
+          <Typography variant="h5" textAlign="center" sx={{ mb: 1 }}>
+            Welcome to <span style={{ color: (theme as Theme).palette.primary.main }}>HabitGrower</span>!
+          </Typography>
+          <Typography variant="body2" textAlign="center" sx={{ mb: 3 }}>
+            Please sign in to continue
+          </Typography>
+          <div id="firebaseui-auth-container"></div>
+          <div id="loader">
+            <CircularProgress />
+          </div>
+        </Box>
+      </Grow>
+    </Box>
   );
 }

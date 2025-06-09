@@ -1,4 +1,4 @@
-import { Container, Link, Typography } from "@mui/material";
+import { Container, Grow, Link, Typography } from "@mui/material";
 import { Link as RouterLink, isRouteErrorResponse, useRouteError } from "react-router-dom";
 
 export default function ErrorPage() {
@@ -16,17 +16,20 @@ export default function ErrorPage() {
     console.error(error);
     errorMessage = "Unknown error";
   }
-
   return (
     <Container
       sx={{ display: "flex", height: "70vh", flexDirection: "column", justifyContent: "center", alignItems: "center" }}
     >
-      <Typography variant="h3">Oops!</Typography>
-      <Typography variant="subtitle1">Sorry, an unexpected error has occurred.</Typography>
-      <Typography variant="subtitle2">{errorMessage}</Typography>
-      <Link component={RouterLink} to="/">
-        Return to Homepage
-      </Link>
+      <Grow in={true} timeout={600}>
+        <div>
+          <Typography variant="h3">Oops!</Typography>
+          <Typography variant="subtitle1">Sorry, an unexpected error has occurred.</Typography>
+          <Typography variant="subtitle2">{errorMessage}</Typography>
+          <Link component={RouterLink} to="/">
+            Return to Homepage
+          </Link>
+        </div>
+      </Grow>
     </Container>
   );
 }

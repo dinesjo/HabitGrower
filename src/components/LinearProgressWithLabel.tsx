@@ -33,6 +33,7 @@ export default function LinearProgressWithLabel({ ...props }) {
       >
         <Box sx={{ minWidth: 50, mr: 1 }}>
           <Chip
+            sx={{ padding: 0, width: "100%", height: "100%" }}
             variant="outlined"
             label={`${progressValue}%`}
             size="small"
