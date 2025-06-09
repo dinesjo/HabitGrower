@@ -200,6 +200,9 @@ export default function IndexView() {
                 scrollbarColor: "#ccc transparent",
                 px: 1,
                 pb: 10, // Space for register FAB
+                // Improved scrolling for mobile
+                WebkitOverflowScrolling: "touch", // iOS momentum scrolling
+                overscrollBehavior: "contain", // Prevent overscroll bounce on mobile
                 "&::-webkit-scrollbar": {
                   width: "4px",
                 },
@@ -213,16 +216,19 @@ export default function IndexView() {
                     background: "rgba(0,0,0,0.3)",
                   },
                 },
-                // Add scroll shadows for better UX
-                background: `
-                  linear-gradient(white 30%, rgba(255,255,255,0)),
-                  linear-gradient(rgba(255,255,255,0), white 70%),
-                  radial-gradient(50% 0, farthest-side, rgba(0,0,0,.1), rgba(0,0,0,0)),
-                  radial-gradient(50% 100%, farthest-side, rgba(0,0,0,.1), rgba(0,0,0,0))
-                `,
-                backgroundRepeat: "no-repeat",
-                backgroundSize: "100% 40px, 100% 40px, 100% 14px, 100% 14px",
-                backgroundAttachment: "local, local, scroll, scroll",
+                // Remove scroll shadows on mobile for better performance
+                "@media (hover: hover) and (pointer: fine)": {
+                  // Add scroll shadows for desktop only
+                  background: `
+                    linear-gradient(white 30%, rgba(255,255,255,0)),
+                    linear-gradient(rgba(255,255,255,0), white 70%),
+                    radial-gradient(50% 0, farthest-side, rgba(0,0,0,.1), rgba(0,0,0,0)),
+                    radial-gradient(50% 100%, farthest-side, rgba(0,0,0,.1), rgba(0,0,0,0))
+                  `,
+                  backgroundRepeat: "no-repeat",
+                  backgroundSize: "100% 40px, 100% 40px, 100% 14px, 100% 14px",
+                  backgroundAttachment: "local, local, scroll, scroll",
+                },
               }}
             >
               {sortedHabits.map((habit, index) => {
@@ -238,16 +244,25 @@ export default function IndexView() {
                         <Divider sx={{ my: 2 }}>
                           <Chip label="Completed" size="small" icon={<Checklist />} color="success" variant="filled" />
                         </Divider>
-                      )}
+                      )}{" "}
                       <Paper
                         elevation={1}
                         sx={{
                           borderRadius: 2,
                           overflow: "hidden",
-                          transition: "all 0.2s ease-in-out",
-                          "&:hover": {
-                            elevation: 2,
-                            transform: "translateY(-1px)",
+                          transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+                          // Desktop-only hover effects
+                          "@media (hover: hover) and (pointer: fine)": {
+                            "&:hover": {
+                              elevation: 2,
+                              transform: "translateY(-2px)",
+                              boxShadow: "0 8px 24px rgba(0,0,0,0.12)",
+                            },
+                          },
+                          // Mobile-friendly press effects
+                          "&:active": {
+                            transform: "scale(0.98)",
+                            transition: "transform 0.1s ease-out",
                           },
                           ...(registeredProgress === 100
                             ? {
@@ -280,9 +295,23 @@ export default function IndexView() {
                                   "&.Mui-checked": {
                                     color: habit.color,
                                   },
-                                  "&:hover": {
-                                    backgroundColor: `${habit.color}20`,
+                                  // Desktop hover effects
+                                  "@media (hover: hover) and (pointer: fine)": {
+                                    "&:hover": {
+                                      backgroundColor: `${habit.color}15`,
+                                      transform: "scale(1.1)",
+                                    },
                                   },
+                                  // Mobile touch feedback - larger touch area and bounce effect
+                                  "&:active": {
+                                    transform: "scale(0.9)",
+                                    backgroundColor: `${habit.color}25`,
+                                    transition: "all 0.1s ease-out",
+                                  },
+                                  // Enhanced touch area for mobile
+                                  padding: 2,
+                                  borderRadius: 2,
+                                  transition: "all 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
                                 }}
                               />
                             </>
@@ -299,13 +328,22 @@ export default function IndexView() {
                               borderRadius: 2,
                               position: "relative",
                               overflow: "hidden",
-                              "&:hover": {
-                                bgcolor: "action.hover",
+                              transition: "all 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
+                              // Desktop hover effects (only show on non-touch devices)
+                              "@media (hover: hover) and (pointer: fine)": {
+                                "&:hover": {
+                                  bgcolor: "action.hover",
+                                  transform: "translateY(-1px)",
+                                  boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+                                },
                               },
+                              // Mobile touch feedback - immediate and satisfying
                               "&:active": {
                                 bgcolor: "action.selected",
+                                transform: "scale(0.98)",
+                                transition: "all 0.1s ease-out",
                               },
-                              // Add ripple effect styles
+                              // Enhanced ripple effect for touch devices
                               "&::after": {
                                 content: '""',
                                 position: "absolute",
@@ -313,16 +351,18 @@ export default function IndexView() {
                                 left: 0,
                                 width: "100%",
                                 height: "100%",
-                                background: `radial-gradient(circle, ${habit.color}40 1px, transparent 1px)`,
+                                background: `radial-gradient(circle at center, ${habit.color}30 0%, transparent 70%)`,
                                 opacity: 0,
                                 transform: "scale(0)",
-                                transition: "transform 0.3s, opacity 0.3s",
+                                transition:
+                                  "transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
                                 pointerEvents: "none",
+                                borderRadius: "inherit",
                               },
                               "&:active::after": {
                                 opacity: 1,
-                                transform: "scale(1)",
-                                transition: "transform 0.1s, opacity 0.1s",
+                                transform: "scale(2)",
+                                transition: "transform 0.6s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.1s ease-out",
                               },
                             }}
                             onClick={() => navigate(`/${habit.id}`)}
@@ -442,21 +482,31 @@ export default function IndexView() {
                     boxShadow: "0 6px 16px rgba(71, 133, 35, 0.3)",
                     position: "relative",
                     overflow: "hidden",
-                    "&:hover": {
-                      boxShadow: "0 8px 20px rgba(71, 133, 35, 0.4)",
-                      transform: "translateY(-2px) scale(1.02)",
-                      background: "linear-gradient(135deg, #5a9c2d 0%, #6db13c 50%, #7ec247 100%)",
+                    transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+                    // Desktop hover effects
+                    "@media (hover: hover) and (pointer: fine)": {
+                      "&:hover": {
+                        boxShadow: "0 8px 20px rgba(71, 133, 35, 0.4)",
+                        transform: "translateY(-2px) scale(1.02)",
+                        background: "linear-gradient(135deg, #5a9c2d 0%, #6db13c 50%, #7ec247 100%)",
+                        "&::before": {
+                          left: "100%",
+                        },
+                      },
                     },
+                    // Mobile touch feedback - satisfying bounce and highlight
                     "&:active": {
-                      transform: "translateY(0px) scale(0.98)",
+                      transform: "scale(0.95)",
+                      boxShadow: "0 4px 12px rgba(71, 133, 35, 0.5)",
+                      background: "linear-gradient(135deg, #5a9c2d 0%, #6db13c 50%, #7ec247 100%)",
+                      transition: "all 0.1s ease-out",
                     },
                     "&.Mui-disabled": {
                       bgcolor: "action.disabledBackground",
                       color: "action.disabled",
                       background: "none",
                     },
-                    transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-                    // Shimmer effect on hover
+                    // Shimmer effect (works on both desktop and mobile)
                     "&::before": {
                       content: '""',
                       position: "absolute",
@@ -467,9 +517,6 @@ export default function IndexView() {
                       background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent)",
                       transition: "left 0.6s ease-in-out",
                     },
-                    "&:hover::before": {
-                      left: "100%",
-                    },
                   }}
                 >
                   {navigation.state === "submitting" ? (
@@ -479,13 +526,18 @@ export default function IndexView() {
                     </>
                   ) : (
                     <>
-                      <Check sx={{ 
-                        mr: 1,
-                        transition: "transform 0.2s ease-in-out",
-                        "&:hover": {
-                          transform: "rotate(360deg)",
-                        }
-                      }} />
+                      <Check
+                        sx={{
+                          mr: 1,
+                          transition: "transform 0.2s ease-in-out",
+                          // Desktop only rotation effect
+                          "@media (hover: hover) and (pointer: fine)": {
+                            ".MuiFab-root:hover &": {
+                              transform: "rotate(360deg)",
+                            },
+                          },
+                        }}
+                      />
                       Register
                     </>
                   )}
@@ -502,13 +554,23 @@ export default function IndexView() {
                         transition: "all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)",
                         opacity: 0,
                         transform: "translateX(100px) scale(0)",
-                        // Enhanced hover effects
-                        "&:hover": {
-                          transform: "scale(1.2) rotate(5deg)",
-                          zIndex: 10,
-                          boxShadow: "0 4px 12px rgba(0,0,0,0.25)",
+                        // Desktop hover effects only
+                        "@media (hover: hover) and (pointer: fine)": {
+                          "&:hover": {
+                            transform: "scale(1.2) rotate(5deg)",
+                            zIndex: 10,
+                            boxShadow: "0 4px 12px rgba(0,0,0,0.25)",
+                            "&::before": {
+                              left: "100%",
+                            },
+                          },
                         },
-                        // Pulse effect
+                        // Mobile touch feedback - gentle scale and no rotation
+                        "&:active": {
+                          transform: "scale(1.1)",
+                          transition: "transform 0.1s ease-out",
+                        },
+                        // Pulse effect (ambient animation)
                         "&::after": {
                           content: '""',
                           position: "absolute",
@@ -533,9 +595,6 @@ export default function IndexView() {
                           background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent)",
                           transition: "left 0.5s",
                           borderRadius: "50%",
-                        },
-                        "&:hover::before": {
-                          left: "100%",
                         },
                       },
                       ".MuiSvgIcon-root": {
