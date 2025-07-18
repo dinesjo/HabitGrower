@@ -145,6 +145,7 @@ export default function IndexView() {
           flex: 1,
           position: "relative",
           overflow: "hidden",
+          mx: "auto",
           pt: 1.5, // Add consistent top padding
           px: 1,
         }}

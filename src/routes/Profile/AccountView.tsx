@@ -87,6 +87,7 @@ export default function AccountView() {
             flex: 1,
             position: "relative",
             overflow: "auto",
+            mx: "auto",
             pt: 1.5,
             px: 2,
           }}
@@ -113,7 +114,7 @@ export default function AccountView() {
             borderColor: "divider",
           }}
         >
-          <Form method="post" action="signout">
+          <Form method="post" action="signout" style={{ display: "flex", justifyContent: "center" }}>
             <Button
               startIcon={<LogoutOutlined />}
               variant="outlined"
@@ -121,7 +122,6 @@ export default function AccountView() {
               type="submit"
               loading={navigation.state === "submitting"}
               loadingPosition="start"
-              fullWidth
               sx={{
                 py: 1.5,
                 borderRadius: 2,

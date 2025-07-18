@@ -37,7 +37,8 @@ export default function SelectedHabit() {
         height: "calc(100vh - 72px)", // Account for bottom navigation
         bgcolor: "background.default",
       }}
-    >      {/* Header */}
+    >
+      {/* Header */}
       <Grow in={true} timeout={400}>
         <Box
           sx={{
@@ -60,7 +61,8 @@ export default function SelectedHabit() {
               >
                 {iconMap[habit.icon]}
               </Avatar>
-              <Box sx={{ flexGrow: 1, minWidth: 0 }}> {/* Added minWidth: 0 for text wrapping */}
+              <Box sx={{ flexGrow: 1, minWidth: 0 }}>
+                {/* Added minWidth: 0 for text wrapping */}
                 <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 0.5 }}>
                   <Typography
                     variant="h6"
@@ -75,8 +77,8 @@ export default function SelectedHabit() {
                   <HabitNotificationIndicator sx={{ color: habit.color }} habit={habit} />
                 </Box>
                 {habit.description && (
-                  <Typography 
-                    variant="body2" 
+                  <Typography
+                    variant="body2"
                     color="text.secondary"
                     sx={{
                       lineHeight: 1.3, // Improved line height for description
@@ -90,7 +92,8 @@ export default function SelectedHabit() {
             </>
           )}
         </Box>
-      </Grow>      {!habit || !id ? (
+      </Grow>
+      {!habit || !id ? (
         <Grow in={true} timeout={600}>
           <Box sx={{ pt: 1.5, px: 2 }}>
             <Alert severity="error">
@@ -107,6 +110,7 @@ export default function SelectedHabit() {
                 flexGrow: 1,
                 pt: 1.5,
                 px: 2,
+                mx: "auto",
                 overflowY: "auto",
                 scrollbarWidth: "thin",
                 scrollbarColor: "#ccc #222",
