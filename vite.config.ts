@@ -12,7 +12,7 @@ export default defineConfig({
   },
   plugins: [
     react(),
-    // mkcert(), // Disable for CI environments
+    mkcert(),
     VitePWA({
       manifest: {
         name: "HabitGrower",
