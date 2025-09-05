@@ -1,4 +1,5 @@
-import { Box, Container, ToggleButton, ToggleButtonGroup, Typography } from "@mui/material";
+import { Box, Container, ToggleButton, ToggleButtonGroup, Typography, useTheme } from "@mui/material";
+import { useMediaQuery } from "@mui/material";
 import { BarChart } from "@mui/x-charts";
 import dayjs from "dayjs";
 import { useAtom } from "jotai";
@@ -13,6 +14,13 @@ const daysShownMap: Record<number, string> = {
 
 export default function SelectedHabitGraph({ habit }: { habit: Habit }) {
   const [daysShown] = useAtom(daysShownAtom);
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const isTablet = useMediaQuery(theme.breakpoints.down('md'));
+  
+  // Calculate responsive width based on breakpoints
+  // Mobile (sm): ~300px, Tablet (md): ~330px, Desktop: 350px
+  const chartWidth = isMobile ? 300 : isTablet ? 330 : 350;
 
   if (!habit.dates) {
     return null;
@@ -60,7 +68,7 @@ export default function SelectedHabitGraph({ habit }: { habit: Habit }) {
       <Container disableGutters sx={{ display: "flex", justifyContent: "center" }}>
         <BarChart
           dataset={dateData}
-          width={350}
+          width={chartWidth}
           height={200}
           margin={{ top: 20, right: 20, bottom: 30, left: 20 }} // remove excess margin
           xAxis={[
