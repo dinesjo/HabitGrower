@@ -91,3 +91,6 @@ export const notificationPermissionAtom = atom(
 
 /* Days shown in the graph */
 export const daysShownAtom = atomWithStorage<number>("daysShown", 30);
+
+/* Graph frequency unit (day/week/month aggregation) */
+export const graphFrequencyUnitAtom = atomWithStorage<"day" | "week" | "month">("graphFrequencyUnit", "day");
