@@ -3,7 +3,7 @@ import { useMediaQuery } from "@mui/material";
 import { BarChart } from "@mui/x-charts";
 import dayjs from "dayjs";
 import { useAtom } from "jotai";
-import { daysShownAtom, graphFrequencyUnitAtom } from "../../store";
+import { daysShownAtom, graphFrequencyUnitAtom, userWeekStartsAtMondayAtom } from "../../store";
 import { Habit } from "../../types/Habit";
 
 const daysShownMap: Record<number, string> = {
@@ -13,13 +13,19 @@ const daysShownMap: Record<number, string> = {
 } as const;
 
 // Helper function to get period key for aggregation
-function getPeriodKey(date: dayjs.Dayjs, unit: "day" | "week" | "month"): string {
+function getPeriodKey(date: dayjs.Dayjs, unit: "day" | "week" | "month", userWeekStartsAtMonday: boolean): string {
   switch (unit) {
     case "day":
       return date.format("YYYY-MM-DD");
-    case "week":
-      // Get the start of the week (Monday)
-      return date.startOf("week").add(1, "day").format("YYYY-MM-DD");
+    case "week": {
+      // Use the same logic as in getFrequencyUnitStart from helpers.ts
+      let weekStart = date.startOf("week").add(Number(userWeekStartsAtMonday), "day");
+      if (userWeekStartsAtMonday && date.day() === 0) {
+        // edge case for Sunday and userWeekStartsAtMonday
+        weekStart = weekStart.subtract(1, "week");
+      }
+      return weekStart.format("YYYY-MM-DD");
+    }
     case "month":
       return date.format("YYYY-MM");
     default:
@@ -47,6 +53,7 @@ function getPeriodLabel(periodKey: string, unit: "day" | "week" | "month"): stri
 export default function SelectedHabitGraph({ habit }: { habit: Habit }) {
   const [daysShown] = useAtom(daysShownAtom);
   const [graphFrequencyUnit] = useAtom(graphFrequencyUnitAtom);
+  const [userWeekStartsAtMonday] = useAtom(userWeekStartsAtMondayAtom);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const isTablet = useMediaQuery(theme.breakpoints.down('md'));
@@ -72,7 +79,7 @@ export default function SelectedHabitGraph({ habit }: { habit: Habit }) {
   
   Object.entries(filteredDates).forEach(([date, completed]) => {
     const dateObj = dayjs(date);
-    const periodKey = getPeriodKey(dateObj, graphFrequencyUnit);
+    const periodKey = getPeriodKey(dateObj, graphFrequencyUnit, userWeekStartsAtMonday);
     
     if (!aggregatedData[periodKey]) {
       aggregatedData[periodKey] = 0;
@@ -96,7 +103,7 @@ export default function SelectedHabitGraph({ habit }: { habit: Habit }) {
   const end = dayjs();
 
   while (current.isBefore(end) || current.isSame(end)) {
-    const periodKey = getPeriodKey(current, graphFrequencyUnit);
+    const periodKey = getPeriodKey(current, graphFrequencyUnit, userWeekStartsAtMonday);
     if (!periods.includes(periodKey)) {
       periods.push(periodKey);
     }
