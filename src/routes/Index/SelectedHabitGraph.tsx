@@ -3,6 +3,7 @@ import { useMediaQuery } from "@mui/material";
 import { BarChart } from "@mui/x-charts";
 import dayjs from "dayjs";
 import { useAtom } from "jotai";
+import { useMemo } from "react";
 import { daysShownAtom, graphFrequencyUnitAtom, userWeekStartsAtMondayAtom } from "../../store";
 import { Habit } from "../../types/Habit";
 
@@ -62,79 +63,93 @@ export default function SelectedHabitGraph({ habit }: { habit: Habit }) {
   // Mobile (sm): ~300px, Tablet (md): ~330px, Desktop: 350px
   const chartWidth = isMobile ? 300 : isTablet ? 330 : 350;
 
+  // Memoize filtered dates to avoid recalculation on every render
+  const filteredDates = useMemo(() => {
+    if (!habit.dates) {
+      return {};
+    }
+    return Object.fromEntries(
+      Object.entries(habit.dates).filter(([date]) => {
+        const daysAgo = Math.ceil(dayjs().diff(dayjs(date), "day", true));
+        return daysAgo < daysShown;
+      })
+    );
+  }, [habit.dates, daysShown]);
+
+  // Memoize aggregated data to avoid recalculation when frequency unit or dates don't change
+  const aggregatedData = useMemo(() => {
+    const data: Record<string, number> = {};
+    
+    Object.entries(filteredDates).forEach(([date, completed]) => {
+      const dateObj = dayjs(date);
+      const periodKey = getPeriodKey(dateObj, graphFrequencyUnit, userWeekStartsAtMonday);
+      
+      if (!data[periodKey]) {
+        data[periodKey] = 0;
+      }
+      
+      if (completed) {
+        data[periodKey] += 1;
+      }
+    });
+
+    return data;
+  }, [filteredDates, graphFrequencyUnit, userWeekStartsAtMonday]);
+
+  // Memoize chart data to avoid regenerating the full dataset unnecessarily  
+  const dateData = useMemo(() => {
+    // Convert aggregated data to chart format
+    const chartData = Object.entries(aggregatedData).map(([periodKey, value]) => ({
+      period: periodKey,
+      value,
+      label: getPeriodLabel(periodKey, graphFrequencyUnit),
+    }));
+
+    // Fill in missing periods with value 0
+    const periods: string[] = [];
+    let current = dayjs().subtract(daysShown, "day");
+    const end = dayjs();
+
+    while (current.isBefore(end) || current.isSame(end)) {
+      const periodKey = getPeriodKey(current, graphFrequencyUnit, userWeekStartsAtMonday);
+      if (!periods.includes(periodKey)) {
+        periods.push(periodKey);
+      }
+      
+      // Increment by appropriate unit
+      switch (graphFrequencyUnit) {
+        case "day":
+          current = current.add(1, "day");
+          break;
+        case "week":
+          current = current.add(1, "week");
+          break;
+        case "month":
+          current = current.add(1, "month");
+          break;
+      }
+    }
+
+    // Add missing periods with value 0
+    periods.forEach((periodKey) => {
+      if (!chartData.find((data) => data.period === periodKey)) {
+        chartData.push({
+          period: periodKey,
+          value: 0,
+          label: getPeriodLabel(periodKey, graphFrequencyUnit),
+        });
+      }
+    });
+
+    // Sort by period
+    chartData.sort((a, b) => a.period.localeCompare(b.period));
+    
+    return chartData;
+  }, [aggregatedData, graphFrequencyUnit, userWeekStartsAtMonday, daysShown]);
+
   if (!habit.dates) {
     return null;
   }
-
-  // Filter data to only show the last n days
-  const filteredDates = Object.fromEntries(
-    Object.entries(habit.dates).filter(([date]) => {
-      const daysAgo = Math.ceil(dayjs().diff(dayjs(date), "day", true));
-      return daysAgo < daysShown;
-    })
-  );
-
-  // Aggregate data by the selected frequency unit
-  const aggregatedData: Record<string, number> = {};
-  
-  Object.entries(filteredDates).forEach(([date, completed]) => {
-    const dateObj = dayjs(date);
-    const periodKey = getPeriodKey(dateObj, graphFrequencyUnit, userWeekStartsAtMonday);
-    
-    if (!aggregatedData[periodKey]) {
-      aggregatedData[periodKey] = 0;
-    }
-    
-    if (completed) {
-      aggregatedData[periodKey] += 1;
-    }
-  });
-
-  // Convert aggregated data to chart format
-  const dateData = Object.entries(aggregatedData).map(([periodKey, value]) => ({
-    period: periodKey,
-    value,
-    label: getPeriodLabel(periodKey, graphFrequencyUnit),
-  }));
-
-  // Fill in missing periods with value 0
-  const periods: string[] = [];
-  let current = dayjs().subtract(daysShown, "day");
-  const end = dayjs();
-
-  while (current.isBefore(end) || current.isSame(end)) {
-    const periodKey = getPeriodKey(current, graphFrequencyUnit, userWeekStartsAtMonday);
-    if (!periods.includes(periodKey)) {
-      periods.push(periodKey);
-    }
-    
-    // Increment by appropriate unit
-    switch (graphFrequencyUnit) {
-      case "day":
-        current = current.add(1, "day");
-        break;
-      case "week":
-        current = current.add(1, "week");
-        break;
-      case "month":
-        current = current.add(1, "month");
-        break;
-    }
-  }
-
-  // Add missing periods with value 0
-  periods.forEach((periodKey) => {
-    if (!dateData.find((data) => data.period === periodKey)) {
-      dateData.push({
-        period: periodKey,
-        value: 0,
-        label: getPeriodLabel(periodKey, graphFrequencyUnit),
-      });
-    }
-  });
-
-  // Sort by period
-  dateData.sort((a, b) => a.period.localeCompare(b.period));
 
   // Get max value in the dataSet
   const maxValue = Math.max(...dateData.map((data) => data.value));
