@@ -1,6 +1,6 @@
 import react from "@vitejs/plugin-react-swc";
 import { defineConfig } from "vite";
-// import mkcert from "vite-plugin-mkcert"; // Disable for CI environments
+import mkcert from "vite-plugin-mkcert";
 import { VitePWA } from "vite-plugin-pwa";
 
 export default defineConfig({
@@ -12,7 +12,7 @@ export default defineConfig({
   },
   plugins: [
     react(),
-    // mkcert(), // Disable for CI environments
+    mkcert(),
     VitePWA({
       manifest: {
         name: "HabitGrower",
