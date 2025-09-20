@@ -27,29 +27,70 @@ const auth = getAuth();
 // Initialize messaging conditionally - iOS Safari doesn't support it in all contexts
 export let messaging: ReturnType<typeof getMessaging> | null = null;
 
-// Enhanced iOS Safari detection
+// Enhanced iOS Safari detection for both mobile and desktop
 function isIOSSafari(): boolean {
   const userAgent = navigator.userAgent.toLowerCase();
-  return /iphone|ipad|ipod/.test(userAgent) && /safari/.test(userAgent) && !/chrome|crios|fxios/.test(userAgent);
+  const isIOS = /iphone|ipad|ipod/.test(userAgent);
+  const isSafari = /safari/.test(userAgent);
+  const isChrome = /chrome|crios|fxios|edgios/.test(userAgent);
+  
+  // Mobile Safari detection
+  if (isIOS && isSafari && !isChrome) {
+    return true;
+  }
+  
+  // Additional mobile Safari checks
+  if (isIOS && 'standalone' in navigator) {
+    return true;
+  }
+  
+  // Check for specific mobile Safari patterns
+  if (/iphone.*safari/.test(userAgent) || /ipad.*safari/.test(userAgent)) {
+    return true;
+  }
+  
+  return false;
+}
+
+// Additional mobile-specific detection
+function isMobileBrowser(): boolean {
+  return /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(navigator.userAgent);
 }
 
 try {
-  // Check if messaging is supported (fails on iOS Safari in many cases)
-  if ('serviceWorker' in navigator && 
-      'Notification' in window && 
-      !isIOSSafari() && // Skip messaging initialization on iOS Safari
-      typeof navigator.serviceWorker.register === 'function') {
-    
+  // More conservative approach for mobile browsers, especially iOS
+  const shouldInitializeMessaging = 
+    'serviceWorker' in navigator && 
+    'Notification' in window && 
+    !isIOSSafari() && 
+    !isMobileBrowser() && // Skip messaging on ALL mobile browsers for now
+    typeof navigator.serviceWorker.register === 'function' &&
+    window.location.protocol === 'https:'; // Require HTTPS
+  
+  if (shouldInitializeMessaging) {
     messaging = getMessaging();
     
     if (Notification.permission === "granted") {
       fetchFcmToken();
     }
-  } else if (isIOSSafari()) {
-    console.log('iOS Safari detected - Firebase messaging disabled for compatibility');
+    console.log('Firebase messaging initialized successfully');
+  } else {
+    console.log('Firebase messaging skipped:', {
+      isIOSSafari: isIOSSafari(),
+      isMobile: isMobileBrowser(),
+      hasServiceWorker: 'serviceWorker' in navigator,
+      hasNotification: 'Notification' in window,
+      isHTTPS: window.location.protocol === 'https:',
+      userAgent: navigator.userAgent
+    });
   }
 } catch (error) {
-  console.warn('Firebase messaging not supported on this device/browser:', error);
+  console.error('Firebase messaging initialization failed:', error);
+  console.log('Browser details:', {
+    userAgent: navigator.userAgent,
+    isIOSSafari: isIOSSafari(),
+    isMobile: isMobileBrowser()
+  });
   messaging = null;
 }
 

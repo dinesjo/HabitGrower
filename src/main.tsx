@@ -115,6 +115,19 @@ export const router = createBrowserRouter(
   )
 );
 
+// Debug logging for mobile Safari troubleshooting
+console.log('HabitGrower initializing...', {
+  userAgent: navigator.userAgent,
+  url: window.location.href,
+  hasServiceWorker: 'serviceWorker' in navigator,
+  hasNotification: 'Notification' in window,
+  viewport: {
+    width: window.innerWidth,
+    height: window.innerHeight
+  },
+  protocol: window.location.protocol
+});
+
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <ErrorBoundary>

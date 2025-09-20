@@ -23,8 +23,17 @@ export class ErrorBoundary extends React.Component<Props, State> {
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    // Log error details for debugging
+    // Enhanced logging for debugging mobile Safari issues
     console.error('Error caught by ErrorBoundary:', error, errorInfo);
+    console.log('Browser details when error occurred:', {
+      userAgent: navigator.userAgent,
+      url: window.location.href,
+      timestamp: new Date().toISOString(),
+      viewport: {
+        width: window.innerWidth,
+        height: window.innerHeight
+      }
+    });
     
     // You can also log to an error reporting service here
     // Example: logErrorToService(error, errorInfo);
