@@ -24,10 +24,21 @@ const app = initializeApp(firebaseConfig);
 firebase.initializeApp(firebaseConfig);
 const auth = getAuth();
 
-export const messaging = getMessaging();
+// Initialize messaging conditionally - iOS Safari doesn't support it in all contexts
+export let messaging: ReturnType<typeof getMessaging> | null = null;
 
-if (Notification.permission === "granted") {
-  fetchFcmToken();
+try {
+  // Check if messaging is supported (fails on iOS Safari in many cases)
+  if ('serviceWorker' in navigator && 'Notification' in window) {
+    messaging = getMessaging();
+    
+    if (Notification.permission === "granted") {
+      fetchFcmToken();
+    }
+  }
+} catch (error) {
+  console.warn('Firebase messaging not supported on this device/browser:', error);
+  messaging = null;
 }
 
 export const database = getDatabase(app);

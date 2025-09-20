@@ -1,6 +1,5 @@
 import react from "@vitejs/plugin-react-swc";
 import { defineConfig } from "vite";
-import mkcert from "vite-plugin-mkcert";
 import { VitePWA } from "vite-plugin-pwa";
 
 export default defineConfig({
@@ -20,6 +19,9 @@ export default defineConfig({
         description: "Grow your habits!",
         theme_color: "#478523",
         background_color: "#101e26",
+        display: "standalone",
+        start_url: "/",
+        scope: "/",
         icons: [
           {
             src: "pwa-maskable-192x192.png",
@@ -45,6 +47,13 @@ export default defineConfig({
           },
         ],
       },
+      workbox: {
+        // Skip waiting to ensure immediate updates on iOS
+        skipWaiting: true,
+        clientsClaim: true,
+        globPatterns: ['**/*.{js,css,html,ico,png,svg}']
+      },
+      registerType: 'autoUpdate',
     }),
   ],
 });

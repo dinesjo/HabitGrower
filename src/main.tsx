@@ -7,6 +7,7 @@ import ReactDOM from "react-dom/client";
 import { createBrowserRouter, createRoutesFromElements, redirect, Route } from "react-router-dom";
 import EditHabitForm from "./components/EditHabitForm";
 import ErrorPage from "./components/ErrorPage";
+import { ErrorBoundary } from "./components/ErrorBoundary";
 import "./firebase";
 import { signOut } from "./firebase";
 import IndexView from "./routes/Index/IndexView";
@@ -116,6 +117,8 @@ export const router = createBrowserRouter(
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
-    <Main />
+    <ErrorBoundary>
+      <Main />
+    </ErrorBoundary>
   </React.StrictMode>
 );
