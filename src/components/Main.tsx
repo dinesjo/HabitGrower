@@ -67,6 +67,23 @@ export default function Main() {
                   background: themeAtomValue === "dark" ? "#555" : "#ccc",
                   borderRadius: "4px",
                 },
+                // iOS Safari specific optimizations
+                WebkitTapHighlightColor: "transparent",
+                WebkitTouchCallout: "none",
+                WebkitUserSelect: "none",
+                KhtmlUserSelect: "none",
+                MozUserSelect: "none",
+                msUserSelect: "none",
+                userSelect: "none",
+                // Prevent iOS Safari from zooming on input focus
+                "@media screen and (max-width: 768px)": {
+                  fontSize: "16px !important",
+                },
+              },
+              // Ensure proper viewport handling on iOS
+              html: {
+                WebkitTextSizeAdjust: "100%",
+                textSizeAdjust: "100%",
               },
             },
           },

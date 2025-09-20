@@ -9,6 +9,17 @@ export default defineConfig({
       host: "localhost",
     },
   },
+  build: {
+    target: ['es2015', 'safari11'], // Ensure iOS Safari 11+ compatibility
+    rollupOptions: {
+      output: {
+        // Ensure stable chunk names for better caching on iOS
+        chunkFileNames: 'assets/[name]-[hash].js',
+        entryFileNames: 'assets/[name]-[hash].js',
+        assetFileNames: 'assets/[name]-[hash].[ext]'
+      }
+    }
+  },
   plugins: [
     react(),
     // mkcert(), // Disable for CI environments
@@ -51,7 +62,28 @@ export default defineConfig({
         // Skip waiting to ensure immediate updates on iOS
         skipWaiting: true,
         clientsClaim: true,
-        globPatterns: ['**/*.{js,css,html,ico,png,svg}']
+        globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
+        // iOS Safari specific optimizations
+        runtimeCaching: [
+          {
+            urlPattern: /^https:\/\/fonts\.googleapis\.com/,
+            handler: 'StaleWhileRevalidate',
+            options: {
+              cacheName: 'google-fonts-stylesheets',
+            },
+          },
+          {
+            urlPattern: /^https:\/\/fonts\.gstatic\.com/,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'google-fonts-webfonts',
+              expiration: {
+                maxEntries: 30,
+                maxAgeSeconds: 60 * 60 * 24 * 365, // 1 year
+              },
+            },
+          },
+        ],
       },
       registerType: 'autoUpdate',
     }),

@@ -27,14 +27,26 @@ const auth = getAuth();
 // Initialize messaging conditionally - iOS Safari doesn't support it in all contexts
 export let messaging: ReturnType<typeof getMessaging> | null = null;
 
+// Enhanced iOS Safari detection
+function isIOSSafari(): boolean {
+  const userAgent = navigator.userAgent.toLowerCase();
+  return /iphone|ipad|ipod/.test(userAgent) && /safari/.test(userAgent) && !/chrome|crios|fxios/.test(userAgent);
+}
+
 try {
   // Check if messaging is supported (fails on iOS Safari in many cases)
-  if ('serviceWorker' in navigator && 'Notification' in window) {
+  if ('serviceWorker' in navigator && 
+      'Notification' in window && 
+      !isIOSSafari() && // Skip messaging initialization on iOS Safari
+      typeof navigator.serviceWorker.register === 'function') {
+    
     messaging = getMessaging();
     
     if (Notification.permission === "granted") {
       fetchFcmToken();
     }
+  } else if (isIOSSafari()) {
+    console.log('iOS Safari detected - Firebase messaging disabled for compatibility');
   }
 } catch (error) {
   console.warn('Firebase messaging not supported on this device/browser:', error);
