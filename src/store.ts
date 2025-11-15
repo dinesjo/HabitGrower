@@ -78,10 +78,12 @@ export const snackbarOpenAtom = atom<boolean>((get) => !!get(snackbarMessageAtom
 export const checkedHabitIdsAtom = atom<string[]>([]);
 
 /* Notifications */
-const notificationPermissionPrimitiveAtom = atom<typeof Notification.permission>(Notification.permission);
+// Safely get notification permission, fallback to 'default' if Notification API not available
+const initialNotificationPermission = (typeof Notification !== 'undefined' && Notification.permission) || 'default';
+const notificationPermissionPrimitiveAtom = atom<NotificationPermission>(initialNotificationPermission);
 export const notificationPermissionAtom = atom(
   (get) => get(notificationPermissionPrimitiveAtom),
-  (_, set, permission: typeof Notification.permission) => {
+  (_, set, permission: NotificationPermission) => {
     set(notificationPermissionPrimitiveAtom, permission);
     if (permission === "granted") {
       fetchFcmToken();
