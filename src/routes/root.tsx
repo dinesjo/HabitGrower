@@ -64,7 +64,7 @@ export default function Root() {
     <>
       <Box
         sx={{
-          height: "100vh",
+          height: ["100vh", "100dvh"], // Fallback to 100vh for older browsers, use 100dvh for iOS Safari
           width: "100%",
           position: "relative",
           display: "flex",

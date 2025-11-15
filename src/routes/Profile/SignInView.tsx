@@ -61,7 +61,7 @@ export default function SignInView() {
       sx={{
         display: "flex",
         flexDirection: "column",
-        height: "calc(100vh - 72px)", // Account for bottom navigation
+        height: ["calc(100vh - 72px)", "calc(100dvh - 72px)"], // Account for bottom navigation, use dvh for iOS Safari
         bgcolor: "background.default",
         justifyContent: "center",
         alignItems: "center",
