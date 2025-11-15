@@ -24,9 +24,22 @@ const app = initializeApp(firebaseConfig);
 firebase.initializeApp(firebaseConfig);
 const auth = getAuth();
 
-export const messaging = getMessaging();
+// Initialize messaging only if supported (not available on iOS Safari)
+let messagingInstance: ReturnType<typeof getMessaging> | null = null;
+try {
+  // Check if service workers and push notifications are supported
+  if ('serviceWorker' in navigator && 'PushManager' in window) {
+    messagingInstance = getMessaging();
+  } else {
+    console.warn('Firebase Messaging is not supported on this browser (likely iOS Safari)');
+  }
+} catch (error) {
+  console.warn('Failed to initialize Firebase Messaging:', error);
+}
 
-if (Notification.permission === "granted") {
+export const messaging = messagingInstance;
+
+if (messaging && Notification.permission === "granted") {
   fetchFcmToken();
 }
 
