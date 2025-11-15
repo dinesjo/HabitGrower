@@ -8,8 +8,9 @@
       // Global error handler for debugging iOS Safari issues
       window.addEventListener('error', function(e) {
         // Ignore cross-origin script errors (common with service workers and external scripts)
-        if (e.message === 'Script error.' && e.lineno === 0 && e.colno === 0) {
-          console.warn('Ignoring cross-origin script error (likely service worker initialization)');
+        // These show as "Script error." with no file/line information
+        if (e.message === 'Script error.' || (!e.filename && !e.lineno && !e.colno)) {
+          console.warn('Ignoring cross-origin script error (likely service worker or external script)');
           return;
         }
 
