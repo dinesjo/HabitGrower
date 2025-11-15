@@ -1,121 +1,137 @@
-self.importScripts("https://www.gstatic.com/firebasejs/10.7.2/firebase-app-compat.js");
-self.importScripts("https://www.gstatic.com/firebasejs/10.7.2/firebase-messaging-compat.js");
+// Check if this service worker should run (skip on unsupported browsers like iOS Safari)
+if (!('PushManager' in self)) {
+  console.warn('Push notifications not supported - service worker will not handle messaging');
+  // Just install and activate without doing anything
+  self.addEventListener('install', () => self.skipWaiting());
+  self.addEventListener('activate', () => self.clients.claim());
+} else {
+  // Wrap in try-catch to prevent errors from breaking the main app
+  try {
+    self.importScripts("https://www.gstatic.com/firebasejs/10.7.2/firebase-app-compat.js");
+    self.importScripts("https://www.gstatic.com/firebasejs/10.7.2/firebase-messaging-compat.js");
 
-self.firebase.initializeApp({
-  apiKey: "AIzaSyDMfCeJUzcBqHpfdfDbi_KQ4KIzmQuwOMs",
-  authDomain: "habitgrower.firebaseapp.com",
-  databaseURL: "https://habitgrower-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "habitgrower",
-  storageBucket: "habitgrower.appspot.com",
-  messagingSenderId: "691357820339",
-  appId: "1:691357820339:web:7d043f04ec49fbb04417c6",
-  measurementId: "G-JWYJH25B7E",
-});
+    self.firebase.initializeApp({
+      apiKey: "AIzaSyDMfCeJUzcBqHpfdfDbi_KQ4KIzmQuwOMs",
+      authDomain: "habitgrower.firebaseapp.com",
+      databaseURL: "https://habitgrower-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "habitgrower",
+      storageBucket: "habitgrower.appspot.com",
+      messagingSenderId: "691357820339",
+      appId: "1:691357820339:web:7d043f04ec49fbb04417c6",
+      measurementId: "G-JWYJH25B7E",
+    });
 
-const messaging = self.firebase.messaging();
+    const messaging = self.firebase.messaging();
 
-messaging.onBackgroundMessage(function (payload) {
-  console.log('[firebase-messaging-sw.js] Received background message ', payload);
-  const notificationTitle = payload.data.title;
-  let frequenctUnitFriendly;
-  switch (payload.data.frequencyUnit) {
-    case 'day':
-      frequenctUnitFriendly = 'today';
-      break;
-    case 'week':
-      frequenctUnitFriendly = 'this week';
-      break;
-    case 'month':
-      frequenctUnitFriendly = 'this month';
-      break;
-    default:
-      frequenctUnitFriendly = '';
-  }
-  const notificationOptions = {
-    body: `${payload.data.progressPercent}% complete${payload.data.frequencyUnit ? ` ${frequenctUnitFriendly}` : ''}`,
-    icon: `/${payload.data.habitIcon}.svg`,
-    badge: '/pwa-192x192.png',
-    data: {
-      habitId: payload.data.habitId,
-      userId: payload.data.userId,
-      icon: payload.data.habitIcon,
-    },
-    actions: [
-      {
-        action: 'registerHabitNow',
-        title: 'Register now',
+    messaging.onBackgroundMessage(function (payload) {
+      console.log('[firebase-messaging-sw.js] Received background message ', payload);
+      const notificationTitle = payload.data.title;
+      let frequenctUnitFriendly;
+      switch (payload.data.frequencyUnit) {
+        case 'day':
+          frequenctUnitFriendly = 'today';
+          break;
+        case 'week':
+          frequenctUnitFriendly = 'this week';
+          break;
+        case 'month':
+          frequenctUnitFriendly = 'this month';
+          break;
+        default:
+          frequenctUnitFriendly = '';
       }
-    ],
-    tag: payload.data.habitId,
-  };
-
-  self.registration.showNotification(notificationTitle,
-    notificationOptions);
-});
-
-self.addEventListener('notificationclick', function (event) {
-  console.log('[firebase-messaging-sw.js] Notification click Received.', event.notification);
-
-  event.waitUntil(
-    self.clients
-      .matchAll({
-        type: "window",
-      })
-      .then(async (clientList) => {
-        if (event.action === 'registerHabitNow') {
-          self.registration.showNotification('Registering...', {
-            icon: `/${event.notification.data.icon}.svg`,
-            badge: '/pwa-192x192.png',
-            tag: event.notification.data.habitId,
-          });
-
-          await fetch(`https://habit-grower.vercel.app/api/registerHabitNow?userId=${event.notification.data.userId}&habitId=${event.notification.data.habitId}`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-          }).then((response) => {
-            if (response.ok) {
-              return self.registration.showNotification('✅ Habit has been registered', {
-                icon: `/${event.notification.data.icon}.svg`,
-                badge: '/pwa-192x192.png',
-                tag: event.notification.data.habitId,
-              });
-            } else {
-              console.error('Habit registration failed');
-              return self.registration.showNotification('⚠️ Habit could NOT be registered', {
-                body: 'Could not register the habit, open the app to do so',
-                icon: `/${event.notification.data.icon}.svg`,
-                badge: '/pwa-192x192.png',
-                tag: event.notification.data.habitId,
-              });
-            }
-          }).catch((error) => {
-            console.error('Habit registration failed', error);
-            return self.registration.showNotification('⚠️ Habit could NOT be registered', {
-              body: 'Could not register the habit, open the app to do so',
-              icon: `/${event.notification.data.icon}.svg`,
-              badge: '/pwa-192x192.png',
-              tag: event.notification.data.habitId,
-            });
-          });
-
-          return;
-        }
-
-        event.notification.close();
-
-        for (const client of clientList) {
-          // Check if the client URL is the root URL and if it can be focused
-          if (client.url === "/" && "focus" in client) {
-            return client.focus(); // Focus the client and stop further execution
+      const notificationOptions = {
+        body: `${payload.data.progressPercent}% complete${payload.data.frequencyUnit ? ` ${frequenctUnitFriendly}` : ''}`,
+        icon: `/${payload.data.habitIcon}.svg`,
+        badge: '/pwa-192x192.png',
+        data: {
+          habitId: payload.data.habitId,
+          userId: payload.data.userId,
+          icon: payload.data.habitIcon,
+        },
+        actions: [
+          {
+            action: 'registerHabitNow',
+            title: 'Register now',
           }
-        }
+        ],
+        tag: payload.data.habitId,
+      };
 
-        // If no matching client is found, open a new window with the root URL
-        if (self.clients.openWindow) {
-          return self.clients.openWindow("/");
-        }
-      }),
-  );
-});
+      self.registration.showNotification(notificationTitle,
+        notificationOptions);
+    });
+
+    self.addEventListener('notificationclick', function (event) {
+      console.log('[firebase-messaging-sw.js] Notification click Received.', event.notification);
+
+      event.waitUntil(
+        self.clients
+          .matchAll({
+            type: "window",
+          })
+          .then(async (clientList) => {
+            if (event.action === 'registerHabitNow') {
+              self.registration.showNotification('Registering...', {
+                icon: `/${event.notification.data.icon}.svg`,
+                badge: '/pwa-192x192.png',
+                tag: event.notification.data.habitId,
+              });
+
+              await fetch(`https://habit-grower.vercel.app/api/registerHabitNow?userId=${event.notification.data.userId}&habitId=${event.notification.data.habitId}`, {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+              }).then((response) => {
+                if (response.ok) {
+                  return self.registration.showNotification('✅ Habit has been registered', {
+                    icon: `/${event.notification.data.icon}.svg`,
+                    badge: '/pwa-192x192.png',
+                    tag: event.notification.data.habitId,
+                  });
+                } else {
+                  console.error('Habit registration failed');
+                  return self.registration.showNotification('⚠️ Habit could NOT be registered', {
+                    body: 'Could not register the habit, open the app to do so',
+                    icon: `/${event.notification.data.icon}.svg`,
+                    badge: '/pwa-192x192.png',
+                    tag: event.notification.data.habitId,
+                  });
+                }
+              }).catch((error) => {
+                console.error('Habit registration failed', error);
+                return self.registration.showNotification('⚠️ Habit could NOT be registered', {
+                  body: 'Could not register the habit, open the app to do so',
+                  icon: `/${event.notification.data.icon}.svg`,
+                  badge: '/pwa-192x192.png',
+                  tag: event.notification.data.habitId,
+                });
+              });
+
+              return;
+            }
+
+            event.notification.close();
+
+            for (const client of clientList) {
+              // Check if the client URL is the root URL and if it can be focused
+              if (client.url === "/" && "focus" in client) {
+                return client.focus(); // Focus the client and stop further execution
+              }
+            }
+
+            // If no matching client is found, open a new window with the root URL
+            if (self.clients.openWindow) {
+              return self.clients.openWindow("/");
+            }
+          }),
+      );
+    });
+  } catch (error) {
+    console.error('Firebase messaging service worker failed to initialize:', error);
+    // Prevent this error from propagating to the main thread
+    self.addEventListener('install', () => self.skipWaiting());
+    self.addEventListener('activate', () => self.clients.claim());
+  }
+}

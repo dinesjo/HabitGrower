@@ -15,7 +15,8 @@ export default defineConfig({
     mkcert(),
     VitePWA({
       registerType: 'autoUpdate',
-      injectRegister: null,  // Don't inject service worker registration - Firebase handles it
+      injectRegister: false,  // Completely disable auto-registration
+      selfDestroying: true,   // Unregister any existing service worker
       manifest: {
         name: "HabitGrower",
         short_name: "HabitGrower",
