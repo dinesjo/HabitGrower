@@ -2,11 +2,13 @@ import { AccountCircle, Add, Home } from "@mui/icons-material";
 import {
   Alert,
   Avatar,
+  Badge,
   BottomNavigation,
   BottomNavigationAction,
   Box,
   CircularProgress,
   Fab,
+  Fade,
   LinearProgress,
   Paper,
   Slide,
@@ -17,12 +19,16 @@ import { getAuth } from "firebase/auth";
 import { useAtom } from "jotai";
 import { useEffect, useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
-import { Form, NavLink, Outlet, useNavigation } from "react-router-dom";
-import { snackbarActionAtom, snackbarMessageAtom, snackbarOpenAtom, snackbarSeverityAtom } from "../store";
+import { Form, NavLink, Outlet, useLocation, useNavigation } from "react-router-dom";
+import { snackbarActionAtom, snackbarMessageAtom, snackbarOpenAtom, snackbarSeverityAtom, userWeekStartsAtMondayAtom } from "../store";
+import { fetchAllHabits } from "../services/habitsPersistance";
+import { getProgress } from "../utils/helpers";
+import { Habit } from "../types/Habit";
 
 export default function Root() {
   // Router
   const navigation = useNavigation();
+  const location = useLocation();
   const loading = navigation.state === "loading";
   const [showLoading, setShowLoading] = useState(false);
 
@@ -35,6 +41,10 @@ export default function Root() {
   const [snackbarSeverity] = useAtom(snackbarSeverityAtom);
   const [snackbarAction] = useAtom(snackbarActionAtom);
 
+  // Completed habits count for badge
+  const [completedCount, setCompletedCount] = useState(0);
+  const [userWeekStartsAtMonday] = useAtom(userWeekStartsAtMondayAtom);
+
   useEffect(() => {
     let timeoutId: NodeJS.Timeout;
     if (loading) {
@@ -44,6 +54,23 @@ export default function Root() {
     }
     return () => clearTimeout(timeoutId); // clear timeout on unmount or when loading changes
   }, [loading]);
+
+  // Fetch completed habits count
+  useEffect(() => {
+    if (!user) return;
+
+    const fetchCompletedCount = async () => {
+      const habits = await fetchAllHabits();
+      const completed = habits.filter((habit: Habit) => {
+        const progress = getProgress(habit, false, userWeekStartsAtMonday);
+        return progress === 100;
+      }).length;
+      setCompletedCount(completed);
+    };
+
+    fetchCompletedCount();
+    // Refresh on location change (when user navigates)
+  }, [user, location, userWeekStartsAtMonday]);
 
   const pages = [
     {
@@ -57,7 +84,28 @@ export default function Root() {
         <AccountCircle />
       ),
     },
-    { text: "Home", path: "/", icon: <Home /> },
+    {
+      text: "Home",
+      path: "/",
+      icon: (
+        <Badge
+          badgeContent={completedCount > 0 ? completedCount : null}
+          color="success"
+          max={99}
+          sx={{
+            "& .MuiBadge-badge": {
+              fontSize: "0.65rem",
+              height: 18,
+              minWidth: 18,
+              padding: "0 4px",
+              fontWeight: 600,
+            },
+          }}
+        >
+          <Home />
+        </Badge>
+      ),
+    },
   ];
 
   return (
@@ -94,7 +142,11 @@ export default function Root() {
             position: "relative",
           }}
         >
-          <Outlet />
+          <Fade in={true} timeout={300} key={location.pathname}>
+            <Box>
+              <Outlet />
+            </Box>
+          </Fade>
 
           {/* Enhanced Floating Action Button */}
           {user && (
@@ -212,17 +264,36 @@ export default function Root() {
             color: "text.secondary",
             borderRadius: 2,
             margin: "4px 2px",
-            transition: "all 0.2s ease-in-out",
+            transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+            position: "relative",
+            // Add underline indicator
+            "&::after": {
+              content: '""',
+              position: "absolute",
+              bottom: 4,
+              left: "50%",
+              transform: "translateX(-50%) scaleX(0)",
+              width: "70%",
+              height: 3,
+              borderRadius: 1.5,
+              bgcolor: "primary.main",
+              transition: "transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+            },
             "&.active": {
               color: "primary.main",
-              // Remove background color - only highlight text
+              bgcolor: "action.selected",
+              // Show underline indicator
+              "&::after": {
+                transform: "translateX(-50%) scaleX(1)",
+              },
               "& .MuiBottomNavigationAction-label": {
                 fontSize: "0.75rem",
-                fontWeight: 600,
+                fontWeight: 700,
                 color: "primary.main",
               },
               "& .MuiSvgIcon-root": {
                 color: "primary.main",
+                transform: "scale(1.1)",
               },
             },
             "&.pending": {
@@ -238,19 +309,26 @@ export default function Root() {
             },
             "&:hover": {
               backgroundColor: "action.hover",
-              transform: "scale(1.02)",
+            },
+            // Tap animation for mobile
+            "&:active": {
+              transform: "scale(0.95)",
+              "& .MuiSvgIcon-root": {
+                transform: "scale(0.9)",
+              },
             },
             minWidth: 64,
             maxWidth: 168,
             padding: "8px 12px",
             "& .MuiSvgIcon-root": {
               fontSize: "1.5rem",
-              transition: "all 0.2s ease-in-out",
+              transition: "all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)",
             },
             "& .MuiBottomNavigationAction-label": {
               fontSize: "0.7rem",
               fontWeight: 500,
               marginTop: "4px",
+              transition: "all 0.2s ease-in-out",
             },
           },
         }}
