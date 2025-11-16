@@ -149,18 +149,29 @@ export default function SelectedHabitGraph({ habit }: { habit: Habit }) {
 
   if (!hasData) {
     return (
-      <>
-        <Container sx={{ my: 1, display: "flex", justifyContent: "center" }}>
+      <Paper
+        elevation={0}
+        sx={{
+          p: 3,
+          mb: 2,
+          borderRadius: 3,
+          border: "1px solid",
+          borderColor: "divider",
+          bgcolor: "background.paper",
+        }}
+      >
+        <Typography variant="h6" sx={{ mb: 2, fontWeight: 600, color: "text.primary" }}>
+          Progress Chart
+        </Typography>
+        <Container sx={{ mb: 2, display: "flex", justifyContent: "center" }}>
           <GraphControls />
         </Container>
-        <Paper
-          elevation={0}
+        <Box
           sx={{
             p: 4,
-            my: 2,
             textAlign: "center",
             bgcolor: "action.hover",
-            borderRadius: 3,
+            borderRadius: 2,
             border: "1px dashed",
             borderColor: "divider",
           }}
@@ -172,8 +183,8 @@ export default function SelectedHabitGraph({ habit }: { habit: Habit }) {
           <Typography variant="body2" color="text.disabled">
             Register this habit to see your progress chart
           </Typography>
-        </Paper>
-      </>
+        </Box>
+      </Paper>
     );
   }
 
@@ -181,8 +192,21 @@ export default function SelectedHabitGraph({ habit }: { habit: Habit }) {
   const maxValue = Math.max(...dateData.map((data) => data.value));
 
   return (
-    <>
-      <Container sx={{ my: 1, display: "flex", justifyContent: "center" }}>
+    <Paper
+      elevation={0}
+      sx={{
+        p: 3,
+        mb: 2,
+        borderRadius: 3,
+        border: "1px solid",
+        borderColor: "divider",
+        bgcolor: "background.paper",
+      }}
+    >
+      <Typography variant="h6" sx={{ mb: 2, fontWeight: 600, color: "text.primary" }}>
+        Progress Chart
+      </Typography>
+      <Container sx={{ mb: 2, display: "flex", justifyContent: "center" }}>
         <GraphControls />
       </Container>
       <Container
@@ -235,7 +259,7 @@ export default function SelectedHabitGraph({ habit }: { habit: Habit }) {
           />
         </Box>
       </Container>
-    </>
+    </Paper>
   );
 }
 

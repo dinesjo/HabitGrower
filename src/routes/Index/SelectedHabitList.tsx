@@ -52,39 +52,65 @@ export default function SelectedHabitList({ habit }: { habit: Habit }) {
 
   const hasData = habit.dates && Object.keys(habit.dates).length > 0;
 
-  if (!hasData) {
-    return (
-      <Paper
-        elevation={0}
-        sx={{
-          p: 4,
-          my: 2,
-          textAlign: "center",
-          bgcolor: "action.hover",
-          borderRadius: 3,
-          border: "1px dashed",
-          borderColor: "divider",
-        }}
-      >
-        <EventAvailableOutlined sx={{ fontSize: 48, color: "text.disabled", mb: 1 }} />
-        <Typography variant="body1" color="text.secondary" gutterBottom>
-          No registrations yet
-        </Typography>
-        <Typography variant="body2" color="text.disabled">
-          Start tracking by registering this habit from the home screen
-        </Typography>
-      </Paper>
-    );
-  }
-
   function handleOpen(date: string) {
     setDateToDelete(date);
     setOpen(true);
   }
 
+  if (!hasData) {
+    return (
+      <Paper
+        elevation={0}
+        sx={{
+          p: 3,
+          mb: 2,
+          borderRadius: 3,
+          border: "1px solid",
+          borderColor: "divider",
+          bgcolor: "background.paper",
+        }}
+      >
+        <Typography variant="h6" sx={{ mb: 2, fontWeight: 600, color: "text.primary" }}>
+          Registration History
+        </Typography>
+        <Box
+          sx={{
+            p: 4,
+            textAlign: "center",
+            bgcolor: "action.hover",
+            borderRadius: 2,
+            border: "1px dashed",
+            borderColor: "divider",
+          }}
+        >
+          <EventAvailableOutlined sx={{ fontSize: 48, color: "text.disabled", mb: 1 }} />
+          <Typography variant="body1" color="text.secondary" gutterBottom>
+            No registrations yet
+          </Typography>
+          <Typography variant="body2" color="text.disabled">
+            Start tracking by registering this habit from the home screen
+          </Typography>
+        </Box>
+      </Paper>
+    );
+  }
+
   return (
-    <>
-      <Box sx={{ display: "flex", justifyContent: "end" }}>
+    <Paper
+      elevation={0}
+      sx={{
+        p: 3,
+        mb: 2,
+        borderRadius: 3,
+        border: "1px solid",
+        borderColor: "divider",
+        bgcolor: "background.paper",
+      }}
+    >
+      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
+        <Typography variant="h6" sx={{ fontWeight: 600, color: "text.primary" }}>
+          Registration History
+        </Typography>
         <SortDirectionButton />
       </Box>
       <Dialog 
@@ -171,7 +197,7 @@ export default function SelectedHabitList({ habit }: { habit: Habit }) {
           );
         })}
       </List>
-    </>
+    </Paper>
   );
 }
 

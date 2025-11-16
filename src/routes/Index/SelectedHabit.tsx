@@ -108,27 +108,41 @@ export default function SelectedHabit() {
             <Box
               sx={{
                 flexGrow: 1,
-                pt: 1.5,
+                pt: 2,
                 px: 2,
                 pb: 10, // Add padding bottom to prevent content from being hidden behind sticky footer
                 mx: "auto",
+                maxWidth: 800,
                 overflowY: "auto",
                 scrollbarWidth: "thin",
                 scrollbarColor: "#ccc #222",
               }}
             >
+              {/* Summary Section */}
               {habit.frequency && habit.frequencyUnit && (
-                <Typography variant="body2" sx={{ mb: 1 }}>
-                  You told yourself to{" "}
-                  <Typography variant="body2" display="inline" sx={{ color: habit.color, fontWeight: 500 }}>
-                    {habit.name}
-                  </Typography>{" "}
-                  {toFriendlyFrequency(habit)}.
-                </Typography>
+                <Alert
+                  severity="info"
+                  icon={false}
+                  sx={{
+                    mb: 2,
+                    borderRadius: 2,
+                    bgcolor: "action.hover",
+                    "& .MuiAlert-message": {
+                      width: "100%",
+                    },
+                  }}
+                >
+                  <Box sx={{ display: "flex", flexDirection: "column", gap: 0.5 }}>
+                    <Typography variant="body2">
+                      Goal: {toFriendlyFrequency(habit)}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      Total registrations: <strong>{registerCount}</strong>
+                    </Typography>
+                  </Box>
+                </Alert>
               )}
-              <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                You've registered this habit {registerCount} times.
-              </Typography>
+
               <SelectedHabitGraph habit={habit} />
               <SelectedHabitList habit={habit} />
             </Box>
