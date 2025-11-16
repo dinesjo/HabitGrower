@@ -1,5 +1,6 @@
-import { Box, Container, ToggleButton, ToggleButtonGroup, Typography, useTheme } from "@mui/material";
+import { Box, Container, Paper, ToggleButton, ToggleButtonGroup, Typography, useTheme } from "@mui/material";
 import { useMediaQuery } from "@mui/material";
+import { InsertChartOutlined } from "@mui/icons-material";
 import { BarChart } from "@mui/x-charts";
 import dayjs from "dayjs";
 import { useAtom } from "jotai";
@@ -58,10 +59,6 @@ export default function SelectedHabitGraph({ habit }: { habit: Habit }) {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const isTablet = useMediaQuery(theme.breakpoints.down('md'));
-  
-  // Calculate responsive width based on breakpoints
-  // Mobile (sm): ~300px, Tablet (md): ~330px, Desktop: 350px
-  const chartWidth = isMobile ? 300 : isTablet ? 330 : 350;
 
   // Memoize filtered dates to avoid recalculation on every render
   const filteredDates = useMemo(() => {
@@ -147,8 +144,37 @@ export default function SelectedHabitGraph({ habit }: { habit: Habit }) {
     return chartData;
   }, [aggregatedData, graphFrequencyUnit, userWeekStartsAtMonday, daysShown]);
 
-  if (!habit.dates) {
-    return null;
+  // Check if there's any data
+  const hasData = habit.dates && Object.keys(habit.dates).length > 0;
+
+  if (!hasData) {
+    return (
+      <>
+        <Container sx={{ my: 1, display: "flex", justifyContent: "center" }}>
+          <GraphControls />
+        </Container>
+        <Paper
+          elevation={0}
+          sx={{
+            p: 4,
+            my: 2,
+            textAlign: "center",
+            bgcolor: "action.hover",
+            borderRadius: 3,
+            border: "1px dashed",
+            borderColor: "divider",
+          }}
+        >
+          <InsertChartOutlined sx={{ fontSize: 48, color: "text.disabled", mb: 1 }} />
+          <Typography variant="body1" color="text.secondary" gutterBottom>
+            No data yet
+          </Typography>
+          <Typography variant="body2" color="text.disabled">
+            Register this habit to see your progress chart
+          </Typography>
+        </Paper>
+      </>
+    );
   }
 
   // Get max value in the dataSet
@@ -159,35 +185,55 @@ export default function SelectedHabitGraph({ habit }: { habit: Habit }) {
       <Container sx={{ my: 1, display: "flex", justifyContent: "center" }}>
         <GraphControls />
       </Container>
-      <Container disableGutters sx={{ display: "flex", justifyContent: "center" }}>
-        <BarChart
-          dataset={dateData}
-          width={chartWidth}
-          height={200}
-          margin={{ top: 20, right: 20, bottom: 30, left: 20 }} // remove excess margin
-          xAxis={[
-            {
-              dataKey: "period",
-              scaleType: "band",
-              valueFormatter: (value) => {
-                const dataPoint = dateData.find(d => d.period === value);
-                return dataPoint?.label || "";
+      <Container
+        disableGutters
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          width: "100%",
+          maxWidth: "100%",
+        }}
+      >
+        <Box
+          sx={{
+            width: "100%",
+            maxWidth: { xs: 320, sm: 400, md: 500 },
+            display: "flex",
+            justifyContent: "center",
+          }}
+        >
+          <BarChart
+            dataset={dateData}
+            width={isMobile ? 320 : isTablet ? 400 : 500}
+            height={220}
+            margin={{ top: 20, right: 10, bottom: 40, left: 30 }}
+            xAxis={[
+              {
+                dataKey: "period",
+                scaleType: "band",
+                valueFormatter: (value) => {
+                  const dataPoint = dateData.find(d => d.period === value);
+                  return dataPoint?.label || "";
+                },
               },
-            },
-          ]}
-          yAxis={[
-            {
-              dataKey: "value",
-              min: 0,
-              max: graphFrequencyUnit === "day" && habit.frequencyUnit === "day" 
-                ? Math.max(habit.frequency || 0, maxValue) 
-                : maxValue,
-              tickMinStep: 1, // will always be integers
-            },
-          ]}
-          series={[{ dataKey: "value", color: habit.color || "#90c65b" }]}
-          grid={{ horizontal: true }}
-        />
+            ]}
+            yAxis={[
+              {
+                dataKey: "value",
+                min: 0,
+                max: graphFrequencyUnit === "day" && habit.frequencyUnit === "day"
+                  ? Math.max(habit.frequency || 0, maxValue)
+                  : maxValue,
+                tickMinStep: 1, // will always be integers
+              },
+            ]}
+            series={[{ dataKey: "value", color: habit.color || "#90c65b" }]}
+            grid={{ horizontal: true }}
+            slotProps={{
+              legend: { hidden: true },
+            }}
+          />
+        </Box>
       </Container>
     </>
   );

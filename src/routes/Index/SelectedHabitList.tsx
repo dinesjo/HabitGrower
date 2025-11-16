@@ -1,4 +1,4 @@
-import { KeyboardArrowDownOutlined, KeyboardArrowUpOutlined, RemoveOutlined } from "@mui/icons-material";
+import { EventAvailableOutlined, KeyboardArrowDownOutlined, KeyboardArrowUpOutlined, RemoveOutlined } from "@mui/icons-material";
 import {
   Box,
   Button,
@@ -11,6 +11,7 @@ import {
   List,
   ListItem,
   ListItemText,
+  Paper,
   Slide,
   Typography,
 } from "@mui/material";
@@ -44,13 +45,36 @@ export default function SelectedHabitList({ habit }: { habit: Habit }) {
     if (!habit.dates) {
       return [];
     }
-    
+
     return Object.entries(habit.dates)
       .sort((a, b) => (sortDirection === "asc" ? ascending(a[0], b[0]) : descending(a[0], b[0])));
   }, [habit.dates, sortDirection]);
 
-  if (!habit.dates) {
-    return null;
+  const hasData = habit.dates && Object.keys(habit.dates).length > 0;
+
+  if (!hasData) {
+    return (
+      <Paper
+        elevation={0}
+        sx={{
+          p: 4,
+          my: 2,
+          textAlign: "center",
+          bgcolor: "action.hover",
+          borderRadius: 3,
+          border: "1px dashed",
+          borderColor: "divider",
+        }}
+      >
+        <EventAvailableOutlined sx={{ fontSize: 48, color: "text.disabled", mb: 1 }} />
+        <Typography variant="body1" color="text.secondary" gutterBottom>
+          No registrations yet
+        </Typography>
+        <Typography variant="body2" color="text.disabled">
+          Start tracking by registering this habit from the home screen
+        </Typography>
+      </Paper>
+    );
   }
 
   function handleOpen(date: string) {
@@ -92,7 +116,22 @@ export default function SelectedHabitList({ habit }: { habit: Habit }) {
           </DialogActions>
         </Form>
       </Dialog>
-      <List disablePadding dense sx={{ width: "100%" }}>
+      <List
+        disablePadding
+        dense
+        sx={{
+          width: "100%",
+          "& .MuiListItem-root": {
+            borderRadius: 2,
+            mb: 0.5,
+            transition: "all 0.2s ease-in-out",
+            "&:hover": {
+              bgcolor: "action.hover",
+              transform: "translateX(4px)",
+            },
+          },
+        }}
+      >
         {sortedEntries.map(([date]) => {
           const daysAgo = dayjs().startOf("day").diff(dayjs(date).startOf("day"), "days");
           const daysAgoFriendly = daysAgo === 0 ? "Today" : daysAgo === 1 ? "Yesterday" : `${daysAgo} days ago`;
@@ -109,6 +148,12 @@ export default function SelectedHabitList({ habit }: { habit: Habit }) {
                   color="error"
                   disabled={navigation.state === "submitting"}
                   onClick={() => handleOpen(date)}
+                  sx={{
+                    transition: "all 0.2s ease-in-out",
+                    "&:hover": {
+                      transform: "scale(1.1)",
+                    },
+                  }}
                 >
                   <RemoveOutlined />
                 </IconButton>

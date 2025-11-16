@@ -113,9 +113,12 @@ export default function EditHabitForm() {
               flexGrow: 1,
               pt: 1.5,
               px: 2,
+              pb: 10, // Add padding bottom to prevent content from being hidden behind sticky footer
               mx: "auto",
               maxWidth: 800,
               overflowY: "auto",
+              scrollbarWidth: "thin",
+              scrollbarColor: "#ccc #222",
             }}
           >
             <Grid2 container spacing={2}>
@@ -160,12 +163,55 @@ export default function EditHabitForm() {
                       label="Icon"
                       defaultValue={habit.icon}
                       renderValue={(icon) => {
-                        return <Box sx={{ height: "1em" }}>{iconMap[icon]}</Box>;
+                        return (
+                          <Box
+                            sx={{
+                              height: "1em",
+                              display: "flex",
+                              alignItems: "center",
+                              gap: 1,
+                            }}
+                          >
+                            {iconMap[icon]}
+                          </Box>
+                        );
+                      }}
+                      MenuProps={{
+                        PaperProps: {
+                          sx: {
+                            maxHeight: 400,
+                            "& .MuiMenuItem-root": {
+                              transition: "all 0.2s ease-in-out",
+                              borderRadius: 1,
+                              mx: 0.5,
+                              "&:hover": {
+                                bgcolor: "action.hover",
+                                transform: "scale(1.05)",
+                              },
+                            },
+                          },
+                        },
                       }}
                     >
                       {Object.keys(iconMap).map((icon) => (
-                        <MenuItem key={icon} value={icon}>
-                          {iconMap[icon]}
+                        <MenuItem
+                          key={icon}
+                          value={icon}
+                          sx={{
+                            display: "flex",
+                            justifyContent: "center",
+                            py: 1.5,
+                          }}
+                        >
+                          <Box
+                            sx={{
+                              fontSize: "1.5rem",
+                              display: "flex",
+                              alignItems: "center",
+                            }}
+                          >
+                            {iconMap[icon]}
+                          </Box>
                         </MenuItem>
                       ))}
                     </Select>
@@ -179,14 +225,64 @@ export default function EditHabitForm() {
                       label="Color"
                       defaultValue={habit.color || ""}
                       renderValue={(value) => {
-                        return <Typography sx={{ color: value }}>{toFriendlyString(value)}</Typography>;
+                        return (
+                          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                            {value && (
+                              <Box
+                                sx={{
+                                  width: 16,
+                                  height: 16,
+                                  borderRadius: "50%",
+                                  bgcolor: value,
+                                  border: "2px solid",
+                                  borderColor: "divider",
+                                }}
+                              />
+                            )}
+                            <Typography sx={{ color: value || "text.primary" }}>
+                              {value ? toFriendlyString(value) : "None"}
+                            </Typography>
+                          </Box>
+                        );
+                      }}
+                      MenuProps={{
+                        PaperProps: {
+                          sx: {
+                            "& .MuiMenuItem-root": {
+                              transition: "all 0.2s ease-in-out",
+                              borderRadius: 1,
+                              mx: 0.5,
+                              "&:hover": {
+                                bgcolor: "action.hover",
+                                transform: "translateX(4px)",
+                              },
+                            },
+                          },
+                        },
                       }}
                       fullWidth
                     >
-                      <MenuItem value="">None</MenuItem>
+                      <MenuItem value="">
+                        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                          <Box sx={{ width: 16, height: 16 }} />
+                          <Typography>None</Typography>
+                        </Box>
+                      </MenuItem>
                       {colorChoices.map((color) => (
-                        <MenuItem key={color} value={color} sx={{ color: color }}>
-                          {toFriendlyString(color)}
+                        <MenuItem key={color} value={color}>
+                          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                            <Box
+                              sx={{
+                                width: 16,
+                                height: 16,
+                                borderRadius: "50%",
+                                bgcolor: color,
+                                border: "2px solid",
+                                borderColor: "divider",
+                              }}
+                            />
+                            <Typography sx={{ color: color }}>{toFriendlyString(color)}</Typography>
+                          </Box>
                         </MenuItem>
                       ))}
                     </Select>
@@ -320,15 +416,21 @@ export default function EditHabitForm() {
           </Box>
         </Grow>
 
-        {/* Footer */}
+        {/* Footer - Sticky */}
         <Grow in={true} timeout={800}>
           <Box
             sx={{
+              position: "sticky",
+              bottom: 0,
               p: 2,
               borderTop: 1,
               borderColor: "divider",
+              bgcolor: "background.default",
               display: "flex",
               gap: 1,
+              boxShadow: "0 -2px 8px rgba(0, 0, 0, 0.1)",
+              backdropFilter: "blur(8px)",
+              zIndex: 10,
             }}
           >
             <Button

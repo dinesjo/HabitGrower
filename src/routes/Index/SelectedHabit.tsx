@@ -110,6 +110,7 @@ export default function SelectedHabit() {
                 flexGrow: 1,
                 pt: 1.5,
                 px: 2,
+                pb: 10, // Add padding bottom to prevent content from being hidden behind sticky footer
                 mx: "auto",
                 overflowY: "auto",
                 scrollbarWidth: "thin",
@@ -133,15 +134,21 @@ export default function SelectedHabit() {
             </Box>
           </Grow>
 
-          {/* Footer */}
+          {/* Footer - Sticky */}
           <Grow in={true} timeout={800}>
             <Box
               sx={{
+                position: "sticky",
+                bottom: 0,
                 p: 2,
                 borderTop: 1,
                 borderColor: "divider",
+                bgcolor: "background.default",
                 display: "flex",
                 gap: 1,
+                boxShadow: "0 -2px 8px rgba(0, 0, 0, 0.1)",
+                backdropFilter: "blur(8px)",
+                zIndex: 10,
               }}
             >
               <Button
