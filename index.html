@@ -4,42 +4,6 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <title>HabitGrower</title>
-    <script>
-      // Global error handler for debugging iOS Safari issues
-      window.addEventListener('error', function(e) {
-        // Ignore cross-origin script errors (common with service workers and external scripts)
-        // These show as "Script error." with no file/line information
-        if (e.message === 'Script error.' || (!e.filename && !e.lineno && !e.colno)) {
-          console.warn('Ignoring cross-origin script error (likely service worker or external script)');
-          return;
-        }
-
-        console.error('Global error:', e.error || e.message);
-        // Display error on page for debugging
-        var errorDiv = document.getElementById('error-display');
-        if (!errorDiv) {
-          errorDiv = document.createElement('div');
-          errorDiv.id = 'error-display';
-          errorDiv.style.cssText = 'position:fixed;top:0;left:0;right:0;background:red;color:white;padding:20px;z-index:9999;font-family:monospace;font-size:12px;max-height:50vh;overflow:auto;';
-          document.body.appendChild(errorDiv);
-        }
-        errorDiv.innerHTML += '<div style="border-bottom:1px solid white;padding:5px 0;"><strong>Error:</strong> ' + (e.error ? e.error.stack || e.error.message : e.message) + '<br><strong>File:</strong> ' + e.filename + ':' + e.lineno + '</div>';
-      });
-
-      window.addEventListener('unhandledrejection', function(e) {
-        console.error('Unhandled promise rejection:', e.reason);
-        var errorDiv = document.getElementById('error-display');
-        if (!errorDiv) {
-          errorDiv = document.createElement('div');
-          errorDiv.id = 'error-display';
-          errorDiv.style.cssText = 'position:fixed;top:0;left:0;right:0;background:orange;color:white;padding:20px;z-index:9999;font-family:monospace;font-size:12px;max-height:50vh;overflow:auto;';
-          document.body.appendChild(errorDiv);
-        }
-        errorDiv.innerHTML += '<div style="border-bottom:1px solid white;padding:5px 0;"><strong>Promise rejection:</strong> ' + (e.reason ? e.reason.stack || e.reason.message || e.reason : 'Unknown') + '</div>';
-      });
-
-      console.log('HabitGrower loading... Browser:', navigator.userAgent);
-    </script>
   </head>
   <body>
     <div id="root"></div>
