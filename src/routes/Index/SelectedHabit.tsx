@@ -3,6 +3,7 @@ import { Alert, AlertTitle, Avatar, Box, Button, Grow, Typography } from "@mui/m
 import { LoaderFunctionArgs, useLoaderData, useNavigate, useParams } from "react-router-dom";
 import BackButton from "../../components/BackButton";
 import DeleteHabitWithConfirm from "../../components/DeleteHabitWithConfirm";
+import HabitHeatmap from "../../components/HabitHeatmap";
 import HabitNotificationIndicator from "../../components/HabitNotificationIndicator";
 import { iconMap } from "../../constants/iconMap";
 import { fetchHabitById } from "../../services/habitsPersistance";
@@ -144,6 +145,7 @@ export default function SelectedHabit() {
               )}
 
               <SelectedHabitGraph habit={habit} />
+              <HabitHeatmap habit={habit} />
               <SelectedHabitList habit={habit} />
             </Box>
           </Grow>

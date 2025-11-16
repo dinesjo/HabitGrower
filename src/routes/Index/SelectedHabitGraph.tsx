@@ -1,6 +1,6 @@
-import { Box, Container, Paper, ToggleButton, ToggleButtonGroup, Typography, useTheme } from "@mui/material";
+import { Box, Container, Divider, Grid2, LinearProgress, Paper, ToggleButton, ToggleButtonGroup, Typography, useTheme } from "@mui/material";
 import { useMediaQuery } from "@mui/material";
-import { InsertChartOutlined } from "@mui/icons-material";
+import { InsertChartOutlined, TrendingUp, LocalFireDepartment, CalendarToday } from "@mui/icons-material";
 import { BarChart } from "@mui/x-charts";
 import dayjs from "dayjs";
 import { useAtom } from "jotai";
@@ -13,6 +13,59 @@ const daysShownMap: Record<number, string> = {
   30: "30 Days",
   90: "3 Months",
 } as const;
+
+// Helper function to calculate current streak
+function calculateStreak(dates: Record<string, boolean>): number {
+  const sortedDates = Object.keys(dates)
+    .filter((date) => dates[date])
+    .sort((a, b) => dayjs(b).diff(dayjs(a)));
+
+  if (sortedDates.length === 0) return 0;
+
+  let streak = 0;
+  let currentDate = dayjs().startOf("day");
+
+  for (const date of sortedDates) {
+    const checkDate = dayjs(date).startOf("day");
+    const daysDiff = currentDate.diff(checkDate, "day");
+
+    if (daysDiff === 0 || daysDiff === 1) {
+      streak++;
+      currentDate = checkDate;
+    } else {
+      break;
+    }
+  }
+
+  return streak;
+}
+
+// Helper function to calculate longest streak
+function calculateLongestStreak(dates: Record<string, boolean>): number {
+  const sortedDates = Object.keys(dates)
+    .filter((date) => dates[date])
+    .sort((a, b) => dayjs(a).diff(dayjs(b)));
+
+  if (sortedDates.length === 0) return 0;
+
+  let longestStreak = 1;
+  let currentStreak = 1;
+
+  for (let i = 1; i < sortedDates.length; i++) {
+    const prevDate = dayjs(sortedDates[i - 1]).startOf("day");
+    const currDate = dayjs(sortedDates[i]).startOf("day");
+    const daysDiff = currDate.diff(prevDate, "day");
+
+    if (daysDiff === 1) {
+      currentStreak++;
+      longestStreak = Math.max(longestStreak, currentStreak);
+    } else {
+      currentStreak = 1;
+    }
+  }
+
+  return longestStreak;
+}
 
 // Helper function to get period key for aggregation
 function getPeriodKey(date: dayjs.Dayjs, unit: "day" | "week" | "month", userWeekStartsAtMonday: boolean): string {
@@ -191,6 +244,37 @@ export default function SelectedHabitGraph({ habit }: { habit: Habit }) {
   // Get max value in the dataSet
   const maxValue = Math.max(...dateData.map((data) => data.value));
 
+  // Calculate stats
+  const stats = useMemo(() => {
+    if (!habit.dates) return null;
+
+    const totalRegistrations = Object.keys(habit.dates).length;
+    const completedDates = Object.keys(habit.dates).filter((date) => habit.dates![date]);
+    const avgPerDay = (completedDates.length / daysShown).toFixed(1);
+    const currentStreak = calculateStreak(habit.dates);
+    const longestStreak = calculateLongestStreak(habit.dates);
+
+    // Calculate completion percentage for current period
+    let completionPercentage = 0;
+    if (habit.frequency && habit.frequencyUnit && graphFrequencyUnit === "day") {
+      const targetPerPeriod = habit.frequency * daysShown;
+      completionPercentage = Math.min(100, Math.round((completedDates.length / targetPerPeriod) * 100));
+    }
+
+    return {
+      avgPerDay,
+      currentStreak,
+      longestStreak,
+      totalRegistrations,
+      completionPercentage,
+    };
+  }, [habit.dates, daysShown, habit.frequency, habit.frequencyUnit, graphFrequencyUnit]);
+
+  // Calculate target line value
+  const targetValue = habit.frequency && habit.frequencyUnit && graphFrequencyUnit === habit.frequencyUnit
+    ? habit.frequency
+    : null;
+
   return (
     <Paper
       elevation={0}
@@ -251,14 +335,163 @@ export default function SelectedHabitGraph({ habit }: { habit: Habit }) {
                 tickMinStep: 1, // will always be integers
               },
             ]}
-            series={[{ dataKey: "value", color: habit.color || "#90c65b" }]}
+            series={[{ dataKey: "value", color: habit.color || "#90c65b", label: "Completions" }]}
             grid={{ horizontal: true }}
             slotProps={{
               legend: { hidden: true },
             }}
-          />
+            sx={{
+              "& .MuiChartsReferenceLine-root": {
+                strokeDasharray: "5 5",
+                strokeWidth: 2,
+              },
+            }}
+          >
+            {targetValue && (
+              <text
+                x={isMobile ? 160 : isTablet ? 200 : 250}
+                y={15}
+                textAnchor="middle"
+                style={{
+                  fill: habit.color || "#90c65b",
+                  fontSize: "0.75rem",
+                  fontWeight: 600,
+                }}
+              >
+                Goal: {targetValue}
+              </text>
+            )}
+          </BarChart>
         </Box>
       </Container>
+
+      {/* Stats Section */}
+      {stats && (
+        <>
+          <Divider sx={{ my: 3 }} />
+
+          {/* Completion Progress Bar */}
+          {stats.completionPercentage > 0 && (
+            <Box sx={{ mb: 3 }}>
+              <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1 }}>
+                <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 600 }}>
+                  Period Progress
+                </Typography>
+                <Typography variant="h6" sx={{ fontWeight: 700, color: habit.color || "primary.main" }}>
+                  {stats.completionPercentage}%
+                </Typography>
+              </Box>
+              <LinearProgress
+                variant="determinate"
+                value={stats.completionPercentage}
+                sx={{
+                  height: 8,
+                  borderRadius: 4,
+                  bgcolor: "action.hover",
+                  "& .MuiLinearProgress-bar": {
+                    bgcolor: habit.color || "primary.main",
+                    borderRadius: 4,
+                  },
+                }}
+              />
+            </Box>
+          )}
+
+          {/* Stats Grid */}
+          <Grid2 container spacing={2}>
+            <Grid2 size={{ xs: 4, sm: 4 }}>
+              <Box
+                sx={{
+                  textAlign: "center",
+                  p: 2,
+                  borderRadius: 2,
+                  bgcolor: "action.hover",
+                  transition: "all 0.2s ease-in-out",
+                  "&:hover": {
+                    bgcolor: "action.selected",
+                    transform: "translateY(-2px)",
+                  },
+                }}
+              >
+                <TrendingUp sx={{ fontSize: 28, color: "primary.main", mb: 0.5 }} />
+                <Typography variant="h5" sx={{ fontWeight: 700, color: "text.primary", mb: 0.5 }}>
+                  {stats.avgPerDay}
+                </Typography>
+                <Typography variant="caption" color="text.secondary" sx={{ fontSize: "0.7rem" }}>
+                  Avg/Day
+                </Typography>
+              </Box>
+            </Grid2>
+
+            <Grid2 size={{ xs: 4, sm: 4 }}>
+              <Box
+                sx={{
+                  textAlign: "center",
+                  p: 2,
+                  borderRadius: 2,
+                  bgcolor: stats.currentStreak > 0 ? "success.light" : "action.hover",
+                  transition: "all 0.2s ease-in-out",
+                  "&:hover": {
+                    bgcolor: stats.currentStreak > 0 ? "success.main" : "action.selected",
+                    transform: "translateY(-2px)",
+                  },
+                }}
+              >
+                <LocalFireDepartment
+                  sx={{
+                    fontSize: 28,
+                    color: stats.currentStreak > 0 ? "error.main" : "text.disabled",
+                    mb: 0.5,
+                  }}
+                />
+                <Typography
+                  variant="h5"
+                  sx={{
+                    fontWeight: 700,
+                    color: stats.currentStreak > 0 ? "success.contrastText" : "text.primary",
+                    mb: 0.5,
+                  }}
+                >
+                  {stats.currentStreak}
+                </Typography>
+                <Typography
+                  variant="caption"
+                  sx={{
+                    fontSize: "0.7rem",
+                    color: stats.currentStreak > 0 ? "success.contrastText" : "text.secondary",
+                  }}
+                >
+                  Day Streak
+                </Typography>
+              </Box>
+            </Grid2>
+
+            <Grid2 size={{ xs: 4, sm: 4 }}>
+              <Box
+                sx={{
+                  textAlign: "center",
+                  p: 2,
+                  borderRadius: 2,
+                  bgcolor: "action.hover",
+                  transition: "all 0.2s ease-in-out",
+                  "&:hover": {
+                    bgcolor: "action.selected",
+                    transform: "translateY(-2px)",
+                  },
+                }}
+              >
+                <CalendarToday sx={{ fontSize: 28, color: "secondary.main", mb: 0.5 }} />
+                <Typography variant="h5" sx={{ fontWeight: 700, color: "text.primary", mb: 0.5 }}>
+                  {stats.longestStreak}
+                </Typography>
+                <Typography variant="caption" color="text.secondary" sx={{ fontSize: "0.7rem" }}>
+                  Best Streak
+                </Typography>
+              </Box>
+            </Grid2>
+          </Grid2>
+        </>
+      )}
     </Paper>
   );
 }

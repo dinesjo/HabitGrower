@@ -370,23 +370,52 @@ export default function IndexView() {
                           >
                             <Box sx={{ display: "flex", alignItems: "center" }}>
                               <ListItemAvatar sx={{ color: habit.color }}>
-                                <Badge
-                                  invisible={progress !== 100}
-                                  badgeContent={"Done!"}
-                                  color="success"
-                                  anchorOrigin={{ vertical: "top", horizontal: "right" }}
-                                >
-                                  <Avatar
+                                <Box sx={{ position: "relative", display: "inline-flex" }}>
+                                  {/* Circular Progress Indicator */}
+                                  <CircularProgress
+                                    variant="determinate"
+                                    value={registeredProgress}
+                                    size={56}
+                                    thickness={3}
                                     sx={{
-                                      bgcolor: habit.color || "text.primary",
-                                      width: 48,
-                                      height: 48,
-                                      fontSize: "1.5rem",
+                                      color: habit.color || "primary.main",
+                                      position: "absolute",
+                                      top: -4,
+                                      left: -4,
+                                      zIndex: 1,
                                     }}
+                                  />
+                                  {/* Background Circle */}
+                                  <CircularProgress
+                                    variant="determinate"
+                                    value={100}
+                                    size={56}
+                                    thickness={3}
+                                    sx={{
+                                      color: "action.hover",
+                                      position: "absolute",
+                                      top: -4,
+                                      left: -4,
+                                    }}
+                                  />
+                                  <Badge
+                                    invisible={progress !== 100}
+                                    badgeContent={"Done!"}
+                                    color="success"
+                                    anchorOrigin={{ vertical: "top", horizontal: "right" }}
                                   >
-                                    {iconMap[habit.icon]}
-                                  </Avatar>
-                                </Badge>
+                                    <Avatar
+                                      sx={{
+                                        bgcolor: habit.color || "text.primary",
+                                        width: 48,
+                                        height: 48,
+                                        fontSize: "1.5rem",
+                                      }}
+                                    >
+                                      {iconMap[habit.icon]}
+                                    </Avatar>
+                                  </Badge>
+                                </Box>
                               </ListItemAvatar>
                               <ListItemText
                                 primary={
