@@ -163,9 +163,9 @@ export default function SelectedHabitGraph({ habit }: { habit: Habit }) {
         <Typography variant="h6" sx={{ mb: 2, fontWeight: 600, color: "text.primary" }}>
           Progress Chart
         </Typography>
-        <Container sx={{ mb: 2, display: "flex", justifyContent: "center" }}>
+        <Box sx={{ mb: 3, display: "flex", justifyContent: "center", px: { xs: 0, sm: 2 } }}>
           <GraphControls />
-        </Container>
+        </Box>
         <Box
           sx={{
             p: 4,
@@ -206,9 +206,9 @@ export default function SelectedHabitGraph({ habit }: { habit: Habit }) {
       <Typography variant="h6" sx={{ mb: 2, fontWeight: 600, color: "text.primary" }}>
         Progress Chart
       </Typography>
-      <Container sx={{ mb: 2, display: "flex", justifyContent: "center" }}>
+      <Box sx={{ mb: 3, display: "flex", justifyContent: "center", px: { xs: 0, sm: 2 } }}>
         <GraphControls />
-      </Container>
+      </Box>
       <Container
         disableGutters
         sx={{
@@ -268,10 +268,10 @@ function GraphControls() {
   const [graphFrequencyUnit, setGraphFrequencyUnit] = useAtom(graphFrequencyUnitAtom);
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, width: '100%', maxWidth: 500 }}>
       <Box>
-        <Typography variant="subtitle2" color="primary.main">
-          Time span:
+        <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1, fontSize: '0.75rem', fontWeight: 600 }}>
+          TIME SPAN
         </Typography>
         <ToggleButtonGroup
           color="primary"
@@ -282,18 +282,42 @@ function GraphControls() {
             if (v) setDaysShown(v);
           }}
           aria-label="Time span"
+          fullWidth
+          sx={{
+            "& .MuiToggleButton-root": {
+              py: 1,
+              px: 2,
+              fontSize: '0.875rem',
+              fontWeight: 500,
+              textTransform: 'none',
+              borderRadius: 1.5,
+              transition: 'all 0.2s ease-in-out',
+              "&.Mui-selected": {
+                bgcolor: 'primary.main',
+                color: 'primary.contrastText',
+                fontWeight: 600,
+                "&:hover": {
+                  bgcolor: 'primary.dark',
+                },
+              },
+              "&:hover": {
+                bgcolor: 'action.hover',
+              },
+            },
+            gap: 0.5,
+          }}
         >
-          {Object.entries(daysShownMap).map(([days, icon]) => (
+          {Object.entries(daysShownMap).map(([days, label]) => (
             <ToggleButton key={days} value={Number(days)}>
-              {icon}
+              {label}
             </ToggleButton>
           ))}
         </ToggleButtonGroup>
       </Box>
-      
+
       <Box>
-        <Typography variant="subtitle2" color="primary.main">
-          Group by:
+        <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1, fontSize: '0.75rem', fontWeight: 600 }}>
+          GROUP BY
         </Typography>
         <ToggleButtonGroup
           color="primary"
@@ -304,6 +328,30 @@ function GraphControls() {
             if (v) setGraphFrequencyUnit(v);
           }}
           aria-label="Frequency unit"
+          fullWidth
+          sx={{
+            "& .MuiToggleButton-root": {
+              py: 1,
+              px: 2,
+              fontSize: '0.875rem',
+              fontWeight: 500,
+              textTransform: 'none',
+              borderRadius: 1.5,
+              transition: 'all 0.2s ease-in-out',
+              "&.Mui-selected": {
+                bgcolor: 'primary.main',
+                color: 'primary.contrastText',
+                fontWeight: 600,
+                "&:hover": {
+                  bgcolor: 'primary.dark',
+                },
+              },
+              "&:hover": {
+                bgcolor: 'action.hover',
+              },
+            },
+            gap: 0.5,
+          }}
         >
           <ToggleButton value="day">Day</ToggleButton>
           <ToggleButton value="week">Week</ToggleButton>
