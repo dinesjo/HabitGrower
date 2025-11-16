@@ -14,6 +14,9 @@ export default defineConfig({
     react(),
     mkcert(),
     VitePWA({
+      registerType: 'autoUpdate',
+      injectRegister: false,  // Completely disable auto-registration
+      selfDestroying: true,   // Unregister any existing service worker
       manifest: {
         name: "HabitGrower",
         short_name: "HabitGrower",
