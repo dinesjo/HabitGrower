@@ -339,10 +339,10 @@ export default function IndexView() {
                             <Box sx={{ display: "flex", alignItems: "center" }}>
                               <ListItemAvatar sx={{ color: habit.color }}>
                                 <Box sx={{ position: "relative", display: "inline-flex" }}>
-                                  {/* Circular Progress Indicator */}
+                                  {/* Circular Progress Indicator - shows preview when checked */}
                                   <CircularProgress
                                     variant="determinate"
-                                    value={registeredProgress}
+                                    value={progress}
                                     size={56}
                                     thickness={3}
                                     sx={{
@@ -351,6 +351,7 @@ export default function IndexView() {
                                       top: -4,
                                       left: -4,
                                       zIndex: 1,
+                                      transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
                                     }}
                                   />
                                   {/* Background Circle */}
