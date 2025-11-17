@@ -22,9 +22,17 @@ export default function HabitHeatmap({ habit, months = 3 }: HabitHeatmapProps) {
 
     while (currentDate.isBefore(endDate) || currentDate.isSame(endDate, "day")) {
       const dateKey = currentDate.format("YYYY-MM-DD");
-      // Check if date exists in habit.dates and is truthy (true or 1)
-      // False values mean unregistered, undefined means never registered
-      const count = habit.dates?.[dateKey] ? 1 : 0;
+
+      // Check if ANY timestamp on this day has a registration
+      // Dates are stored as ISO timestamps (e.g., "2025-01-15T10:00:00Z")
+      const hasRegistrationOnDay = habit.dates
+        ? Object.keys(habit.dates).some((timestamp) => {
+            const timestampDay = dayjs(timestamp).format("YYYY-MM-DD");
+            return timestampDay === dateKey && habit.dates![timestamp];
+          })
+        : false;
+
+      const count = hasRegistrationOnDay ? 1 : 0;
 
       // Calculate week index
       if (currentDate.diff(currentWeekStart, "day") >= 7) {

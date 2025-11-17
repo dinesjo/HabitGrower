@@ -14,19 +14,24 @@ const daysShownMap: Record<number, string> = {
   90: "3 Months",
 } as const;
 
-// Helper function to calculate current streak
-function calculateStreak(dates: Record<string, boolean>): number {
-  const sortedDates = Object.keys(dates)
-    .filter((date) => dates[date])
-    .sort((a, b) => dayjs(b).diff(dayjs(a)));
+// Helper function to calculate current streak - counts consecutive DAYS, not registrations
+function calculateStreak(dates: Record<string, boolean | number>): number {
+  // Get unique days (not timestamps) where there are registrations
+  const uniqueDays = new Set(
+    Object.keys(dates)
+      .filter((dateStr) => dates[dateStr])
+      .map((dateStr) => dayjs(dateStr).format("YYYY-MM-DD"))
+  );
 
-  if (sortedDates.length === 0) return 0;
+  const sortedDays = Array.from(uniqueDays).sort((a, b) => dayjs(b).diff(dayjs(a)));
+
+  if (sortedDays.length === 0) return 0;
 
   let streak = 0;
   let currentDate = dayjs().startOf("day");
 
-  for (const date of sortedDates) {
-    const checkDate = dayjs(date).startOf("day");
+  for (const day of sortedDays) {
+    const checkDate = dayjs(day).startOf("day");
     const daysDiff = currentDate.diff(checkDate, "day");
 
     if (daysDiff === 0 || daysDiff === 1) {
@@ -40,20 +45,25 @@ function calculateStreak(dates: Record<string, boolean>): number {
   return streak;
 }
 
-// Helper function to calculate longest streak
-function calculateLongestStreak(dates: Record<string, boolean>): number {
-  const sortedDates = Object.keys(dates)
-    .filter((date) => dates[date])
-    .sort((a, b) => dayjs(a).diff(dayjs(b)));
+// Helper function to calculate longest streak - counts consecutive DAYS, not registrations
+function calculateLongestStreak(dates: Record<string, boolean | number>): number {
+  // Get unique days (not timestamps) where there are registrations
+  const uniqueDays = new Set(
+    Object.keys(dates)
+      .filter((dateStr) => dates[dateStr])
+      .map((dateStr) => dayjs(dateStr).format("YYYY-MM-DD"))
+  );
 
-  if (sortedDates.length === 0) return 0;
+  const sortedDays = Array.from(uniqueDays).sort((a, b) => dayjs(a).diff(dayjs(b)));
+
+  if (sortedDays.length === 0) return 0;
 
   let longestStreak = 1;
   let currentStreak = 1;
 
-  for (let i = 1; i < sortedDates.length; i++) {
-    const prevDate = dayjs(sortedDates[i - 1]).startOf("day");
-    const currDate = dayjs(sortedDates[i]).startOf("day");
+  for (let i = 1; i < sortedDays.length; i++) {
+    const prevDate = dayjs(sortedDays[i - 1]).startOf("day");
+    const currDate = dayjs(sortedDays[i]).startOf("day");
     const daysDiff = currDate.diff(prevDate, "day");
 
     if (daysDiff === 1) {
@@ -248,17 +258,28 @@ export default function SelectedHabitGraph({ habit }: { habit: Habit }) {
   const stats = useMemo(() => {
     if (!habit.dates) return null;
 
-    // Use filteredDates (already filtered by daysShown period) instead of all dates
-    const completedDatesInPeriod = Object.keys(filteredDates).filter((date) => filteredDates[date]);
-    const avgPerDay = (completedDatesInPeriod.length / daysShown).toFixed(1);
+    // Sum up total registrations in the period (values can be numbers for multiple registrations)
+    const totalRegistrationsInPeriod = Object.values(filteredDates).reduce(
+      (sum, val) => sum + Number(val || 0),
+      0
+    );
+
+    // Average registrations per day
+    const avgPerDay = (totalRegistrationsInPeriod / daysShown).toFixed(1);
+
+    // Streaks count consecutive DAYS (not total registrations)
     const currentStreak = calculateStreak(habit.dates);
     const longestStreak = calculateLongestStreak(habit.dates);
 
-    // Calculate completion percentage for current period
+    // Calculate completion percentage for current period based on total registrations
     let completionPercentage = 0;
-    if (habit.frequency && habit.frequencyUnit && graphFrequencyUnit === "day") {
-      const targetPerPeriod = habit.frequency * daysShown;
-      completionPercentage = Math.min(100, Math.round((completedDatesInPeriod.length / targetPerPeriod) * 100));
+    if (habit.frequency && habit.frequencyUnit) {
+      // For daily goals, multiply frequency by number of days
+      // For weekly/monthly goals in a daily view, this might need adjustment
+      const targetPerPeriod = habit.frequencyUnit === "day"
+        ? habit.frequency * daysShown
+        : habit.frequency; // For week/month goals shown in multi-day view
+      completionPercentage = Math.min(100, Math.round((totalRegistrationsInPeriod / targetPerPeriod) * 100));
     }
 
     return {
