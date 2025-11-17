@@ -260,11 +260,6 @@ export default function IndexView() {
                               boxShadow: "0 8px 24px rgba(0,0,0,0.12)",
                             },
                           },
-                          // Mobile-friendly press effects
-                          "&:active": {
-                            transform: "scale(0.98)",
-                            transition: "transform 0.1s ease-out",
-                          },
                           ...(registeredProgress === 100
                             ? {
                                 "div:not(.MuiSvgIcon-root) div": {
@@ -334,37 +329,10 @@ export default function IndexView() {
                               "@media (hover: hover) and (pointer: fine)": {
                                 "&:hover": {
                                   bgcolor: "action.hover",
-                                  transform: "translateY(-1px)",
-                                  boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
                                 },
                               },
-                              // Mobile touch feedback - immediate and satisfying
-                              "&:active": {
-                                bgcolor: "action.selected",
-                                transform: "scale(0.98)",
-                                transition: "all 0.1s ease-out",
-                              },
-                              // Enhanced ripple effect for touch devices
-                              "&::after": {
-                                content: '""',
-                                position: "absolute",
-                                top: 0,
-                                left: 0,
-                                width: "100%",
-                                height: "100%",
-                                background: `radial-gradient(circle at center, ${habit.color}30 0%, transparent 70%)`,
-                                opacity: 0,
-                                transform: "scale(0)",
-                                transition:
-                                  "transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
-                                pointerEvents: "none",
-                                borderRadius: "inherit",
-                              },
-                              "&:active::after": {
-                                opacity: 1,
-                                transform: "scale(2)",
-                                transition: "transform 0.6s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.1s ease-out",
-                              },
+                              // Use MUI's built-in ripple for consistent touch feedback
+                              // No custom :active styles to prevent scroll highlighting
                             }}
                             onClick={() => navigate(`/${habit.id}`)}
                           >

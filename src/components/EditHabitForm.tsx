@@ -1,4 +1,4 @@
-import { ColorLens, EditNotificationsOutlined, EventRepeat, NotificationsOutlined, Save } from "@mui/icons-material";
+import { ColorLens, EditNotificationsOutlined, EventRepeat, NotificationsOutlined, Save, Notifications } from "@mui/icons-material";
 import {
   Alert,
   Box,
@@ -412,6 +412,33 @@ export default function EditHabitForm() {
                 />
                 <input type="hidden" name="notificationTime" value={notificationTime || ""} />
               </Grid2>
+
+              {/* Notification Preview */}
+              {notificationsEnabled && notificationTime && (
+                <Grid2 size={12}>
+                  <NotificationPreview habit={habit} />
+                </Grid2>
+              )}
+
+              {/* Test Notification Button */}
+              {notificationsEnabled && notificationTime && (
+                <Grid2 size={12}>
+                  <Button
+                    variant="outlined"
+                    startIcon={<Notifications />}
+                    fullWidth
+                    onClick={() => sendTestNotification(habit)}
+                    sx={{
+                      borderRadius: 2,
+                      textTransform: "none",
+                      py: 1.5,
+                      borderStyle: "dashed",
+                    }}
+                  >
+                    Send Test Notification
+                  </Button>
+                </Grid2>
+              )}
             </Grid2>
           </Box>
         </Grow>
@@ -462,6 +489,140 @@ export default function EditHabitForm() {
       </Form>
     </Box>
   );
+}
+
+function NotificationPreview({ habit }: { habit: Habit }) {
+  const getFrequencyUnitFriendly = (unit?: string) => {
+    switch (unit) {
+      case "day":
+        return "today";
+      case "week":
+        return "this week";
+      case "month":
+        return "this month";
+      default:
+        return "";
+    }
+  };
+
+  // Calculate a sample progress percentage (use current progress or 50% as example)
+  const sampleProgress = habit.frequency && habit.frequencyUnit ? "50" : "0";
+
+  return (
+    <Box
+      sx={{
+        border: "1px solid",
+        borderColor: "divider",
+        borderRadius: 2,
+        p: 2,
+        bgcolor: "action.hover",
+      }}
+    >
+      <Typography variant="caption" color="text.secondary" sx={{ mb: 1, display: "block", fontWeight: 600 }}>
+        Notification Preview
+      </Typography>
+      <Box
+        sx={{
+          bgcolor: "background.paper",
+          borderRadius: 1.5,
+          p: 2,
+          boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+          display: "flex",
+          gap: 2,
+          alignItems: "start",
+        }}
+      >
+        {/* Notification Icon */}
+        <Box
+          sx={{
+            width: 48,
+            height: 48,
+            borderRadius: 1,
+            bgcolor: habit.color || "primary.main",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            flexShrink: 0,
+            fontSize: "1.5rem",
+          }}
+        >
+          {iconMap[habit.icon]}
+        </Box>
+
+        {/* Notification Content */}
+        <Box sx={{ flex: 1, minWidth: 0 }}>
+          <Typography variant="body2" sx={{ fontWeight: 600, mb: 0.5, color: "text.primary" }}>
+            {habit.name}
+          </Typography>
+          <Typography variant="caption" color="text.secondary" sx={{ display: "block", mb: 1 }}>
+            {sampleProgress}% complete{habit.frequencyUnit ? ` ${getFrequencyUnitFriendly(habit.frequencyUnit)}` : ""}
+          </Typography>
+          <Button
+            size="small"
+            variant="text"
+            sx={{
+              textTransform: "none",
+              fontSize: "0.75rem",
+              minWidth: "auto",
+              px: 1,
+              py: 0.5,
+              color: "primary.main",
+            }}
+          >
+            Register now
+          </Button>
+        </Box>
+
+        {/* Time badge */}
+        <Typography variant="caption" color="text.disabled" sx={{ fontSize: "0.7rem" }}>
+          now
+        </Typography>
+      </Box>
+    </Box>
+  );
+}
+
+async function sendTestNotification(habit: Habit) {
+  if (!("Notification" in window)) {
+    alert("This browser does not support notifications");
+    return;
+  }
+
+  if (Notification.permission !== "granted") {
+    alert("Please grant notification permissions first");
+    return;
+  }
+
+  const getFrequencyUnitFriendly = (unit?: string) => {
+    switch (unit) {
+      case "day":
+        return "today";
+      case "week":
+        return "this week";
+      case "month":
+        return "this month";
+      default:
+        return "";
+    }
+  };
+
+  const sampleProgress = "50";
+  const body = `${sampleProgress}% complete${habit.frequencyUnit ? ` ${getFrequencyUnitFriendly(habit.frequencyUnit)}` : ""}`;
+
+  try {
+    const notification = new Notification(habit.name, {
+      body,
+      icon: `/${habit.icon}.svg`,
+      badge: "/pwa-192x192.png",
+      tag: habit.id,
+    });
+
+    // Auto-close after 5 seconds
+    setTimeout(() => notification.close(), 5000);
+  } catch (error) {
+    console.error("Failed to send test notification:", error);
+    alert("Failed to send test notification. Please check browser permissions.");
+  }
 }
 
 function NotificationsPermissionAlert() {
