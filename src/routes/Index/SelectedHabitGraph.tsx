@@ -248,9 +248,9 @@ export default function SelectedHabitGraph({ habit }: { habit: Habit }) {
   const stats = useMemo(() => {
     if (!habit.dates) return null;
 
-    const totalRegistrations = Object.keys(habit.dates).length;
-    const completedDates = Object.keys(habit.dates).filter((date) => habit.dates![date]);
-    const avgPerDay = (completedDates.length / daysShown).toFixed(1);
+    // Use filteredDates (already filtered by daysShown period) instead of all dates
+    const completedDatesInPeriod = Object.keys(filteredDates).filter((date) => filteredDates[date]);
+    const avgPerDay = (completedDatesInPeriod.length / daysShown).toFixed(1);
     const currentStreak = calculateStreak(habit.dates);
     const longestStreak = calculateLongestStreak(habit.dates);
 
@@ -258,17 +258,16 @@ export default function SelectedHabitGraph({ habit }: { habit: Habit }) {
     let completionPercentage = 0;
     if (habit.frequency && habit.frequencyUnit && graphFrequencyUnit === "day") {
       const targetPerPeriod = habit.frequency * daysShown;
-      completionPercentage = Math.min(100, Math.round((completedDates.length / targetPerPeriod) * 100));
+      completionPercentage = Math.min(100, Math.round((completedDatesInPeriod.length / targetPerPeriod) * 100));
     }
 
     return {
       avgPerDay,
       currentStreak,
       longestStreak,
-      totalRegistrations,
       completionPercentage,
     };
-  }, [habit.dates, daysShown, habit.frequency, habit.frequencyUnit, graphFrequencyUnit]);
+  }, [filteredDates, daysShown, habit.dates, habit.frequency, habit.frequencyUnit, graphFrequencyUnit]);
 
   // Calculate target line value
   const targetValue = habit.frequency && habit.frequencyUnit && graphFrequencyUnit === habit.frequencyUnit

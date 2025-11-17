@@ -22,7 +22,9 @@ export default function HabitHeatmap({ habit, months = 3 }: HabitHeatmapProps) {
 
     while (currentDate.isBefore(endDate) || currentDate.isSame(endDate, "day")) {
       const dateKey = currentDate.format("YYYY-MM-DD");
-      const count = habit.dates && habit.dates[dateKey] ? 1 : 0;
+      // Check if date exists in habit.dates and is truthy (true or 1)
+      // False values mean unregistered, undefined means never registered
+      const count = habit.dates?.[dateKey] ? 1 : 0;
 
       // Calculate week index
       if (currentDate.diff(currentWeekStart, "day") >= 7) {
@@ -54,10 +56,6 @@ export default function HabitHeatmap({ habit, months = 3 }: HabitHeatmapProps) {
   // Day labels
   const dayLabels = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
-  // Calculate cell size based on screen width
-  const cellSize = 12;
-  const cellGap = 2;
-
   return (
     <Paper
       elevation={0}
@@ -68,26 +66,26 @@ export default function HabitHeatmap({ habit, months = 3 }: HabitHeatmapProps) {
         border: "1px solid",
         borderColor: "divider",
         bgcolor: "background.paper",
-        overflowX: "auto",
       }}
     >
       <Typography variant="h6" sx={{ mb: 2, fontWeight: 600, color: "text.primary" }}>
         Activity Heatmap
       </Typography>
 
-      <Box sx={{ display: "flex", gap: 1 }}>
+      <Box sx={{ display: "flex", gap: 1, overflowX: "auto", pb: 1 }}>
         {/* Day labels */}
-        <Box sx={{ display: "flex", flexDirection: "column", gap: `${cellGap}px`, pt: 2 }}>
+        <Box sx={{ display: "flex", flexDirection: "column", gap: "2px", pt: "20px", flexShrink: 0 }}>
           {dayLabels.map((day) => (
             <Typography
               key={day}
               variant="caption"
               sx={{
                 fontSize: "0.65rem",
-                height: cellSize,
+                height: 12,
                 display: "flex",
                 alignItems: "center",
                 color: "text.secondary",
+                lineHeight: 1,
               }}
             >
               {day}
@@ -96,31 +94,32 @@ export default function HabitHeatmap({ habit, months = 3 }: HabitHeatmapProps) {
         </Box>
 
         {/* Heatmap grid */}
-        <Box sx={{ display: "flex", gap: `${cellGap}px`, flexWrap: "nowrap" }}>
+        <Box sx={{ display: "flex", gap: "2px", flexWrap: "nowrap", flex: 1, minWidth: 0 }}>
           {weekGroups.map((week, weekIdx) => (
-            <Box key={weekIdx} sx={{ display: "flex", flexDirection: "column", gap: `${cellGap}px` }}>
+            <Box key={weekIdx} sx={{ display: "flex", flexDirection: "column", gap: "2px", flex: 1 }}>
               {/* Month label above first week of each month */}
               {weekIdx === 0 || dayjs(week[0]?.date).date() <= 7 ? (
                 <Typography
                   variant="caption"
                   sx={{
                     fontSize: "0.65rem",
-                    height: cellSize,
+                    height: 12,
                     color: "text.secondary",
                     textAlign: "center",
+                    lineHeight: 1,
                   }}
                 >
                   {dayjs(week[0]?.date).format("MMM")}
                 </Typography>
               ) : (
-                <Box sx={{ height: cellSize }} />
+                <Box sx={{ height: 12 }} />
               )}
 
               {/* Days in this week */}
               {Array.from({ length: 7 }, (_, dayIdx) => {
                 const dayData = week.find((d) => d.dayOfWeek === dayIdx);
                 if (!dayData) {
-                  return <Box key={dayIdx} sx={{ width: cellSize, height: cellSize }} />;
+                  return <Box key={dayIdx} sx={{ width: "100%", height: 12 }} />;
                 }
 
                 const cellColor = dayData.count > 0
@@ -142,8 +141,9 @@ export default function HabitHeatmap({ habit, months = 3 }: HabitHeatmapProps) {
                   >
                     <Box
                       sx={{
-                        width: cellSize,
-                        height: cellSize,
+                        width: "100%",
+                        height: 12,
+                        minWidth: 12,
                         bgcolor: cellColor,
                         opacity: dayData.count > 0 ? 1 : 0.3,
                         borderRadius: 0.5,
@@ -173,8 +173,8 @@ export default function HabitHeatmap({ habit, months = 3 }: HabitHeatmapProps) {
           <Box
             key={level}
             sx={{
-              width: cellSize,
-              height: cellSize,
+              width: 12,
+              height: 12,
               bgcolor: level > 0 ? habit.color || "primary.main" : "action.hover",
               opacity: level > 0 ? 1 : 0.3,
               borderRadius: 0.5,
