@@ -103,7 +103,7 @@ export default function AccountView() {
         </Box>
       </Grow>
 
-      {/* Footer Section */}
+      {/* Footer Section - Anchored to bottom */}
       <Grow in={true} timeout={800}>
         <Box
           sx={{
@@ -112,6 +112,7 @@ export default function AccountView() {
             bgcolor: "background.paper",
             borderTop: 1,
             borderColor: "divider",
+            mt: "auto", // Push to bottom
           }}
         >
           <Form method="post" action="signout" style={{ display: "flex", justifyContent: "center" }}>

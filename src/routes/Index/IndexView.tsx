@@ -232,14 +232,14 @@ export default function IndexView() {
                 },
               }}
             >
-              {sortedHabits.map((habit, index) => {
+              {sortedHabits.map((habit) => {
                 const isChecked = checkedHabitIds.includes(habit.id);
                 const progress = getProgress(habit, isChecked, userWeekStartsAtMonday);
                 const registeredProgress = getProgress(habit, false, userWeekStartsAtMonday);
                 const progressBuffer = getProgressBuffer(habit, dayStartsAt, userWeekStartsAtMonday);
                 const isFirstCompletedHabit = habit.id === firstCompletedHabitId;
                 return (
-                  <Grow key={habit.id} in={true} timeout={300 + index * 100} style={{ transformOrigin: "0 0 0" }}>
+                  <Grow key={habit.id} in={true} timeout={300} style={{ transformOrigin: "0 0 0" }}>
                     <Box sx={{ mb: 1.5 }}>
                       {isFirstCompletedHabit && (
                         <Divider sx={{ my: 2 }}>

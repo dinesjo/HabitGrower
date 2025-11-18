@@ -1,4 +1,4 @@
-import { Box, Container, Divider, Grid2, LinearProgress, Paper, ToggleButton, ToggleButtonGroup, Typography, useTheme } from "@mui/material";
+import { Box, Container, Divider, Grid2, Paper, ToggleButton, ToggleButtonGroup, Typography, useTheme } from "@mui/material";
 import { useMediaQuery } from "@mui/material";
 import { InsertChartOutlined, TrendingUp, LocalFireDepartment, CalendarToday } from "@mui/icons-material";
 import { BarChart } from "@mui/x-charts";
@@ -271,24 +271,12 @@ export default function SelectedHabitGraph({ habit }: { habit: Habit }) {
     const currentStreak = calculateStreak(habit.dates);
     const longestStreak = calculateLongestStreak(habit.dates);
 
-    // Calculate completion percentage for current period based on total registrations
-    let completionPercentage = 0;
-    if (habit.frequency && habit.frequencyUnit) {
-      // For daily goals, multiply frequency by number of days
-      // For weekly/monthly goals in a daily view, this might need adjustment
-      const targetPerPeriod = habit.frequencyUnit === "day"
-        ? habit.frequency * daysShown
-        : habit.frequency; // For week/month goals shown in multi-day view
-      completionPercentage = Math.min(100, Math.round((totalRegistrationsInPeriod / targetPerPeriod) * 100));
-    }
-
     return {
       avgPerDay,
       currentStreak,
       longestStreak,
-      completionPercentage,
     };
-  }, [filteredDates, daysShown, habit.dates, habit.frequency, habit.frequencyUnit, graphFrequencyUnit]);
+  }, [filteredDates, daysShown, habit.dates]);
 
   // Calculate target line value
   const targetValue = habit.frequency && habit.frequencyUnit && graphFrequencyUnit === habit.frequencyUnit
@@ -389,33 +377,6 @@ export default function SelectedHabitGraph({ habit }: { habit: Habit }) {
       {stats && (
         <>
           <Divider sx={{ my: 3 }} />
-
-          {/* Completion Progress Bar */}
-          {stats.completionPercentage > 0 && (
-            <Box sx={{ mb: 3 }}>
-              <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1 }}>
-                <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 600 }}>
-                  Period Progress
-                </Typography>
-                <Typography variant="h6" sx={{ fontWeight: 700, color: habit.color || "primary.main" }}>
-                  {stats.completionPercentage}%
-                </Typography>
-              </Box>
-              <LinearProgress
-                variant="determinate"
-                value={stats.completionPercentage}
-                sx={{
-                  height: 8,
-                  borderRadius: 4,
-                  bgcolor: "action.hover",
-                  "& .MuiLinearProgress-bar": {
-                    bgcolor: habit.color || "primary.main",
-                    borderRadius: 4,
-                  },
-                }}
-              />
-            </Box>
-          )}
 
           {/* Stats Grid */}
           <Grid2 container spacing={2}>
@@ -521,7 +482,7 @@ function GraphControls() {
   const [graphFrequencyUnit, setGraphFrequencyUnit] = useAtom(graphFrequencyUnitAtom);
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, width: '100%', maxWidth: 500 }}>
+    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, width: '100%', maxWidth: 480, px: 1 }}>
       <Box>
         <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1, fontSize: '0.75rem', fontWeight: 600 }}>
           TIME SPAN
@@ -538,9 +499,9 @@ function GraphControls() {
           fullWidth
           sx={{
             "& .MuiToggleButton-root": {
-              py: 1,
-              px: 2,
-              fontSize: '0.875rem',
+              py: 0.75,
+              px: 1.5,
+              fontSize: '0.8rem',
               fontWeight: 500,
               textTransform: 'none',
               borderRadius: 1.5,
@@ -584,9 +545,9 @@ function GraphControls() {
           fullWidth
           sx={{
             "& .MuiToggleButton-root": {
-              py: 1,
-              px: 2,
-              fontSize: '0.875rem',
+              py: 0.75,
+              px: 1.5,
+              fontSize: '0.8rem',
               fontWeight: 500,
               textTransform: 'none',
               borderRadius: 1.5,
