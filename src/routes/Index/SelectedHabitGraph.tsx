@@ -298,7 +298,7 @@ export default function SelectedHabitGraph({ habit }: { habit: Habit }) {
       <Typography variant="h6" sx={{ mb: 2, fontWeight: 600, color: "text.primary" }}>
         Progress Chart
       </Typography>
-      <Box sx={{ mb: 3, display: "flex", justifyContent: "center", px: { xs: 0, sm: 2 } }}>
+      <Box sx={{ mb: 3, display: "flex", justifyContent: "center" }}>
         <GraphControls />
       </Box>
       <Container
@@ -482,7 +482,7 @@ function GraphControls() {
   const [graphFrequencyUnit, setGraphFrequencyUnit] = useAtom(graphFrequencyUnitAtom);
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, width: '100%', maxWidth: 480, px: 1 }}>
+    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, width: '100%', maxWidth: 400 }}>
       <Box>
         <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1, fontSize: '0.75rem', fontWeight: 600 }}>
           TIME SPAN

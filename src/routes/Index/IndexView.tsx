@@ -251,11 +251,11 @@ export default function IndexView() {
                         sx={{
                           borderRadius: 2,
                           overflow: "hidden",
-                          transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+                          // Only transition properties needed for hover effects
+                          transition: "transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
                           // Desktop-only hover effects
                           "@media (hover: hover) and (pointer: fine)": {
                             "&:hover": {
-                              elevation: 2,
                               transform: "translateY(-2px)",
                               boxShadow: "0 8px 24px rgba(0,0,0,0.12)",
                             },
@@ -324,7 +324,8 @@ export default function IndexView() {
                               borderRadius: 2,
                               position: "relative",
                               overflow: "hidden",
-                              transition: "all 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
+                              // Only transition background for hover
+                              transition: "background-color 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
                               // Desktop hover effects (only show on non-touch devices)
                               "@media (hover: hover) and (pointer: fine)": {
                                 "&:hover": {
@@ -351,7 +352,6 @@ export default function IndexView() {
                                       top: -4,
                                       left: -4,
                                       zIndex: 1,
-                                      transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
                                     }}
                                   />
                                   {/* Background Circle */}

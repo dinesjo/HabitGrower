@@ -53,8 +53,8 @@ export default function AccountView() {
       sx={{
         display: "flex",
         flexDirection: "column",
+        minHeight: "100%",
         height: "100%",
-        overflow: "hidden",
       }}
     >
       {/* Header Section */}
