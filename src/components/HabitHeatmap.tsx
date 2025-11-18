@@ -14,7 +14,7 @@ export default function HabitHeatmap({ habit, months = 3 }: HabitHeatmapProps) {
   const generateHeatmapData = () => {
     const data: { date: string; count: number; dayOfWeek: number; week: number }[] = [];
     const startDate = dayjs().subtract(months, "month").startOf("week");
-    const endDate = dayjs().endOf("week");
+    const endDate = dayjs().endOf("day"); // End with current day, not end of week
 
     let currentDate = startDate;
     let weekIndex = 0;
