@@ -239,40 +239,38 @@ export default function IndexView() {
                 const progressBuffer = getProgressBuffer(habit, dayStartsAt, userWeekStartsAtMonday);
                 const isFirstCompletedHabit = habit.id === firstCompletedHabitId;
                 return (
-                  <Grow key={habit.id} in={true} timeout={300} style={{ transformOrigin: "0 0 0" }}>
-                    <Box sx={{ mb: 1.5 }}>
-                      {isFirstCompletedHabit && (
-                        <Divider sx={{ my: 2 }}>
-                          <Chip label="Completed" size="small" icon={<Checklist />} color="success" variant="filled" />
-                        </Divider>
-                      )}{" "}
-                      <Paper
-                        elevation={1}
-                        sx={{
-                          borderRadius: 2,
-                          overflow: "hidden",
-                          // Only transition properties needed for hover effects
-                          transition: "transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-                          // Desktop-only hover effects
-                          "@media (hover: hover) and (pointer: fine)": {
-                            "&:hover": {
-                              transform: "translateY(-2px)",
-                              boxShadow: "0 8px 24px rgba(0,0,0,0.12)",
-                            },
+                  <Box key={habit.id} sx={{ mb: 1.5 }}>
+                    {isFirstCompletedHabit && (
+                      <Divider sx={{ my: 2 }}>
+                        <Chip label="Completed" size="small" icon={<Checklist />} color="success" variant="filled" />
+                      </Divider>
+                    )}{" "}
+                    <Paper
+                      elevation={1}
+                      sx={{
+                        borderRadius: 2,
+                        overflow: "hidden",
+                        // Only transition box-shadow for subtle hover effect
+                        transition: "box-shadow 0.2s ease-in-out",
+                        // Desktop-only hover effects
+                        "@media (hover: hover) and (pointer: fine)": {
+                          "&:hover": {
+                            boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
                           },
-                          ...(registeredProgress === 100
-                            ? {
-                                "div:not(.MuiSvgIcon-root) div": {
-                                  filter: "grayscale(100%)",
-                                },
-                                opacity: 0.7,
-                                bgcolor: "background.default",
-                              }
-                            : {
-                                bgcolor: "background.paper",
-                              }),
-                        }}
-                      >
+                        },
+                        ...(registeredProgress === 100
+                          ? {
+                              "div:not(.MuiSvgIcon-root) div": {
+                                filter: "grayscale(100%)",
+                              },
+                              opacity: 0.7,
+                              bgcolor: "background.default",
+                            }
+                          : {
+                              bgcolor: "background.paper",
+                            }),
+                      }}
+                    >
                         <ListItem
                           disablePadding
                           secondaryAction={
@@ -324,16 +322,6 @@ export default function IndexView() {
                               borderRadius: 2,
                               position: "relative",
                               overflow: "hidden",
-                              // Only transition background for hover
-                              transition: "background-color 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
-                              // Desktop hover effects (only show on non-touch devices)
-                              "@media (hover: hover) and (pointer: fine)": {
-                                "&:hover": {
-                                  bgcolor: "action.hover",
-                                },
-                              },
-                              // Use MUI's built-in ripple for consistent touch feedback
-                              // No custom :active styles to prevent scroll highlighting
                             }}
                             onClick={() => navigate(`/${habit.id}`)}
                           >
@@ -447,7 +435,6 @@ export default function IndexView() {
                         </ListItem>
                       </Paper>
                     </Box>
-                  </Grow>
                 );
               })}
             </List>
