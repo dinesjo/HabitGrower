@@ -53,8 +53,8 @@ export default function AccountView() {
       sx={{
         display: "flex",
         flexDirection: "column",
-        minHeight: "100%",
-        height: "100%",
+        // Use viewport height minus bottom nav (72px) for proper footer anchoring
+        minHeight: ["calc(100vh - 72px)", "calc(100dvh - 72px)"],
       }}
     >
       {/* Header Section */}
