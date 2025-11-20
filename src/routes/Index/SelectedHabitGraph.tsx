@@ -226,7 +226,7 @@ export default function SelectedHabitGraph({ habit }: { habit: Habit }) {
         <Typography variant="h6" sx={{ mb: 2, fontWeight: 600, color: "text.primary" }}>
           Progress Chart
         </Typography>
-        <Box sx={{ mb: 3, display: "flex", justifyContent: "center", px: { xs: 0, sm: 2 } }}>
+        <Box sx={{ mb: 3, display: "flex", justifyContent: "center", px: { xs: 2, sm: 2 } }}>
           <GraphControls />
         </Box>
         <Box
@@ -298,7 +298,7 @@ export default function SelectedHabitGraph({ habit }: { habit: Habit }) {
       <Typography variant="h6" sx={{ mb: 2, fontWeight: 600, color: "text.primary" }}>
         Progress Chart
       </Typography>
-      <Box sx={{ mb: 3, display: "flex", justifyContent: "center" }}>
+      <Box sx={{ mb: 3, display: "flex", justifyContent: "center", px: { xs: 2, sm: 2 } }}>
         <GraphControls />
       </Box>
       <Container
