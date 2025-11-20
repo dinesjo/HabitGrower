@@ -155,9 +155,8 @@ export default function SelectedHabit() {
             <Box
               sx={{
                 position: "sticky",
-                bottom: 0,
+                bottom: "72px", // Position above the fixed navbar
                 p: 2,
-                mb: "72px", // Add margin to keep footer above navbar
                 borderTop: 1,
                 borderColor: "divider",
                 bgcolor: "background.default",
