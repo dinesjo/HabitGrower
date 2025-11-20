@@ -261,7 +261,7 @@ export default function IndexView() {
                         },
                         ...(registeredProgress === 100
                           ? {
-                              "div:not(.MuiSvgIcon-root) div": {
+                              "& .MuiLinearProgress-root, & .MuiListItemText-root": {
                                 filter: "grayscale(100%)",
                               },
                               opacity: 0.7,
