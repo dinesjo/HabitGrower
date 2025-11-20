@@ -1,4 +1,4 @@
-import { ColorLens, EditNotificationsOutlined, EventRepeat, NotificationsOutlined, Save } from "@mui/icons-material";
+import { ColorLens, EditNotificationsOutlined, EventRepeat, NotificationsOutlined, Save, Notifications } from "@mui/icons-material";
 import {
   Alert,
   Box,
@@ -113,9 +113,12 @@ export default function EditHabitForm() {
               flexGrow: 1,
               pt: 1.5,
               px: 2,
+              pb: 10, // Add padding bottom to prevent content from being hidden behind sticky footer
               mx: "auto",
               maxWidth: 800,
               overflowY: "auto",
+              scrollbarWidth: "thin",
+              scrollbarColor: "#ccc #222",
             }}
           >
             <Grid2 container spacing={2}>
@@ -160,12 +163,55 @@ export default function EditHabitForm() {
                       label="Icon"
                       defaultValue={habit.icon}
                       renderValue={(icon) => {
-                        return <Box sx={{ height: "1em" }}>{iconMap[icon]}</Box>;
+                        return (
+                          <Box
+                            sx={{
+                              height: "1em",
+                              display: "flex",
+                              alignItems: "center",
+                              gap: 1,
+                            }}
+                          >
+                            {iconMap[icon]}
+                          </Box>
+                        );
+                      }}
+                      MenuProps={{
+                        PaperProps: {
+                          sx: {
+                            maxHeight: 400,
+                            "& .MuiMenuItem-root": {
+                              transition: "all 0.2s ease-in-out",
+                              borderRadius: 1,
+                              mx: 0.5,
+                              "&:hover": {
+                                bgcolor: "action.hover",
+                                transform: "scale(1.05)",
+                              },
+                            },
+                          },
+                        },
                       }}
                     >
                       {Object.keys(iconMap).map((icon) => (
-                        <MenuItem key={icon} value={icon}>
-                          {iconMap[icon]}
+                        <MenuItem
+                          key={icon}
+                          value={icon}
+                          sx={{
+                            display: "flex",
+                            justifyContent: "center",
+                            py: 1.5,
+                          }}
+                        >
+                          <Box
+                            sx={{
+                              fontSize: "1.5rem",
+                              display: "flex",
+                              alignItems: "center",
+                            }}
+                          >
+                            {iconMap[icon]}
+                          </Box>
                         </MenuItem>
                       ))}
                     </Select>
@@ -179,14 +225,64 @@ export default function EditHabitForm() {
                       label="Color"
                       defaultValue={habit.color || ""}
                       renderValue={(value) => {
-                        return <Typography sx={{ color: value }}>{toFriendlyString(value)}</Typography>;
+                        return (
+                          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                            {value && (
+                              <Box
+                                sx={{
+                                  width: 16,
+                                  height: 16,
+                                  borderRadius: "50%",
+                                  bgcolor: value,
+                                  border: "2px solid",
+                                  borderColor: "divider",
+                                }}
+                              />
+                            )}
+                            <Typography sx={{ color: value || "text.primary" }}>
+                              {value ? toFriendlyString(value) : "None"}
+                            </Typography>
+                          </Box>
+                        );
+                      }}
+                      MenuProps={{
+                        PaperProps: {
+                          sx: {
+                            "& .MuiMenuItem-root": {
+                              transition: "all 0.2s ease-in-out",
+                              borderRadius: 1,
+                              mx: 0.5,
+                              "&:hover": {
+                                bgcolor: "action.hover",
+                                transform: "translateX(4px)",
+                              },
+                            },
+                          },
+                        },
                       }}
                       fullWidth
                     >
-                      <MenuItem value="">None</MenuItem>
+                      <MenuItem value="">
+                        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                          <Box sx={{ width: 16, height: 16 }} />
+                          <Typography>None</Typography>
+                        </Box>
+                      </MenuItem>
                       {colorChoices.map((color) => (
-                        <MenuItem key={color} value={color} sx={{ color: color }}>
-                          {toFriendlyString(color)}
+                        <MenuItem key={color} value={color}>
+                          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                            <Box
+                              sx={{
+                                width: 16,
+                                height: 16,
+                                borderRadius: "50%",
+                                bgcolor: color,
+                                border: "2px solid",
+                                borderColor: "divider",
+                              }}
+                            />
+                            <Typography sx={{ color: color }}>{toFriendlyString(color)}</Typography>
+                          </Box>
                         </MenuItem>
                       ))}
                     </Select>
@@ -316,19 +412,52 @@ export default function EditHabitForm() {
                 />
                 <input type="hidden" name="notificationTime" value={notificationTime || ""} />
               </Grid2>
+
+              {/* Notification Preview */}
+              {notificationsEnabled && notificationTime && (
+                <Grid2 size={12}>
+                  <NotificationPreview habit={habit} />
+                </Grid2>
+              )}
+
+              {/* Test Notification Button */}
+              {notificationsEnabled && notificationTime && (
+                <Grid2 size={12}>
+                  <Button
+                    variant="outlined"
+                    startIcon={<Notifications />}
+                    fullWidth
+                    onClick={() => sendTestNotification(habit)}
+                    sx={{
+                      borderRadius: 2,
+                      textTransform: "none",
+                      py: 1.5,
+                      borderStyle: "dashed",
+                    }}
+                  >
+                    Send Test Notification
+                  </Button>
+                </Grid2>
+              )}
             </Grid2>
           </Box>
         </Grow>
 
-        {/* Footer */}
+        {/* Footer - Sticky */}
         <Grow in={true} timeout={800}>
           <Box
             sx={{
+              position: "sticky",
+              bottom: 0,
               p: 2,
               borderTop: 1,
               borderColor: "divider",
+              bgcolor: "background.default",
               display: "flex",
               gap: 1,
+              boxShadow: "0 -2px 8px rgba(0, 0, 0, 0.1)",
+              backdropFilter: "blur(8px)",
+              zIndex: 10,
             }}
           >
             <Button
@@ -360,6 +489,140 @@ export default function EditHabitForm() {
       </Form>
     </Box>
   );
+}
+
+function NotificationPreview({ habit }: { habit: Habit }) {
+  const getFrequencyUnitFriendly = (unit?: string) => {
+    switch (unit) {
+      case "day":
+        return "today";
+      case "week":
+        return "this week";
+      case "month":
+        return "this month";
+      default:
+        return "";
+    }
+  };
+
+  // Calculate a sample progress percentage (use current progress or 50% as example)
+  const sampleProgress = habit.frequency && habit.frequencyUnit ? "50" : "0";
+
+  return (
+    <Box
+      sx={{
+        border: "1px solid",
+        borderColor: "divider",
+        borderRadius: 2,
+        p: 2,
+        bgcolor: "action.hover",
+      }}
+    >
+      <Typography variant="caption" color="text.secondary" sx={{ mb: 1, display: "block", fontWeight: 600 }}>
+        Notification Preview
+      </Typography>
+      <Box
+        sx={{
+          bgcolor: "background.paper",
+          borderRadius: 1.5,
+          p: 2,
+          boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+          display: "flex",
+          gap: 2,
+          alignItems: "start",
+        }}
+      >
+        {/* Notification Icon */}
+        <Box
+          sx={{
+            width: 48,
+            height: 48,
+            borderRadius: 1,
+            bgcolor: habit.color || "primary.main",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            flexShrink: 0,
+            fontSize: "1.5rem",
+          }}
+        >
+          {iconMap[habit.icon]}
+        </Box>
+
+        {/* Notification Content */}
+        <Box sx={{ flex: 1, minWidth: 0 }}>
+          <Typography variant="body2" sx={{ fontWeight: 600, mb: 0.5, color: "text.primary" }}>
+            {habit.name}
+          </Typography>
+          <Typography variant="caption" color="text.secondary" sx={{ display: "block", mb: 1 }}>
+            {sampleProgress}% complete{habit.frequencyUnit ? ` ${getFrequencyUnitFriendly(habit.frequencyUnit)}` : ""}
+          </Typography>
+          <Button
+            size="small"
+            variant="text"
+            sx={{
+              textTransform: "none",
+              fontSize: "0.75rem",
+              minWidth: "auto",
+              px: 1,
+              py: 0.5,
+              color: "primary.main",
+            }}
+          >
+            Register now
+          </Button>
+        </Box>
+
+        {/* Time badge */}
+        <Typography variant="caption" color="text.disabled" sx={{ fontSize: "0.7rem" }}>
+          now
+        </Typography>
+      </Box>
+    </Box>
+  );
+}
+
+async function sendTestNotification(habit: Habit) {
+  if (!("Notification" in window)) {
+    alert("This browser does not support notifications");
+    return;
+  }
+
+  if (Notification.permission !== "granted") {
+    alert("Please grant notification permissions first");
+    return;
+  }
+
+  const getFrequencyUnitFriendly = (unit?: string) => {
+    switch (unit) {
+      case "day":
+        return "today";
+      case "week":
+        return "this week";
+      case "month":
+        return "this month";
+      default:
+        return "";
+    }
+  };
+
+  const sampleProgress = "50";
+  const body = `${sampleProgress}% complete${habit.frequencyUnit ? ` ${getFrequencyUnitFriendly(habit.frequencyUnit)}` : ""}`;
+
+  try {
+    const notification = new Notification(habit.name, {
+      body,
+      icon: `/${habit.icon}.svg`,
+      badge: "/pwa-192x192.png",
+      tag: habit.id,
+    });
+
+    // Auto-close after 5 seconds
+    setTimeout(() => notification.close(), 5000);
+  } catch (error) {
+    console.error("Failed to send test notification:", error);
+    alert("Failed to send test notification. Please check browser permissions.");
+  }
 }
 
 function NotificationsPermissionAlert() {

@@ -53,8 +53,8 @@ export default function AccountView() {
       sx={{
         display: "flex",
         flexDirection: "column",
-        height: "100%",
-        overflow: "hidden",
+        // Use viewport height minus bottom nav (72px) for proper footer anchoring
+        minHeight: ["calc(100vh - 72px)", "calc(100dvh - 72px)"],
       }}
     >
       {/* Header Section */}
@@ -103,7 +103,7 @@ export default function AccountView() {
         </Box>
       </Grow>
 
-      {/* Footer Section */}
+      {/* Footer Section - Anchored to bottom */}
       <Grow in={true} timeout={800}>
         <Box
           sx={{
@@ -112,6 +112,7 @@ export default function AccountView() {
             bgcolor: "background.paper",
             borderTop: 1,
             borderColor: "divider",
+            mt: "auto", // Push to bottom
           }}
         >
           <Form method="post" action="signout" style={{ display: "flex", justifyContent: "center" }}>

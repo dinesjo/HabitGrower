@@ -232,52 +232,45 @@ export default function IndexView() {
                 },
               }}
             >
-              {sortedHabits.map((habit, index) => {
+              {sortedHabits.map((habit) => {
                 const isChecked = checkedHabitIds.includes(habit.id);
                 const progress = getProgress(habit, isChecked, userWeekStartsAtMonday);
                 const registeredProgress = getProgress(habit, false, userWeekStartsAtMonday);
                 const progressBuffer = getProgressBuffer(habit, dayStartsAt, userWeekStartsAtMonday);
                 const isFirstCompletedHabit = habit.id === firstCompletedHabitId;
                 return (
-                  <Grow key={habit.id} in={true} timeout={300 + index * 100} style={{ transformOrigin: "0 0 0" }}>
-                    <Box sx={{ mb: 1.5 }}>
-                      {isFirstCompletedHabit && (
-                        <Divider sx={{ my: 2 }}>
-                          <Chip label="Completed" size="small" icon={<Checklist />} color="success" variant="filled" />
-                        </Divider>
-                      )}{" "}
-                      <Paper
-                        elevation={1}
-                        sx={{
-                          borderRadius: 2,
-                          overflow: "hidden",
-                          transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-                          // Desktop-only hover effects
-                          "@media (hover: hover) and (pointer: fine)": {
-                            "&:hover": {
-                              elevation: 2,
-                              transform: "translateY(-2px)",
-                              boxShadow: "0 8px 24px rgba(0,0,0,0.12)",
-                            },
+                  <Box key={habit.id} sx={{ mb: 1.5 }}>
+                    {isFirstCompletedHabit && (
+                      <Divider sx={{ my: 2 }}>
+                        <Chip label="Completed" size="small" icon={<Checklist />} color="success" variant="filled" />
+                      </Divider>
+                    )}{" "}
+                    <Paper
+                      elevation={1}
+                      sx={{
+                        borderRadius: 2,
+                        overflow: "hidden",
+                        // Only transition box-shadow for subtle hover effect
+                        transition: "box-shadow 0.2s ease-in-out",
+                        // Desktop-only hover effects
+                        "@media (hover: hover) and (pointer: fine)": {
+                          "&:hover": {
+                            boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
                           },
-                          // Mobile-friendly press effects
-                          "&:active": {
-                            transform: "scale(0.98)",
-                            transition: "transform 0.1s ease-out",
-                          },
-                          ...(registeredProgress === 100
-                            ? {
-                                "div:not(.MuiSvgIcon-root) div": {
-                                  filter: "grayscale(100%)",
-                                },
-                                opacity: 0.7,
-                                bgcolor: "background.default",
-                              }
-                            : {
-                                bgcolor: "background.paper",
-                              }),
-                        }}
-                      >
+                        },
+                        ...(registeredProgress === 100
+                          ? {
+                              "div:not(.MuiSvgIcon-root) div": {
+                                filter: "grayscale(100%)",
+                              },
+                              opacity: 0.7,
+                              bgcolor: "background.default",
+                            }
+                          : {
+                              bgcolor: "background.paper",
+                            }),
+                      }}
+                    >
                         <ListItem
                           disablePadding
                           secondaryAction={
@@ -329,64 +322,57 @@ export default function IndexView() {
                               borderRadius: 2,
                               position: "relative",
                               overflow: "hidden",
-                              transition: "all 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
-                              // Desktop hover effects (only show on non-touch devices)
-                              "@media (hover: hover) and (pointer: fine)": {
-                                "&:hover": {
-                                  bgcolor: "action.hover",
-                                  transform: "translateY(-1px)",
-                                  boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
-                                },
-                              },
-                              // Mobile touch feedback - immediate and satisfying
-                              "&:active": {
-                                bgcolor: "action.selected",
-                                transform: "scale(0.98)",
-                                transition: "all 0.1s ease-out",
-                              },
-                              // Enhanced ripple effect for touch devices
-                              "&::after": {
-                                content: '""',
-                                position: "absolute",
-                                top: 0,
-                                left: 0,
-                                width: "100%",
-                                height: "100%",
-                                background: `radial-gradient(circle at center, ${habit.color}30 0%, transparent 70%)`,
-                                opacity: 0,
-                                transform: "scale(0)",
-                                transition:
-                                  "transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
-                                pointerEvents: "none",
-                                borderRadius: "inherit",
-                              },
-                              "&:active::after": {
-                                opacity: 1,
-                                transform: "scale(2)",
-                                transition: "transform 0.6s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.1s ease-out",
-                              },
                             }}
                             onClick={() => navigate(`/${habit.id}`)}
                           >
                             <Box sx={{ display: "flex", alignItems: "center" }}>
                               <ListItemAvatar sx={{ color: habit.color }}>
-                                <Badge
-                                  invisible={progress !== 100}
-                                  badgeContent={"Done!"}
-                                  color="success"
-                                  anchorOrigin={{ vertical: "top", horizontal: "right" }}
-                                >
-                                  <Avatar
+                                <Box sx={{ position: "relative", display: "inline-flex" }}>
+                                  {/* Circular Progress Indicator - shows preview when checked */}
+                                  <CircularProgress
+                                    variant="determinate"
+                                    value={progress}
+                                    size={56}
+                                    thickness={3}
                                     sx={{
-                                      bgcolor: habit.color || "text.primary",
-                                      width: 48,
-                                      height: 48,
-                                      fontSize: "1.5rem",
+                                      color: habit.color || "primary.main",
+                                      position: "absolute",
+                                      top: -4,
+                                      left: -4,
+                                      zIndex: 1,
                                     }}
+                                  />
+                                  {/* Background Circle */}
+                                  <CircularProgress
+                                    variant="determinate"
+                                    value={100}
+                                    size={56}
+                                    thickness={3}
+                                    sx={{
+                                      color: "action.hover",
+                                      position: "absolute",
+                                      top: -4,
+                                      left: -4,
+                                    }}
+                                  />
+                                  <Badge
+                                    invisible={progress !== 100}
+                                    badgeContent={"Done!"}
+                                    color="success"
+                                    anchorOrigin={{ vertical: "top", horizontal: "right" }}
                                   >
-                                    {iconMap[habit.icon]}
-                                  </Avatar>
-                                </Badge>
+                                    <Avatar
+                                      sx={{
+                                        bgcolor: habit.color || "text.primary",
+                                        width: 48,
+                                        height: 48,
+                                        fontSize: "1.5rem",
+                                      }}
+                                    >
+                                      {iconMap[habit.icon]}
+                                    </Avatar>
+                                  </Badge>
+                                </Box>
                               </ListItemAvatar>
                               <ListItemText
                                 primary={
@@ -449,7 +435,6 @@ export default function IndexView() {
                         </ListItem>
                       </Paper>
                     </Box>
-                  </Grow>
                 );
               })}
             </List>

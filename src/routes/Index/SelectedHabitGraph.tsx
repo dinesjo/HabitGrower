@@ -1,5 +1,6 @@
-import { Box, Container, ToggleButton, ToggleButtonGroup, Typography, useTheme } from "@mui/material";
+import { Box, Container, Divider, Grid2, Paper, ToggleButton, ToggleButtonGroup, Typography, useTheme } from "@mui/material";
 import { useMediaQuery } from "@mui/material";
+import { InsertChartOutlined, TrendingUp, LocalFireDepartment, CalendarToday } from "@mui/icons-material";
 import { BarChart } from "@mui/x-charts";
 import dayjs from "dayjs";
 import { useAtom } from "jotai";
@@ -12,6 +13,69 @@ const daysShownMap: Record<number, string> = {
   30: "30 Days",
   90: "3 Months",
 } as const;
+
+// Helper function to calculate current streak - counts consecutive DAYS, not registrations
+function calculateStreak(dates: Record<string, boolean | number>): number {
+  // Get unique days (not timestamps) where there are registrations
+  const uniqueDays = new Set(
+    Object.keys(dates)
+      .filter((dateStr) => dates[dateStr])
+      .map((dateStr) => dayjs(dateStr).format("YYYY-MM-DD"))
+  );
+
+  const sortedDays = Array.from(uniqueDays).sort((a, b) => dayjs(b).diff(dayjs(a)));
+
+  if (sortedDays.length === 0) return 0;
+
+  let streak = 0;
+  let currentDate = dayjs().startOf("day");
+
+  for (const day of sortedDays) {
+    const checkDate = dayjs(day).startOf("day");
+    const daysDiff = currentDate.diff(checkDate, "day");
+
+    if (daysDiff === 0 || daysDiff === 1) {
+      streak++;
+      currentDate = checkDate;
+    } else {
+      break;
+    }
+  }
+
+  return streak;
+}
+
+// Helper function to calculate longest streak - counts consecutive DAYS, not registrations
+function calculateLongestStreak(dates: Record<string, boolean | number>): number {
+  // Get unique days (not timestamps) where there are registrations
+  const uniqueDays = new Set(
+    Object.keys(dates)
+      .filter((dateStr) => dates[dateStr])
+      .map((dateStr) => dayjs(dateStr).format("YYYY-MM-DD"))
+  );
+
+  const sortedDays = Array.from(uniqueDays).sort((a, b) => dayjs(a).diff(dayjs(b)));
+
+  if (sortedDays.length === 0) return 0;
+
+  let longestStreak = 1;
+  let currentStreak = 1;
+
+  for (let i = 1; i < sortedDays.length; i++) {
+    const prevDate = dayjs(sortedDays[i - 1]).startOf("day");
+    const currDate = dayjs(sortedDays[i]).startOf("day");
+    const daysDiff = currDate.diff(prevDate, "day");
+
+    if (daysDiff === 1) {
+      currentStreak++;
+      longestStreak = Math.max(longestStreak, currentStreak);
+    } else {
+      currentStreak = 1;
+    }
+  }
+
+  return longestStreak;
+}
 
 // Helper function to get period key for aggregation
 function getPeriodKey(date: dayjs.Dayjs, unit: "day" | "week" | "month", userWeekStartsAtMonday: boolean): string {
@@ -58,10 +122,6 @@ export default function SelectedHabitGraph({ habit }: { habit: Habit }) {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const isTablet = useMediaQuery(theme.breakpoints.down('md'));
-  
-  // Calculate responsive width based on breakpoints
-  // Mobile (sm): ~300px, Tablet (md): ~330px, Desktop: 350px
-  const chartWidth = isMobile ? 300 : isTablet ? 330 : 350;
 
   // Memoize filtered dates to avoid recalculation on every render
   const filteredDates = useMemo(() => {
@@ -147,49 +207,273 @@ export default function SelectedHabitGraph({ habit }: { habit: Habit }) {
     return chartData;
   }, [aggregatedData, graphFrequencyUnit, userWeekStartsAtMonday, daysShown]);
 
-  if (!habit.dates) {
-    return null;
+  // Check if there's any data
+  const hasData = habit.dates && Object.keys(habit.dates).length > 0;
+
+  if (!hasData) {
+    return (
+      <Paper
+        elevation={0}
+        sx={{
+          p: 3,
+          mb: 2,
+          borderRadius: 3,
+          border: "1px solid",
+          borderColor: "divider",
+          bgcolor: "background.paper",
+        }}
+      >
+        <Typography variant="h6" sx={{ mb: 2, fontWeight: 600, color: "text.primary" }}>
+          Progress Chart
+        </Typography>
+        <Box sx={{ mb: 3, display: "flex", justifyContent: "center", px: { xs: 0, sm: 2 } }}>
+          <GraphControls />
+        </Box>
+        <Box
+          sx={{
+            p: 4,
+            textAlign: "center",
+            bgcolor: "action.hover",
+            borderRadius: 2,
+            border: "1px dashed",
+            borderColor: "divider",
+          }}
+        >
+          <InsertChartOutlined sx={{ fontSize: 48, color: "text.disabled", mb: 1 }} />
+          <Typography variant="body1" color="text.secondary" gutterBottom>
+            No data yet
+          </Typography>
+          <Typography variant="body2" color="text.disabled">
+            Register this habit to see your progress chart
+          </Typography>
+        </Box>
+      </Paper>
+    );
   }
 
   // Get max value in the dataSet
   const maxValue = Math.max(...dateData.map((data) => data.value));
 
+  // Calculate stats
+  const stats = useMemo(() => {
+    if (!habit.dates) return null;
+
+    // Sum up total registrations in the period (values can be numbers for multiple registrations)
+    const totalRegistrationsInPeriod = Object.values(filteredDates).reduce(
+      (sum, val) => sum + Number(val || 0),
+      0
+    );
+
+    // Average registrations per day
+    const avgPerDay = (totalRegistrationsInPeriod / daysShown).toFixed(1);
+
+    // Streaks count consecutive DAYS (not total registrations)
+    const currentStreak = calculateStreak(habit.dates);
+    const longestStreak = calculateLongestStreak(habit.dates);
+
+    return {
+      avgPerDay,
+      currentStreak,
+      longestStreak,
+    };
+  }, [filteredDates, daysShown, habit.dates]);
+
+  // Calculate target line value
+  const targetValue = habit.frequency && habit.frequencyUnit && graphFrequencyUnit === habit.frequencyUnit
+    ? habit.frequency
+    : null;
+
   return (
-    <>
-      <Container sx={{ my: 1, display: "flex", justifyContent: "center" }}>
+    <Paper
+      elevation={0}
+      sx={{
+        p: 3,
+        mb: 2,
+        borderRadius: 3,
+        border: "1px solid",
+        borderColor: "divider",
+        bgcolor: "background.paper",
+      }}
+    >
+      <Typography variant="h6" sx={{ mb: 2, fontWeight: 600, color: "text.primary" }}>
+        Progress Chart
+      </Typography>
+      <Box sx={{ mb: 3, display: "flex", justifyContent: "center" }}>
         <GraphControls />
-      </Container>
-      <Container disableGutters sx={{ display: "flex", justifyContent: "center" }}>
-        <BarChart
-          dataset={dateData}
-          width={chartWidth}
-          height={200}
-          margin={{ top: 20, right: 20, bottom: 30, left: 20 }} // remove excess margin
-          xAxis={[
-            {
-              dataKey: "period",
-              scaleType: "band",
-              valueFormatter: (value) => {
-                const dataPoint = dateData.find(d => d.period === value);
-                return dataPoint?.label || "";
+      </Box>
+      <Container
+        disableGutters
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          width: "100%",
+          maxWidth: "100%",
+        }}
+      >
+        <Box
+          sx={{
+            width: "100%",
+            maxWidth: { xs: 320, sm: 400, md: 500 },
+            display: "flex",
+            justifyContent: "center",
+          }}
+        >
+          <BarChart
+            dataset={dateData}
+            width={isMobile ? 320 : isTablet ? 400 : 500}
+            height={220}
+            margin={{ top: 20, right: 10, bottom: 40, left: 30 }}
+            xAxis={[
+              {
+                dataKey: "period",
+                scaleType: "band",
+                valueFormatter: (value) => {
+                  const dataPoint = dateData.find(d => d.period === value);
+                  return dataPoint?.label || "";
+                },
               },
-            },
-          ]}
-          yAxis={[
-            {
-              dataKey: "value",
-              min: 0,
-              max: graphFrequencyUnit === "day" && habit.frequencyUnit === "day" 
-                ? Math.max(habit.frequency || 0, maxValue) 
-                : maxValue,
-              tickMinStep: 1, // will always be integers
-            },
-          ]}
-          series={[{ dataKey: "value", color: habit.color || "#90c65b" }]}
-          grid={{ horizontal: true }}
-        />
+            ]}
+            yAxis={[
+              {
+                dataKey: "value",
+                min: 0,
+                max: graphFrequencyUnit === "day" && habit.frequencyUnit === "day"
+                  ? Math.max(habit.frequency || 0, maxValue)
+                  : maxValue,
+                tickMinStep: 1, // will always be integers
+              },
+            ]}
+            series={[{ dataKey: "value", color: habit.color || "#90c65b", label: "Completions" }]}
+            grid={{ horizontal: true }}
+            slotProps={{
+              legend: { hidden: true },
+            }}
+            sx={{
+              "& .MuiChartsReferenceLine-root": {
+                strokeDasharray: "5 5",
+                strokeWidth: 2,
+              },
+            }}
+          >
+            {targetValue && (
+              <text
+                x={isMobile ? 160 : isTablet ? 200 : 250}
+                y={15}
+                textAnchor="middle"
+                style={{
+                  fill: habit.color || "#90c65b",
+                  fontSize: "0.75rem",
+                  fontWeight: 600,
+                }}
+              >
+                Goal: {targetValue}
+              </text>
+            )}
+          </BarChart>
+        </Box>
       </Container>
-    </>
+
+      {/* Stats Section */}
+      {stats && (
+        <>
+          <Divider sx={{ my: 3 }} />
+
+          {/* Stats Grid */}
+          <Grid2 container spacing={2}>
+            <Grid2 size={{ xs: 4, sm: 4 }}>
+              <Box
+                sx={{
+                  textAlign: "center",
+                  p: 2,
+                  borderRadius: 2,
+                  bgcolor: "action.hover",
+                  transition: "all 0.2s ease-in-out",
+                  "&:hover": {
+                    bgcolor: "action.selected",
+                    transform: "translateY(-2px)",
+                  },
+                }}
+              >
+                <TrendingUp sx={{ fontSize: 28, color: "primary.main", mb: 0.5 }} />
+                <Typography variant="h5" sx={{ fontWeight: 700, color: "text.primary", mb: 0.5 }}>
+                  {stats.avgPerDay}
+                </Typography>
+                <Typography variant="caption" color="text.secondary" sx={{ fontSize: "0.7rem" }}>
+                  Avg/Day
+                </Typography>
+              </Box>
+            </Grid2>
+
+            <Grid2 size={{ xs: 4, sm: 4 }}>
+              <Box
+                sx={{
+                  textAlign: "center",
+                  p: 2,
+                  borderRadius: 2,
+                  bgcolor: stats.currentStreak > 0 ? "success.light" : "action.hover",
+                  transition: "all 0.2s ease-in-out",
+                  "&:hover": {
+                    bgcolor: stats.currentStreak > 0 ? "success.main" : "action.selected",
+                    transform: "translateY(-2px)",
+                  },
+                }}
+              >
+                <LocalFireDepartment
+                  sx={{
+                    fontSize: 28,
+                    color: stats.currentStreak > 0 ? "error.main" : "text.disabled",
+                    mb: 0.5,
+                  }}
+                />
+                <Typography
+                  variant="h5"
+                  sx={{
+                    fontWeight: 700,
+                    color: stats.currentStreak > 0 ? "success.contrastText" : "text.primary",
+                    mb: 0.5,
+                  }}
+                >
+                  {stats.currentStreak}
+                </Typography>
+                <Typography
+                  variant="caption"
+                  sx={{
+                    fontSize: "0.7rem",
+                    color: stats.currentStreak > 0 ? "success.contrastText" : "text.secondary",
+                  }}
+                >
+                  Day Streak
+                </Typography>
+              </Box>
+            </Grid2>
+
+            <Grid2 size={{ xs: 4, sm: 4 }}>
+              <Box
+                sx={{
+                  textAlign: "center",
+                  p: 2,
+                  borderRadius: 2,
+                  bgcolor: "action.hover",
+                  transition: "all 0.2s ease-in-out",
+                  "&:hover": {
+                    bgcolor: "action.selected",
+                    transform: "translateY(-2px)",
+                  },
+                }}
+              >
+                <CalendarToday sx={{ fontSize: 28, color: "secondary.main", mb: 0.5 }} />
+                <Typography variant="h5" sx={{ fontWeight: 700, color: "text.primary", mb: 0.5 }}>
+                  {stats.longestStreak}
+                </Typography>
+                <Typography variant="caption" color="text.secondary" sx={{ fontSize: "0.7rem" }}>
+                  Best Streak
+                </Typography>
+              </Box>
+            </Grid2>
+          </Grid2>
+        </>
+      )}
+    </Paper>
   );
 }
 
@@ -198,10 +482,10 @@ function GraphControls() {
   const [graphFrequencyUnit, setGraphFrequencyUnit] = useAtom(graphFrequencyUnitAtom);
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, width: '100%', maxWidth: 400 }}>
       <Box>
-        <Typography variant="subtitle2" color="primary.main">
-          Time span:
+        <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1, fontSize: '0.75rem', fontWeight: 600 }}>
+          TIME SPAN
         </Typography>
         <ToggleButtonGroup
           color="primary"
@@ -212,18 +496,42 @@ function GraphControls() {
             if (v) setDaysShown(v);
           }}
           aria-label="Time span"
+          fullWidth
+          sx={{
+            "& .MuiToggleButton-root": {
+              py: 0.75,
+              px: 1.5,
+              fontSize: '0.8rem',
+              fontWeight: 500,
+              textTransform: 'none',
+              borderRadius: 1.5,
+              transition: 'all 0.2s ease-in-out',
+              "&.Mui-selected": {
+                bgcolor: 'primary.main',
+                color: 'primary.contrastText',
+                fontWeight: 600,
+                "&:hover": {
+                  bgcolor: 'primary.dark',
+                },
+              },
+              "&:hover": {
+                bgcolor: 'action.hover',
+              },
+            },
+            gap: 0.5,
+          }}
         >
-          {Object.entries(daysShownMap).map(([days, icon]) => (
+          {Object.entries(daysShownMap).map(([days, label]) => (
             <ToggleButton key={days} value={Number(days)}>
-              {icon}
+              {label}
             </ToggleButton>
           ))}
         </ToggleButtonGroup>
       </Box>
-      
+
       <Box>
-        <Typography variant="subtitle2" color="primary.main">
-          Group by:
+        <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1, fontSize: '0.75rem', fontWeight: 600 }}>
+          GROUP BY
         </Typography>
         <ToggleButtonGroup
           color="primary"
@@ -234,6 +542,30 @@ function GraphControls() {
             if (v) setGraphFrequencyUnit(v);
           }}
           aria-label="Frequency unit"
+          fullWidth
+          sx={{
+            "& .MuiToggleButton-root": {
+              py: 0.75,
+              px: 1.5,
+              fontSize: '0.8rem',
+              fontWeight: 500,
+              textTransform: 'none',
+              borderRadius: 1.5,
+              transition: 'all 0.2s ease-in-out',
+              "&.Mui-selected": {
+                bgcolor: 'primary.main',
+                color: 'primary.contrastText',
+                fontWeight: 600,
+                "&:hover": {
+                  bgcolor: 'primary.dark',
+                },
+              },
+              "&:hover": {
+                bgcolor: 'action.hover',
+              },
+            },
+            gap: 0.5,
+          }}
         >
           <ToggleButton value="day">Day</ToggleButton>
           <ToggleButton value="week">Week</ToggleButton>

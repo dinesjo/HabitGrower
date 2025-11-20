@@ -1,4 +1,4 @@
-import { KeyboardArrowDownOutlined, KeyboardArrowUpOutlined, RemoveOutlined } from "@mui/icons-material";
+import { CalendarMonth, EventAvailableOutlined, EventBusy, KeyboardArrowDownOutlined, KeyboardArrowUpOutlined, RemoveOutlined } from "@mui/icons-material";
 import {
   Box,
   Button,
@@ -7,10 +7,12 @@ import {
   DialogContent,
   DialogContentText,
   DialogTitle,
+  Divider,
   IconButton,
   List,
   ListItem,
   ListItemText,
+  Paper,
   Slide,
   Typography,
 } from "@mui/material";
@@ -44,55 +46,235 @@ export default function SelectedHabitList({ habit }: { habit: Habit }) {
     if (!habit.dates) {
       return [];
     }
-    
+
     return Object.entries(habit.dates)
       .sort((a, b) => (sortDirection === "asc" ? ascending(a[0], b[0]) : descending(a[0], b[0])));
   }, [habit.dates, sortDirection]);
 
-  if (!habit.dates) {
-    return null;
-  }
+  const hasData = habit.dates && Object.keys(habit.dates).length > 0;
 
   function handleOpen(date: string) {
     setDateToDelete(date);
     setOpen(true);
   }
 
+  if (!hasData) {
+    return (
+      <Paper
+        elevation={0}
+        sx={{
+          p: 3,
+          mb: 2,
+          borderRadius: 3,
+          border: "1px solid",
+          borderColor: "divider",
+          bgcolor: "background.paper",
+        }}
+      >
+        <Typography variant="h6" sx={{ mb: 2, fontWeight: 600, color: "text.primary" }}>
+          Registration History
+        </Typography>
+        <Box
+          sx={{
+            p: 4,
+            textAlign: "center",
+            bgcolor: "action.hover",
+            borderRadius: 2,
+            border: "1px dashed",
+            borderColor: "divider",
+          }}
+        >
+          <EventAvailableOutlined sx={{ fontSize: 48, color: "text.disabled", mb: 1 }} />
+          <Typography variant="body1" color="text.secondary" gutterBottom>
+            No registrations yet
+          </Typography>
+          <Typography variant="body2" color="text.disabled">
+            Start tracking by registering this habit from the home screen
+          </Typography>
+        </Box>
+      </Paper>
+    );
+  }
+
   return (
-    <>
-      <Box sx={{ display: "flex", justifyContent: "end" }}>
+    <Paper
+      elevation={0}
+      sx={{
+        p: 3,
+        mb: 2,
+        borderRadius: 3,
+        border: "1px solid",
+        borderColor: "divider",
+        bgcolor: "background.paper",
+      }}
+    >
+      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
+        <Typography variant="h6" sx={{ fontWeight: 600, color: "text.primary" }}>
+          Registration History
+        </Typography>
         <SortDirectionButton />
       </Box>
-      <Dialog 
-        open={open} 
+      <Dialog
+        open={open}
         onClose={() => setOpen(false)}
         TransitionComponent={Transition}
         keepMounted
-        maxWidth="xs"
         fullWidth
+        PaperProps={{
+          sx: {
+            position: "fixed",
+            bottom: 0,
+            left: 0,
+            right: 0,
+            m: 0,
+            maxWidth: "100%",
+            borderRadius: "24px 24px 0 0",
+            maxHeight: "90vh",
+          },
+        }}
+        sx={{
+          "& .MuiBackdrop-root": {
+            backgroundColor: "rgba(0, 0, 0, 0.6)",
+          },
+        }}
       >
         <Form action={"unregister/" + dateToDelete} method="delete" onSubmit={() => setOpen(false)}>
-          <DialogTitle>Unregister?</DialogTitle>
-          <DialogContent>
-            <DialogContentText>Unregister at {dayjs(dateToDelete).format("ddd, MMM D HH:mm")}?</DialogContentText>
+          {/* Handle for pulling down */}
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "center",
+              pt: 1.5,
+              pb: 1,
+            }}
+          >
+            <Box
+              sx={{
+                width: 40,
+                height: 4,
+                borderRadius: 2,
+                bgcolor: "divider",
+              }}
+            />
+          </Box>
+
+          {/* Icon and Title */}
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              pt: 2,
+              pb: 1,
+            }}
+          >
+            <Box
+              sx={{
+                width: 64,
+                height: 64,
+                borderRadius: "50%",
+                bgcolor: "warning.light",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                mb: 2,
+                opacity: 0.9,
+              }}
+            >
+              <EventBusy sx={{ fontSize: 32, color: "warning.contrastText" }} />
+            </Box>
+            <DialogTitle sx={{ textAlign: "center", pb: 1, pt: 0 }}>
+              <Typography variant="h6" sx={{ fontWeight: 700 }}>
+                Unregister Entry?
+              </Typography>
+            </DialogTitle>
+          </Box>
+
+          <DialogContent sx={{ px: 3, pb: 2 }}>
+            <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 1 }}>
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 1,
+                  p: 2,
+                  borderRadius: 2,
+                  bgcolor: "action.hover",
+                  width: "100%",
+                  justifyContent: "center",
+                }}
+              >
+                <CalendarMonth sx={{ color: "primary.main" }} />
+                <Box>
+                  <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                    {dayjs(dateToDelete).format("dddd, MMM D")}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    {dayjs(dateToDelete).format("HH:mm")}
+                  </Typography>
+                </Box>
+              </Box>
+              <DialogContentText sx={{ textAlign: "center", fontSize: "0.95rem", mt: 1 }}>
+                Are you sure you want to remove this registration? This action cannot be undone.
+              </DialogContentText>
+            </Box>
           </DialogContent>
-          <DialogActions>
-            <Button color="inherit" onClick={() => setOpen(false)}>
-              Cancel
-            </Button>
+
+          <Divider />
+
+          <DialogActions sx={{ flexDirection: "column", gap: 1, p: 2 }}>
             <Button
               color="error"
               variant="contained"
               type="submit"
               loading={navigation.state === "submitting"}
               loadingPosition="start"
+              fullWidth
+              size="large"
+              startIcon={<RemoveOutlined />}
+              sx={{
+                borderRadius: 3,
+                py: 1.5,
+                fontWeight: 600,
+                fontSize: "1rem",
+              }}
             >
               Unregister
+            </Button>
+            <Button
+              color="inherit"
+              variant="outlined"
+              onClick={() => setOpen(false)}
+              fullWidth
+              size="large"
+              sx={{
+                borderRadius: 3,
+                py: 1.5,
+                fontWeight: 600,
+                fontSize: "1rem",
+              }}
+            >
+              Cancel
             </Button>
           </DialogActions>
         </Form>
       </Dialog>
-      <List disablePadding dense sx={{ width: "100%" }}>
+      <List
+        disablePadding
+        dense
+        sx={{
+          width: "100%",
+          "& .MuiListItem-root": {
+            borderRadius: 2,
+            mb: 0.5,
+            transition: "all 0.2s ease-in-out",
+            "&:hover": {
+              bgcolor: "action.hover",
+              transform: "translateX(4px)",
+            },
+          },
+        }}
+      >
         {sortedEntries.map(([date]) => {
           const daysAgo = dayjs().startOf("day").diff(dayjs(date).startOf("day"), "days");
           const daysAgoFriendly = daysAgo === 0 ? "Today" : daysAgo === 1 ? "Yesterday" : `${daysAgo} days ago`;
@@ -109,6 +291,12 @@ export default function SelectedHabitList({ habit }: { habit: Habit }) {
                   color="error"
                   disabled={navigation.state === "submitting"}
                   onClick={() => handleOpen(date)}
+                  sx={{
+                    transition: "all 0.2s ease-in-out",
+                    "&:hover": {
+                      transform: "scale(1.1)",
+                    },
+                  }}
                 >
                   <RemoveOutlined />
                 </IconButton>
@@ -126,7 +314,7 @@ export default function SelectedHabitList({ habit }: { habit: Habit }) {
           );
         })}
       </List>
-    </>
+    </Paper>
   );
 }
 
