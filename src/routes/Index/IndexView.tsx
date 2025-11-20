@@ -200,6 +200,7 @@ export default function IndexView() {
                 scrollbarWidth: "thin",
                 scrollbarColor: "#ccc transparent",
                 px: 1,
+                pt: 3, // Space for "Done!" badge at top
                 pb: 10, // Space for register FAB
                 // Improved scrolling for mobile
                 WebkitOverflowScrolling: "touch", // iOS momentum scrolling
