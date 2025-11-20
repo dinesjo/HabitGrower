@@ -120,6 +120,7 @@ export default function SelectedHabitList({ habit }: { habit: Habit }) {
         TransitionComponent={Transition}
         keepMounted
         fullWidth
+        maxWidth={false}
         PaperProps={{
           sx: {
             position: "fixed",
@@ -128,11 +129,15 @@ export default function SelectedHabitList({ habit }: { habit: Habit }) {
             right: 0,
             m: 0,
             maxWidth: "100%",
+            width: "100%",
             borderRadius: "24px 24px 0 0",
             maxHeight: "90vh",
           },
         }}
         sx={{
+          "& .MuiDialog-container": {
+            alignItems: "flex-end",
+          },
           "& .MuiBackdrop-root": {
             backgroundColor: "rgba(0, 0, 0, 0.6)",
           },
@@ -268,9 +273,11 @@ export default function SelectedHabitList({ habit }: { habit: Habit }) {
             borderRadius: 2,
             mb: 0.5,
             transition: "all 0.2s ease-in-out",
-            "&:hover": {
-              bgcolor: "action.hover",
-              transform: "translateX(4px)",
+            "@media (hover: hover) and (pointer: fine)": {
+              "&:hover": {
+                bgcolor: "action.hover",
+                transform: "translateX(4px)",
+              },
             },
           },
         }}
@@ -293,8 +300,10 @@ export default function SelectedHabitList({ habit }: { habit: Habit }) {
                   onClick={() => handleOpen(date)}
                   sx={{
                     transition: "all 0.2s ease-in-out",
-                    "&:hover": {
-                      transform: "scale(1.1)",
+                    "@media (hover: hover) and (pointer: fine)": {
+                      "&:hover": {
+                        transform: "scale(1.1)",
+                      },
                     },
                   }}
                 >

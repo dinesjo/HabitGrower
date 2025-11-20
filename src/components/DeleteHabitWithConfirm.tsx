@@ -32,6 +32,7 @@ export default function DeleteHabitWithConfirm({ habit, id }: { habit: Habit; id
         TransitionComponent={Transition}
         keepMounted
         fullWidth
+        maxWidth={false}
         PaperProps={{
           sx: {
             position: "fixed",
@@ -40,11 +41,15 @@ export default function DeleteHabitWithConfirm({ habit, id }: { habit: Habit; id
             right: 0,
             m: 0,
             maxWidth: "100%",
+            width: "100%",
             borderRadius: "24px 24px 0 0",
             maxHeight: "90vh",
           },
         }}
         sx={{
+          "& .MuiDialog-container": {
+            alignItems: "flex-end",
+          },
           "& .MuiBackdrop-root": {
             backgroundColor: "rgba(0, 0, 0, 0.6)",
           },

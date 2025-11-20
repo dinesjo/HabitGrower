@@ -115,10 +115,7 @@ export default function IndexView() {
   return (
     <Box
       sx={{
-        display: "flex",
-        flexDirection: "column",
-        height: "100%",
-        overflow: "hidden",
+        pb: 10, // Space for register FAB
       }}
     >
       {/* Header Section */}
@@ -142,16 +139,12 @@ export default function IndexView() {
       {/* Content Section */}
       <Box
         sx={{
-          flex: 1,
-          position: "relative",
-          overflow: "hidden",
-          mx: "auto",
-          pt: 1.5, // Add consistent top padding
+          pt: 1.5,
           px: 1,
         }}
       >
         {habits ? (
-          <Form method="post" style={{ height: "100%", display: "flex", flexDirection: "column" }}>
+          <Form method="post">
             {allHabitsCompleted && (
               <Grow in={true} timeout={800}>
                 <Box
@@ -195,41 +188,8 @@ export default function IndexView() {
             <List
               disablePadding
               sx={{
-                flex: 1,
-                overflow: "auto",
-                scrollbarWidth: "thin",
-                scrollbarColor: "#ccc transparent",
                 px: 1,
-                pb: 10, // Space for register FAB
-                // Improved scrolling for mobile
-                WebkitOverflowScrolling: "touch", // iOS momentum scrolling
-                overscrollBehavior: "contain", // Prevent overscroll bounce on mobile
-                "&::-webkit-scrollbar": {
-                  width: "4px",
-                },
-                "&::-webkit-scrollbar-track": {
-                  background: "transparent",
-                },
-                "&::-webkit-scrollbar-thumb": {
-                  background: "rgba(0,0,0,0.2)",
-                  borderRadius: "2px",
-                  "&:hover": {
-                    background: "rgba(0,0,0,0.3)",
-                  },
-                },
-                // Remove scroll shadows on mobile for better performance
-                "@media (hover: hover) and (pointer: fine)": {
-                  // Add scroll shadows for desktop only
-                  background: `
-                    linear-gradient(white 30%, rgba(255,255,255,0)),
-                    linear-gradient(rgba(255,255,255,0), white 70%),
-                    radial-gradient(50% 0, farthest-side, rgba(0,0,0,.1), rgba(0,0,0,0)),
-                    radial-gradient(50% 100%, farthest-side, rgba(0,0,0,.1), rgba(0,0,0,0))
-                  `,
-                  backgroundRepeat: "no-repeat",
-                  backgroundSize: "100% 40px, 100% 40px, 100% 14px, 100% 14px",
-                  backgroundAttachment: "local, local, scroll, scroll",
-                },
+                pt: 3, // Space for "Done!" badge at top
               }}
             >
               {sortedHabits.map((habit) => {
@@ -249,7 +209,7 @@ export default function IndexView() {
                       elevation={1}
                       sx={{
                         borderRadius: 2,
-                        overflow: "hidden",
+                        overflow: "visible",
                         // Only transition box-shadow for subtle hover effect
                         transition: "box-shadow 0.2s ease-in-out",
                         // Desktop-only hover effects
@@ -260,7 +220,7 @@ export default function IndexView() {
                         },
                         ...(registeredProgress === 100
                           ? {
-                              "div:not(.MuiSvgIcon-root) div": {
+                              "& .MuiLinearProgress-root, & .MuiListItemText-root": {
                                 filter: "grayscale(100%)",
                               },
                               opacity: 0.7,
@@ -321,13 +281,13 @@ export default function IndexView() {
                               alignItems: "start",
                               borderRadius: 2,
                               position: "relative",
-                              overflow: "hidden",
+                              overflow: "visible",
                             }}
                             onClick={() => navigate(`/${habit.id}`)}
                           >
                             <Box sx={{ display: "flex", alignItems: "center" }}>
-                              <ListItemAvatar sx={{ color: habit.color }}>
-                                <Box sx={{ position: "relative", display: "inline-flex" }}>
+                              <ListItemAvatar sx={{ color: habit.color, overflow: "visible", zIndex: 10 }}>
+                                <Box sx={{ position: "relative", display: "inline-flex", overflow: "visible" }}>
                                   {/* Circular Progress Indicator - shows preview when checked */}
                                   <CircularProgress
                                     variant="determinate"

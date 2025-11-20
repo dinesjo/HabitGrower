@@ -130,14 +130,18 @@ export default function Main() {
                 borderRadius: 12,
                 margin: "2px 0",
                 transition: "all 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
-                "&:hover": {
-                  backgroundColor: themeAtomValue === "dark" ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.04)",
-                  transform: "translateX(4px)",
+                "@media (hover: hover) and (pointer: fine)": {
+                  "&:hover": {
+                    backgroundColor: themeAtomValue === "dark" ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.04)",
+                    transform: "translateX(4px)",
+                  },
                 },
                 "&.Mui-selected": {
                   backgroundColor: themeAtomValue === "dark" ? "rgba(144,198,91,0.12)" : "rgba(71,133,35,0.08)",
-                  "&:hover": {
-                    backgroundColor: themeAtomValue === "dark" ? "rgba(144,198,91,0.16)" : "rgba(71,133,35,0.12)",
+                  "@media (hover: hover) and (pointer: fine)": {
+                    "&:hover": {
+                      backgroundColor: themeAtomValue === "dark" ? "rgba(144,198,91,0.16)" : "rgba(71,133,35,0.12)",
+                    },
                   },
                 },
               },
@@ -152,19 +156,23 @@ export default function Main() {
                 border: "1.5px solid",
                 borderColor: themeAtomValue === "dark" ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.2)",
                 transition: "all 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
-                "&:hover": {
-                  borderColor: themeAtomValue === "dark" ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.4)",
-                  backgroundColor: themeAtomValue === "dark" ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.04)",
-                  transform: "translateY(-1px)",
-                  boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+                "@media (hover: hover) and (pointer: fine)": {
+                  "&:hover": {
+                    borderColor: themeAtomValue === "dark" ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.4)",
+                    backgroundColor: themeAtomValue === "dark" ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.04)",
+                    transform: "translateY(-1px)",
+                    boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+                  },
                 },
                 "&.Mui-selected": {
                   backgroundColor: themeAtomValue === "dark" ? "rgba(144,198,91,0.15)" : "rgba(71,133,35,0.15)",
                   borderColor: themeAtomValue === "dark" ? "#90c65b" : "#478523",
                   color: themeAtomValue === "dark" ? "#90c65b" : "#478523",
                   fontWeight: 600,
-                  "&:hover": {
-                    backgroundColor: themeAtomValue === "dark" ? "rgba(144,198,91,0.2)" : "rgba(71,133,35,0.2)",
+                  "@media (hover: hover) and (pointer: fine)": {
+                    "&:hover": {
+                      backgroundColor: themeAtomValue === "dark" ? "rgba(144,198,91,0.2)" : "rgba(71,133,35,0.2)",
+                    },
                   },
                 },
                 "&:active": {
@@ -209,16 +217,20 @@ export default function Main() {
                 fontSize: "0.95rem",
                 fontWeight: 500,
                 transition: "all 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
-                "&:hover": {
-                  backgroundColor: themeAtomValue === "dark" ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.04)",
-                  transform: "translateX(4px)",
+                "@media (hover: hover) and (pointer: fine)": {
+                  "&:hover": {
+                    backgroundColor: themeAtomValue === "dark" ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.04)",
+                    transform: "translateX(4px)",
+                  },
                 },
                 "&.Mui-selected": {
                   backgroundColor: themeAtomValue === "dark" ? "rgba(144,198,91,0.12)" : "rgba(71,133,35,0.08)",
                   color: themeAtomValue === "dark" ? "#90c65b" : "#478523",
                   fontWeight: 600,
-                  "&:hover": {
-                    backgroundColor: themeAtomValue === "dark" ? "rgba(144,198,91,0.16)" : "rgba(71,133,35,0.12)",
+                  "@media (hover: hover) and (pointer: fine)": {
+                    "&:hover": {
+                      backgroundColor: themeAtomValue === "dark" ? "rgba(144,198,91,0.16)" : "rgba(71,133,35,0.12)",
+                    },
                   },
                 },
                 "&:active": {
@@ -257,19 +269,21 @@ export default function Main() {
               root: {
                 borderRadius: 12,
                 transition: "all 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
-                "&:hover": {
-                  backgroundColor: themeAtomValue === "dark" ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.04)",
-                  transform: "scale(1.1)",
-                  boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+                "@media (hover: hover) and (pointer: fine)": {
+                  "&:hover": {
+                    backgroundColor: themeAtomValue === "dark" ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.04)",
+                    transform: "scale(1.1)",
+                    boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+                  },
+                  "&:hover .MuiSvgIcon-root": {
+                    filter: "brightness(1.1)",
+                  },
                 },
                 "&:active": {
                   transform: "scale(0.95)",
                 },
                 "& .MuiSvgIcon-root": {
                   transition: "all 0.2s ease-in-out",
-                },
-                "&:hover .MuiSvgIcon-root": {
-                  filter: "brightness(1.1)",
                 },
               },
             },
@@ -349,9 +363,11 @@ export default function Main() {
                 borderRadius: "12px 12px 0 0",
                 margin: "0 4px",
                 transition: "all 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
-                "&:hover": {
-                  backgroundColor: themeAtomValue === "dark" ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.04)",
-                  transform: "translateY(-2px)",
+                "@media (hover: hover) and (pointer: fine)": {
+                  "&:hover": {
+                    backgroundColor: themeAtomValue === "dark" ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.04)",
+                    transform: "translateY(-2px)",
+                  },
                 },
                 "&.Mui-selected": {
                   color: themeAtomValue === "dark" ? "#90c65b" : "#478523",
@@ -391,9 +407,14 @@ export default function Main() {
                 fontWeight: 500,
                 boxShadow: "none",
                 transition: "all 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
-                "&:hover": {
-                  boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
-                  transform: "translateY(-1px)",
+                "@media (hover: hover) and (pointer: fine)": {
+                  "&:hover": {
+                    boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+                    transform: "translateY(-1px)",
+                  },
+                  "&:hover .MuiChip-icon": {
+                    transform: "scale(1.1)",
+                  },
                 },
                 "&:active": {
                   transform: "translateY(0px)",
@@ -403,20 +424,21 @@ export default function Main() {
                   fontSize: "1.1rem",
                   transition: "transform 0.2s ease-in-out",
                 },
-                "&:hover .MuiChip-icon": {
-                  transform: "scale(1.1)",
-                },
               },
               outlined: {
                 borderWidth: 1.5,
-                "&:hover": {
-                  borderWidth: 1.5,
-                  backgroundColor: themeAtomValue === "dark" ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.02)",
+                "@media (hover: hover) and (pointer: fine)": {
+                  "&:hover": {
+                    borderWidth: 1.5,
+                    backgroundColor: themeAtomValue === "dark" ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.02)",
+                  },
                 },
               },
               filled: {
-                "&:hover": {
-                  filter: "brightness(1.1)",
+                "@media (hover: hover) and (pointer: fine)": {
+                  "&:hover": {
+                    filter: "brightness(1.1)",
+                  },
                 },
               },
             },
@@ -649,9 +671,11 @@ export default function Main() {
                 fontSize: "1rem",
                 transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
                 border: `2px solid ${themeAtomValue === "dark" ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)"}`,
-                "&:hover": {
-                  transform: "scale(1.05)",
-                  boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+                "@media (hover: hover) and (pointer: fine)": {
+                  "&:hover": {
+                    transform: "scale(1.05)",
+                    boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+                  },
                 },
               },
             },
