@@ -155,7 +155,7 @@ export default function SelectedHabit() {
             <Box
               sx={{
                 position: "sticky",
-                bottom: "72px", // Position above the fixed navbar
+                bottom: 0, // Container already accounts for navbar space
                 p: 2,
                 borderTop: 1,
                 borderColor: "divider",
