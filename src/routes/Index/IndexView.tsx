@@ -251,6 +251,8 @@ export default function IndexView() {
                       sx={{
                         borderRadius: 2,
                         overflow: "visible",
+                        // Allow vertical scrolling on touch devices
+                        touchAction: "pan-y",
                         // Only transition box-shadow for subtle hover effect
                         transition: "box-shadow 0.2s ease-in-out",
                         // Desktop-only hover effects
