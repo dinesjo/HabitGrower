@@ -55,6 +55,7 @@ export default function AccountView() {
         flexDirection: "column",
         // Use viewport height minus bottom nav (72px) for proper footer anchoring
         minHeight: ["calc(100vh - 72px)", "calc(100dvh - 72px)"],
+        pb: "72px", // Add padding to prevent footer from being hidden behind navbar
       }}
     >
       {/* Header Section */}
