@@ -184,9 +184,11 @@ export default function EditHabitForm() {
                               transition: "all 0.2s ease-in-out",
                               borderRadius: 1,
                               mx: 0.5,
-                              "&:hover": {
-                                bgcolor: "action.hover",
-                                transform: "scale(1.05)",
+                              "@media (hover: hover) and (pointer: fine)": {
+                                "&:hover": {
+                                  bgcolor: "action.hover",
+                                  transform: "scale(1.05)",
+                                },
                               },
                             },
                           },
@@ -252,9 +254,11 @@ export default function EditHabitForm() {
                               transition: "all 0.2s ease-in-out",
                               borderRadius: 1,
                               mx: 0.5,
-                              "&:hover": {
-                                bgcolor: "action.hover",
-                                transform: "translateX(4px)",
+                              "@media (hover: hover) and (pointer: fine)": {
+                                "&:hover": {
+                                  bgcolor: "action.hover",
+                                  transform: "translateX(4px)",
+                                },
                               },
                             },
                           },

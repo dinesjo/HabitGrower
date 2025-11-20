@@ -273,9 +273,11 @@ export default function SelectedHabitList({ habit }: { habit: Habit }) {
             borderRadius: 2,
             mb: 0.5,
             transition: "all 0.2s ease-in-out",
-            "&:hover": {
-              bgcolor: "action.hover",
-              transform: "translateX(4px)",
+            "@media (hover: hover) and (pointer: fine)": {
+              "&:hover": {
+                bgcolor: "action.hover",
+                transform: "translateX(4px)",
+              },
             },
           },
         }}
@@ -298,8 +300,10 @@ export default function SelectedHabitList({ habit }: { habit: Habit }) {
                   onClick={() => handleOpen(date)}
                   sx={{
                     transition: "all 0.2s ease-in-out",
-                    "&:hover": {
-                      transform: "scale(1.1)",
+                    "@media (hover: hover) and (pointer: fine)": {
+                      "&:hover": {
+                        transform: "scale(1.1)",
+                      },
                     },
                   }}
                 >

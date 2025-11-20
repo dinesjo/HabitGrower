@@ -157,10 +157,12 @@ export default function HabitHeatmap({ habit, months = 3 }: HabitHeatmapProps) {
                         borderRadius: 0.5,
                         cursor: "pointer",
                         transition: "all 0.2s ease-in-out",
-                        "&:hover": {
-                          transform: "scale(1.2)",
-                          opacity: 1,
-                          zIndex: 10,
+                        "@media (hover: hover) and (pointer: fine)": {
+                          "&:hover": {
+                            transform: "scale(1.2)",
+                            opacity: 1,
+                            zIndex: 10,
+                          },
                         },
                       }}
                     />
