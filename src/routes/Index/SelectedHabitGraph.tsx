@@ -506,10 +506,15 @@ function GraphControls() {
               textTransform: 'none',
               borderRadius: 1.5,
               transition: 'all 0.2s ease-in-out',
+              border: '1px solid',
+              borderColor: 'divider',
+              color: 'text.primary',
+              bgcolor: 'background.paper',
               "&.Mui-selected": {
                 bgcolor: 'primary.main',
                 color: 'primary.contrastText',
                 fontWeight: 600,
+                borderColor: 'primary.main',
                 "&:hover": {
                   bgcolor: 'primary.dark',
                 },
@@ -552,10 +557,15 @@ function GraphControls() {
               textTransform: 'none',
               borderRadius: 1.5,
               transition: 'all 0.2s ease-in-out',
+              border: '1px solid',
+              borderColor: 'divider',
+              color: 'text.primary',
+              bgcolor: 'background.paper',
               "&.Mui-selected": {
                 bgcolor: 'primary.main',
                 color: 'primary.contrastText',
                 fontWeight: 600,
+                borderColor: 'primary.main',
                 "&:hover": {
                   bgcolor: 'primary.dark',
                 },
