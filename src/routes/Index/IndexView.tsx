@@ -249,7 +249,7 @@ export default function IndexView() {
                       elevation={1}
                       sx={{
                         borderRadius: 2,
-                        overflow: "hidden",
+                        overflow: "visible",
                         // Only transition box-shadow for subtle hover effect
                         transition: "box-shadow 0.2s ease-in-out",
                         // Desktop-only hover effects
@@ -321,13 +321,13 @@ export default function IndexView() {
                               alignItems: "start",
                               borderRadius: 2,
                               position: "relative",
-                              overflow: "hidden",
+                              overflow: "visible",
                             }}
                             onClick={() => navigate(`/${habit.id}`)}
                           >
                             <Box sx={{ display: "flex", alignItems: "center" }}>
-                              <ListItemAvatar sx={{ color: habit.color }}>
-                                <Box sx={{ position: "relative", display: "inline-flex" }}>
+                              <ListItemAvatar sx={{ color: habit.color, overflow: "visible", zIndex: 10 }}>
+                                <Box sx={{ position: "relative", display: "inline-flex", overflow: "visible" }}>
                                   {/* Circular Progress Indicator - shows preview when checked */}
                                   <CircularProgress
                                     variant="determinate"
