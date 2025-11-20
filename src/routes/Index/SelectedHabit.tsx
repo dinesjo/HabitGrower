@@ -35,7 +35,7 @@ export default function SelectedHabit() {
       sx={{
         display: "flex",
         flexDirection: "column",
-        height: ["calc(100vh - 144px)", "calc(100dvh - 144px)"], // Account for bottom navigation (72px) and footer spacing (72px)
+        height: ["calc(100vh - 72px)", "calc(100dvh - 72px)"], // Account for bottom navigation, use dvh for iOS Safari
         bgcolor: "background.default",
       }}
     >
@@ -157,6 +157,7 @@ export default function SelectedHabit() {
                 position: "sticky",
                 bottom: 0,
                 p: 2,
+                mb: "72px", // Add margin to keep footer above navbar
                 borderTop: 1,
                 borderColor: "divider",
                 bgcolor: "background.default",

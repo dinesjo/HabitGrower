@@ -32,6 +32,7 @@ export default function DeleteHabitWithConfirm({ habit, id }: { habit: Habit; id
         TransitionComponent={Transition}
         keepMounted
         fullWidth
+        maxWidth={false}
         PaperProps={{
           sx: {
             position: "fixed",

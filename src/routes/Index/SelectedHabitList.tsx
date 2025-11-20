@@ -120,6 +120,7 @@ export default function SelectedHabitList({ habit }: { habit: Habit }) {
         TransitionComponent={Transition}
         keepMounted
         fullWidth
+        maxWidth={false}
         PaperProps={{
           sx: {
             position: "fixed",
