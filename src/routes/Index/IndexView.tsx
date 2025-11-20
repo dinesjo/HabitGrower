@@ -141,6 +141,8 @@ export default function IndexView() {
         sx={{
           pt: 1.5,
           px: 1,
+          mx: "auto",
+          maxWidth: 800,
         }}
       >
         {habits ? (

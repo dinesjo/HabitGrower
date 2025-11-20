@@ -226,7 +226,7 @@ export default function SelectedHabitGraph({ habit }: { habit: Habit }) {
         <Typography variant="h6" sx={{ mb: 2, fontWeight: 600, color: "text.primary" }}>
           Progress Chart
         </Typography>
-        <Box sx={{ mb: 3, display: "flex", justifyContent: "center", px: { xs: 0, sm: 2 } }}>
+        <Box sx={{ mb: 3, display: "flex", justifyContent: "center", px: { xs: 2, sm: 2 } }}>
           <GraphControls />
         </Box>
         <Box
@@ -298,7 +298,7 @@ export default function SelectedHabitGraph({ habit }: { habit: Habit }) {
       <Typography variant="h6" sx={{ mb: 2, fontWeight: 600, color: "text.primary" }}>
         Progress Chart
       </Typography>
-      <Box sx={{ mb: 3, display: "flex", justifyContent: "center" }}>
+      <Box sx={{ mb: 3, display: "flex", justifyContent: "center", px: { xs: 2, sm: 2 } }}>
         <GraphControls />
       </Box>
       <Container
@@ -506,10 +506,15 @@ function GraphControls() {
               textTransform: 'none',
               borderRadius: 1.5,
               transition: 'all 0.2s ease-in-out',
+              border: '1px solid',
+              borderColor: 'divider',
+              color: 'text.primary',
+              bgcolor: 'background.paper',
               "&.Mui-selected": {
                 bgcolor: 'primary.main',
                 color: 'primary.contrastText',
                 fontWeight: 600,
+                borderColor: 'primary.main',
                 "&:hover": {
                   bgcolor: 'primary.dark',
                 },
@@ -552,10 +557,15 @@ function GraphControls() {
               textTransform: 'none',
               borderRadius: 1.5,
               transition: 'all 0.2s ease-in-out',
+              border: '1px solid',
+              borderColor: 'divider',
+              color: 'text.primary',
+              bgcolor: 'background.paper',
               "&.Mui-selected": {
                 bgcolor: 'primary.main',
                 color: 'primary.contrastText',
                 fontWeight: 600,
+                borderColor: 'primary.main',
                 "&:hover": {
                   bgcolor: 'primary.dark',
                 },
