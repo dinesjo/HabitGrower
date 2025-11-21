@@ -212,12 +212,13 @@ export default function IndexView() {
                       sx={{
                         borderRadius: 2,
                         overflow: "visible",
-                        // Only transition box-shadow for subtle hover effect
-                        transition: "box-shadow 0.2s ease-in-out",
+                        // Smooth transitions for hover effect
+                        transition: "box-shadow 0.2s ease-in-out, transform 0.2s ease-in-out",
                         // Desktop-only hover effects
                         "@media (hover: hover) and (pointer: fine)": {
                           "&:hover": {
-                            boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+                            boxShadow: "0 6px 16px rgba(0,0,0,0.12)",
+                            transform: "translateY(-2px)",
                           },
                         },
                         ...(registeredProgress === 100
@@ -284,6 +285,13 @@ export default function IndexView() {
                               borderRadius: 2,
                               position: "relative",
                               overflow: "visible",
+                              // Override global hover transform to prevent offset
+                              "@media (hover: hover) and (pointer: fine)": {
+                                "&:hover": {
+                                  transform: "none",
+                                  backgroundColor: "transparent",
+                                },
+                              },
                             }}
                             onClick={() => navigate(`/${habit.id}`)}
                           >
