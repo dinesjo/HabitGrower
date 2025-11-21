@@ -23,16 +23,14 @@ export default function HabitHeatmap({ habit, months = 3 }: HabitHeatmapProps) {
     while (currentDate.isBefore(endDate) || currentDate.isSame(endDate, "day")) {
       const dateKey = currentDate.format("YYYY-MM-DD");
 
-      // Check if ANY timestamp on this day has a registration
+      // Count ALL registrations on this day
       // Dates are stored as ISO timestamps (e.g., "2025-01-15T10:00:00Z")
-      const hasRegistrationOnDay = habit.dates
-        ? Object.keys(habit.dates).some((timestamp) => {
+      const count = habit.dates
+        ? Object.keys(habit.dates).filter((timestamp) => {
             const timestampDay = dayjs(timestamp).format("YYYY-MM-DD");
             return timestampDay === dateKey && habit.dates![timestamp];
-          })
-        : false;
-
-      const count = hasRegistrationOnDay ? 1 : 0;
+          }).length
+        : 0;
 
       // Calculate week index
       if (currentDate.diff(currentWeekStart, "day") >= 7) {
@@ -55,6 +53,33 @@ export default function HabitHeatmap({ habit, months = 3 }: HabitHeatmapProps) {
 
   const heatmapData = generateHeatmapData();
   const maxWeeks = Math.max(...heatmapData.map((d) => d.week)) + 1;
+
+  // Calculate max count for intensity scaling
+  const maxCount = Math.max(...heatmapData.map((d) => d.count), 1);
+
+  // Get intensity level (0-4) based on count - GitHub style
+  const getIntensityLevel = (count: number): number => {
+    if (count === 0) return 0;
+    if (maxCount === 1) return 4; // If max is 1, show full intensity
+
+    const percentage = count / maxCount;
+    if (percentage >= 0.75) return 4;
+    if (percentage >= 0.5) return 3;
+    if (percentage >= 0.25) return 2;
+    return 1;
+  };
+
+  // Get color for intensity level
+  const getIntensityColor = (level: number): { bgcolor: string; opacity: number } => {
+    if (level === 0) {
+      return { bgcolor: theme.palette.action.hover, opacity: 0.3 };
+    }
+
+    const baseColor = habit.color || theme.palette.primary.main;
+    // Use different opacity levels to create gradient effect
+    const opacities = [0, 0.4, 0.6, 0.8, 1];
+    return { bgcolor: baseColor, opacity: opacities[level] };
+  };
 
   // Group data by week
   const weekGroups = Array.from({ length: maxWeeks }, (_, weekIdx) =>
@@ -130,9 +155,8 @@ export default function HabitHeatmap({ habit, months = 3 }: HabitHeatmapProps) {
                   return <Box key={dayIdx} sx={{ width: "100%", height: 12 }} />;
                 }
 
-                const cellColor = dayData.count > 0
-                  ? habit.color || theme.palette.primary.main
-                  : theme.palette.action.hover;
+                const intensityLevel = getIntensityLevel(dayData.count);
+                const { bgcolor, opacity } = getIntensityColor(intensityLevel);
 
                 return (
                   <Tooltip
@@ -141,7 +165,9 @@ export default function HabitHeatmap({ habit, months = 3 }: HabitHeatmapProps) {
                       <Box>
                         <Typography variant="caption">{dayjs(dayData.date).format("MMM D, YYYY")}</Typography>
                         <Typography variant="caption" display="block">
-                          {dayData.count > 0 ? "✓ Completed" : "No entry"}
+                          {dayData.count > 0
+                            ? `${dayData.count} registration${dayData.count !== 1 ? "s" : ""}`
+                            : "No entry"}
                         </Typography>
                       </Box>
                     }
@@ -152,8 +178,8 @@ export default function HabitHeatmap({ habit, months = 3 }: HabitHeatmapProps) {
                         width: "100%",
                         height: 12,
                         minWidth: 12,
-                        bgcolor: cellColor,
-                        opacity: dayData.count > 0 ? 1 : 0.3,
+                        bgcolor: bgcolor,
+                        opacity: opacity,
                         borderRadius: 0.5,
                         cursor: "pointer",
                         transition: "all 0.2s ease-in-out",
@@ -179,18 +205,21 @@ export default function HabitHeatmap({ habit, months = 3 }: HabitHeatmapProps) {
         <Typography variant="caption" color="text.secondary" sx={{ fontSize: "0.7rem" }}>
           Less
         </Typography>
-        {[0, 1].map((level) => (
-          <Box
-            key={level}
-            sx={{
-              width: 12,
-              height: 12,
-              bgcolor: level > 0 ? habit.color || "primary.main" : "action.hover",
-              opacity: level > 0 ? 1 : 0.3,
-              borderRadius: 0.5,
-            }}
-          />
-        ))}
+        {[0, 1, 2, 3, 4].map((level) => {
+          const { bgcolor, opacity } = getIntensityColor(level);
+          return (
+            <Box
+              key={level}
+              sx={{
+                width: 12,
+                height: 12,
+                bgcolor: bgcolor,
+                opacity: opacity,
+                borderRadius: 0.5,
+              }}
+            />
+          );
+        })}
         <Typography variant="caption" color="text.secondary" sx={{ fontSize: "0.7rem" }}>
           More
         </Typography>
