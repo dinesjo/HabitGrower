@@ -41,8 +41,8 @@ export default function Root() {
   const [snackbarSeverity] = useAtom(snackbarSeverityAtom);
   const [snackbarAction] = useAtom(snackbarActionAtom);
 
-  // Completed habits count for badge
-  const [completedCount, setCompletedCount] = useState(0);
+  // Incomplete habits count for badge
+  const [incompleteCount, setIncompleteCount] = useState(0);
   const [userWeekStartsAtMonday] = useAtom(userWeekStartsAtMondayAtom);
 
   useEffect(() => {
@@ -55,20 +55,20 @@ export default function Root() {
     return () => clearTimeout(timeoutId); // clear timeout on unmount or when loading changes
   }, [loading]);
 
-  // Fetch completed habits count
+  // Fetch incomplete habits count
   useEffect(() => {
     if (!user) return;
 
-    const fetchCompletedCount = async () => {
+    const fetchIncompleteCount = async () => {
       const habits = await fetchAllHabits();
-      const completed = habits.filter((habit: Habit) => {
+      const incomplete = habits.filter((habit: Habit) => {
         const progress = getProgress(habit, false, userWeekStartsAtMonday);
-        return progress === 100;
+        return progress < 100;
       }).length;
-      setCompletedCount(completed);
+      setIncompleteCount(incomplete);
     };
 
-    fetchCompletedCount();
+    fetchIncompleteCount();
     // Refresh on location change (when user navigates)
   }, [user, location, userWeekStartsAtMonday]);
 
@@ -89,8 +89,8 @@ export default function Root() {
       path: "/",
       icon: (
         <Badge
-          badgeContent={completedCount > 0 ? completedCount : null}
-          color="success"
+          badgeContent={incompleteCount > 0 ? incompleteCount : null}
+          color="warning"
           max={99}
           sx={{
             "& .MuiBadge-badge": {

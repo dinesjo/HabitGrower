@@ -128,13 +128,15 @@ export default function SelectedHabit() {
                     mb: 2,
                     borderRadius: 2,
                     bgcolor: "action.hover",
+                    border: "2px solid",
+                    borderColor: habit.color || "primary.main",
                     "& .MuiAlert-message": {
                       width: "100%",
                     },
                   }}
                 >
                   <Box sx={{ display: "flex", flexDirection: "column", gap: 0.5 }}>
-                    <Typography variant="body2">
+                    <Typography variant="body2" sx={{ color: habit.color || "text.primary", fontWeight: 500 }}>
                       Goal: {toFriendlyFrequency(habit)}
                     </Typography>
                     <Typography variant="body2" color="text.secondary">
