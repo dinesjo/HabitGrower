@@ -128,6 +128,8 @@ export default function SelectedHabit() {
                     mb: 2,
                     borderRadius: 2,
                     bgcolor: "action.hover",
+                    border: "2px solid",
+                    borderColor: habit.color || "primary.main",
                     "& .MuiAlert-message": {
                       width: "100%",
                     },
