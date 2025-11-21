@@ -134,7 +134,7 @@ export default function SelectedHabit() {
                   }}
                 >
                   <Box sx={{ display: "flex", flexDirection: "column", gap: 0.5 }}>
-                    <Typography variant="body2">
+                    <Typography variant="body2" sx={{ color: habit.color || "text.primary", fontWeight: 500 }}>
                       Goal: {toFriendlyFrequency(habit)}
                     </Typography>
                     <Typography variant="body2" color="text.secondary">
