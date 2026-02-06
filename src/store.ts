@@ -14,6 +14,7 @@ const userAtom = atom(async () => await getUser());
 export const userDayStartsAtAtom = atomWithStorage<Dayjs | null>("", null, {
   getItem: async () => {
     const userId = (await store.get(userAtom))?.uid;
+    if (!userId) return null;
     return get(ref(database, "users/" + userId + "/dayStartsAt")).then((snapshot) => {
       if (snapshot.exists()) {
         return dayjs(snapshot.val());
@@ -23,16 +24,19 @@ export const userDayStartsAtAtom = atomWithStorage<Dayjs | null>("", null, {
   },
   setItem: async (_, dayStartsAt) => {
     const userId = (await store.get(userAtom))?.uid;
+    if (!userId) return;
     return set(ref(database, "users/" + userId + "/dayStartsAt"), dayStartsAt?.toISOString() || null);
   },
   removeItem: async () => {
     const userId = (await store.get(userAtom))?.uid;
+    if (!userId) return;
     return set(ref(database, "users/" + userId + "/dayStartsAt"), null);
   },
 });
 export const userWeekStartsAtMondayAtom = atomWithStorage<boolean>("", false, {
   getItem: async () => {
     const userId = (await store.get(userAtom))?.uid;
+    if (!userId) return false;
     return get(ref(database, "users/" + userId + "/weekStartsAtMonday")).then((snapshot) => {
       if (snapshot.exists()) {
         return snapshot.val();
@@ -42,10 +46,12 @@ export const userWeekStartsAtMondayAtom = atomWithStorage<boolean>("", false, {
   },
   setItem: async (_, weekStartsAtMonday) => {
     const userId = (await store.get(userAtom))?.uid;
+    if (!userId) return;
     return set(ref(database, "users/" + userId + "/weekStartsAtMonday"), weekStartsAtMonday);
   },
   removeItem: async () => {
     const userId = (await store.get(userAtom))?.uid;
+    if (!userId) return;
     return set(ref(database, "users/" + userId + "/weekStartsAtMonday"), null);
   },
 });
