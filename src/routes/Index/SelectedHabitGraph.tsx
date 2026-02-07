@@ -1,4 +1,4 @@
-import { Box, Container, Divider, Grid2, Paper, ToggleButton, ToggleButtonGroup, Typography, useTheme } from "@mui/material";
+import { Box, Container, Divider, Grid2, ToggleButton, ToggleButtonGroup, Typography, useTheme } from "@mui/material";
 import { useMediaQuery } from "@mui/material";
 import { InsertChartOutlined, TrendingUp, LocalFireDepartment, CalendarToday } from "@mui/icons-material";
 import { BarChart } from "@mui/x-charts";
@@ -139,15 +139,15 @@ export default function SelectedHabitGraph({ habit }: { habit: Habit }) {
   // Memoize aggregated data to avoid recalculation when frequency unit or dates don't change
   const aggregatedData = useMemo(() => {
     const data: Record<string, number> = {};
-    
+
     Object.entries(filteredDates).forEach(([date, completed]) => {
       const dateObj = dayjs(date);
       const periodKey = getPeriodKey(dateObj, graphFrequencyUnit, userWeekStartsAtMonday);
-      
+
       if (!data[periodKey]) {
         data[periodKey] = 0;
       }
-      
+
       if (completed) {
         data[periodKey] += 1;
       }
@@ -156,7 +156,7 @@ export default function SelectedHabitGraph({ habit }: { habit: Habit }) {
     return data;
   }, [filteredDates, graphFrequencyUnit, userWeekStartsAtMonday]);
 
-  // Memoize chart data to avoid regenerating the full dataset unnecessarily  
+  // Memoize chart data to avoid regenerating the full dataset unnecessarily
   const dateData = useMemo(() => {
     // Convert aggregated data to chart format
     const chartData = Object.entries(aggregatedData).map(([periodKey, value]) => ({
@@ -175,7 +175,7 @@ export default function SelectedHabitGraph({ habit }: { habit: Habit }) {
       if (!periods.includes(periodKey)) {
         periods.push(periodKey);
       }
-      
+
       // Increment by appropriate unit
       switch (graphFrequencyUnit) {
         case "day":
@@ -203,7 +203,7 @@ export default function SelectedHabitGraph({ habit }: { habit: Habit }) {
 
     // Sort by period
     chartData.sort((a, b) => a.period.localeCompare(b.period));
-    
+
     return chartData;
   }, [aggregatedData, graphFrequencyUnit, userWeekStartsAtMonday, daysShown]);
 
@@ -212,20 +212,18 @@ export default function SelectedHabitGraph({ habit }: { habit: Habit }) {
 
   if (!hasData) {
     return (
-      <Paper
-        elevation={0}
+      <Box
         sx={{
           p: 3,
           mb: 2,
           borderRadius: 3,
-          border: "1px solid",
-          borderColor: "divider",
+          border: 1,
+          borderColor: (t) => (t.palette.mode === "dark" ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)"),
           bgcolor: "background.paper",
+          boxShadow: (t) => (t.palette.mode === "dark" ? "0 2px 12px rgba(0,0,0,0.25)" : "0 1px 8px rgba(0,0,0,0.04)"),
         }}
       >
-        <Typography variant="h6" sx={{ mb: 2, fontWeight: 600, color: "text.primary" }}>
-          Progress Chart
-        </Typography>
+        <SectionTitle>Progress Chart</SectionTitle>
         <Box sx={{ mb: 3, display: "flex", justifyContent: "center", px: { xs: 2, sm: 2 } }}>
           <GraphControls />
         </Box>
@@ -247,7 +245,7 @@ export default function SelectedHabitGraph({ habit }: { habit: Habit }) {
             Register this habit to see your progress chart
           </Typography>
         </Box>
-      </Paper>
+      </Box>
     );
   }
 
@@ -284,20 +282,18 @@ export default function SelectedHabitGraph({ habit }: { habit: Habit }) {
     : null;
 
   return (
-    <Paper
-      elevation={0}
+    <Box
       sx={{
         p: 3,
         mb: 2,
         borderRadius: 3,
-        border: "1px solid",
-        borderColor: "divider",
+        border: 1,
+        borderColor: (t) => (t.palette.mode === "dark" ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)"),
         bgcolor: "background.paper",
+        boxShadow: (t) => (t.palette.mode === "dark" ? "0 2px 12px rgba(0,0,0,0.25)" : "0 1px 8px rgba(0,0,0,0.04)"),
       }}
     >
-      <Typography variant="h6" sx={{ mb: 2, fontWeight: 600, color: "text.primary" }}>
-        Progress Chart
-      </Typography>
+      <SectionTitle>Progress Chart</SectionTitle>
       <Box sx={{ mb: 3, display: "flex", justifyContent: "center", px: { xs: 2, sm: 2 } }}>
         <GraphControls />
       </Box>
@@ -373,32 +369,30 @@ export default function SelectedHabitGraph({ habit }: { habit: Habit }) {
         </Box>
       </Container>
 
-      {/* Stats Section */}
+      {/* Stats */}
       {stats && (
         <>
-          <Divider sx={{ my: 3 }} />
+          <Divider sx={{ my: 3, opacity: 0.4 }} />
 
-          {/* Stats Grid */}
-          <Grid2 container spacing={2}>
+          <Grid2 container spacing={1.5}>
             <Grid2 size={{ xs: 4, sm: 4 }}>
               <Box
                 sx={{
                   textAlign: "center",
-                  p: 2,
-                  borderRadius: 2,
-                  bgcolor: "action.hover",
-                  transition: "all 0.2s ease-in-out",
-                  "&:hover": {
-                    bgcolor: "action.selected",
-                    transform: "translateY(-2px)",
-                  },
+                  p: 1.5,
+                  borderRadius: 2.5,
+                  bgcolor: (t) =>
+                    t.palette.mode === "dark" ? "rgba(144, 198, 91, 0.06)" : "rgba(46, 125, 50, 0.04)",
+                  border: 1,
+                  borderColor: (t) =>
+                    t.palette.mode === "dark" ? "rgba(144, 198, 91, 0.08)" : "rgba(46, 125, 50, 0.06)",
                 }}
               >
-                <TrendingUp sx={{ fontSize: 28, color: "primary.main", mb: 0.5 }} />
-                <Typography variant="h5" sx={{ fontWeight: 700, color: "text.primary", mb: 0.5 }}>
+                <TrendingUp sx={{ fontSize: 24, color: "primary.main", mb: 0.5 }} />
+                <Typography variant="h5" sx={{ fontWeight: 700, color: "text.primary", mb: 0.25, lineHeight: 1.2 }}>
                   {stats.avgPerDay}
                 </Typography>
-                <Typography variant="caption" color="text.secondary" sx={{ fontSize: "0.7rem" }}>
+                <Typography variant="caption" color="text.secondary" sx={{ fontSize: "0.65rem" }}>
                   Avg/Day
                 </Typography>
               </Box>
@@ -408,40 +402,38 @@ export default function SelectedHabitGraph({ habit }: { habit: Habit }) {
               <Box
                 sx={{
                   textAlign: "center",
-                  p: 2,
-                  borderRadius: 2,
-                  bgcolor: stats.currentStreak > 0 ? "success.light" : "action.hover",
-                  transition: "all 0.2s ease-in-out",
-                  "&:hover": {
-                    bgcolor: stats.currentStreak > 0 ? "success.main" : "action.selected",
-                    transform: "translateY(-2px)",
-                  },
+                  p: 1.5,
+                  borderRadius: 2.5,
+                  bgcolor: (t) =>
+                    stats.currentStreak > 0
+                      ? t.palette.mode === "dark"
+                        ? "rgba(144, 198, 91, 0.12)"
+                        : "rgba(46, 125, 50, 0.08)"
+                      : t.palette.mode === "dark"
+                        ? "rgba(144, 198, 91, 0.06)"
+                        : "rgba(46, 125, 50, 0.04)",
+                  border: 1,
+                  borderColor: (t) =>
+                    stats.currentStreak > 0
+                      ? t.palette.mode === "dark"
+                        ? "rgba(144, 198, 91, 0.2)"
+                        : "rgba(46, 125, 50, 0.12)"
+                      : t.palette.mode === "dark"
+                        ? "rgba(144, 198, 91, 0.08)"
+                        : "rgba(46, 125, 50, 0.06)",
                 }}
               >
                 <LocalFireDepartment
                   sx={{
-                    fontSize: 28,
+                    fontSize: 24,
                     color: stats.currentStreak > 0 ? "error.main" : "text.disabled",
                     mb: 0.5,
                   }}
                 />
-                <Typography
-                  variant="h5"
-                  sx={{
-                    fontWeight: 700,
-                    color: stats.currentStreak > 0 ? "success.contrastText" : "text.primary",
-                    mb: 0.5,
-                  }}
-                >
+                <Typography variant="h5" sx={{ fontWeight: 700, color: "text.primary", mb: 0.25, lineHeight: 1.2 }}>
                   {stats.currentStreak}
                 </Typography>
-                <Typography
-                  variant="caption"
-                  sx={{
-                    fontSize: "0.7rem",
-                    color: stats.currentStreak > 0 ? "success.contrastText" : "text.secondary",
-                  }}
-                >
+                <Typography variant="caption" color="text.secondary" sx={{ fontSize: "0.65rem" }}>
                   Day Streak
                 </Typography>
               </Box>
@@ -451,21 +443,20 @@ export default function SelectedHabitGraph({ habit }: { habit: Habit }) {
               <Box
                 sx={{
                   textAlign: "center",
-                  p: 2,
-                  borderRadius: 2,
-                  bgcolor: "action.hover",
-                  transition: "all 0.2s ease-in-out",
-                  "&:hover": {
-                    bgcolor: "action.selected",
-                    transform: "translateY(-2px)",
-                  },
+                  p: 1.5,
+                  borderRadius: 2.5,
+                  bgcolor: (t) =>
+                    t.palette.mode === "dark" ? "rgba(144, 198, 91, 0.06)" : "rgba(46, 125, 50, 0.04)",
+                  border: 1,
+                  borderColor: (t) =>
+                    t.palette.mode === "dark" ? "rgba(144, 198, 91, 0.08)" : "rgba(46, 125, 50, 0.06)",
                 }}
               >
-                <CalendarToday sx={{ fontSize: 28, color: "secondary.main", mb: 0.5 }} />
-                <Typography variant="h5" sx={{ fontWeight: 700, color: "text.primary", mb: 0.5 }}>
+                <CalendarToday sx={{ fontSize: 24, color: "secondary.main", mb: 0.5 }} />
+                <Typography variant="h5" sx={{ fontWeight: 700, color: "text.primary", mb: 0.25, lineHeight: 1.2 }}>
                   {stats.longestStreak}
                 </Typography>
-                <Typography variant="caption" color="text.secondary" sx={{ fontSize: "0.7rem" }}>
+                <Typography variant="caption" color="text.secondary" sx={{ fontSize: "0.65rem" }}>
                   Best Streak
                 </Typography>
               </Box>
@@ -473,7 +464,18 @@ export default function SelectedHabitGraph({ habit }: { habit: Habit }) {
           </Grid2>
         </>
       )}
-    </Paper>
+    </Box>
+  );
+}
+
+function SectionTitle({ children }: { children: React.ReactNode }) {
+  return (
+    <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}>
+      <Box sx={{ width: 6, height: 6, borderRadius: "50%", bgcolor: "primary.main", flexShrink: 0 }} />
+      <Typography variant="h6" sx={{ fontWeight: 600, color: "text.primary" }}>
+        {children}
+      </Typography>
+    </Box>
   );
 }
 

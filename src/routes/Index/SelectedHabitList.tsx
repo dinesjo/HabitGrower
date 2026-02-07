@@ -12,7 +12,6 @@ import {
   List,
   ListItem,
   ListItemText,
-  Paper,
   Slide,
   Typography,
 } from "@mui/material";
@@ -60,20 +59,18 @@ export default function SelectedHabitList({ habit }: { habit: Habit }) {
 
   if (!hasData) {
     return (
-      <Paper
-        elevation={0}
+      <Box
         sx={{
           p: 3,
           mb: 2,
           borderRadius: 3,
-          border: "1px solid",
-          borderColor: "divider",
+          border: 1,
+          borderColor: (t) => (t.palette.mode === "dark" ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)"),
           bgcolor: "background.paper",
+          boxShadow: (t) => (t.palette.mode === "dark" ? "0 2px 12px rgba(0,0,0,0.25)" : "0 1px 8px rgba(0,0,0,0.04)"),
         }}
       >
-        <Typography variant="h6" sx={{ mb: 2, fontWeight: 600, color: "text.primary" }}>
-          Registration History
-        </Typography>
+        <SectionTitle>Registration History</SectionTitle>
         <Box
           sx={{
             p: 4,
@@ -92,26 +89,24 @@ export default function SelectedHabitList({ habit }: { habit: Habit }) {
             Start tracking by registering this habit from the home screen
           </Typography>
         </Box>
-      </Paper>
+      </Box>
     );
   }
 
   return (
-    <Paper
-      elevation={0}
+    <Box
       sx={{
         p: 3,
         mb: 2,
         borderRadius: 3,
-        border: "1px solid",
-        borderColor: "divider",
+        border: 1,
+        borderColor: (t) => (t.palette.mode === "dark" ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)"),
         bgcolor: "background.paper",
+        boxShadow: (t) => (t.palette.mode === "dark" ? "0 2px 12px rgba(0,0,0,0.25)" : "0 1px 8px rgba(0,0,0,0.04)"),
       }}
     >
       <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
-        <Typography variant="h6" sx={{ fontWeight: 600, color: "text.primary" }}>
-          Registration History
-        </Typography>
+        <SectionTitle>Registration History</SectionTitle>
         <SortDirectionButton />
       </Box>
       <Dialog
@@ -323,7 +318,18 @@ export default function SelectedHabitList({ habit }: { habit: Habit }) {
           );
         })}
       </List>
-    </Paper>
+    </Box>
+  );
+}
+
+function SectionTitle({ children }: { children: React.ReactNode }) {
+  return (
+    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+      <Box sx={{ width: 6, height: 6, borderRadius: "50%", bgcolor: "primary.main", flexShrink: 0 }} />
+      <Typography variant="h6" sx={{ fontWeight: 600, color: "text.primary" }}>
+        {children}
+      </Typography>
+    </Box>
   );
 }
 

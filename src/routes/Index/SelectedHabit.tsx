@@ -1,5 +1,5 @@
 import { EditOutlined } from "@mui/icons-material";
-import { Alert, AlertTitle, Avatar, Box, Button, Grow, Typography } from "@mui/material";
+import { Alert, AlertTitle, Avatar, Box, Button, Fade, Typography } from "@mui/material";
 import { LoaderFunctionArgs, useLoaderData, useNavigate, useParams } from "react-router-dom";
 import BackButton from "../../components/BackButton";
 import DeleteHabitWithConfirm from "../../components/DeleteHabitWithConfirm";
@@ -31,161 +31,179 @@ export default function SelectedHabit() {
 
   const registerCount = habit.dates ? Object.keys(habit.dates).length : 0;
   return (
-    <Box
-      sx={{
-        display: "flex",
-        flexDirection: "column",
-        height: ["calc(100vh - 72px)", "calc(100dvh - 72px)"], // Account for bottom navigation, use dvh for iOS Safari
-        bgcolor: "background.default",
-      }}
-    >
-      {/* Header */}
-      <Grow in={true} timeout={400}>
+    <Box sx={{ bgcolor: "background.default" }}>
+      {/* ── Header ── */}
+      <Fade in timeout={400}>
         <Box
           sx={{
-            display: "flex",
-            alignItems: "flex-start", // Changed from center to flex-start
-            p: 2,
-            gap: 2,
+            position: "relative",
+            overflow: "hidden",
+            background: (theme) =>
+              theme.palette.mode === "dark"
+                ? "linear-gradient(180deg, rgba(14, 30, 18, 0.5) 0%, rgba(14, 30, 18, 0.15) 100%)"
+                : "linear-gradient(180deg, rgba(232, 245, 233, 0.5) 0%, rgba(232, 245, 233, 0.15) 100%)",
             borderBottom: 1,
-            borderColor: "divider",
+            borderColor: (theme) =>
+              theme.palette.mode === "dark" ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)",
           }}
         >
-          <BackButton />
-          {habit && (
-            <>
+          {/* Back button row */}
+          <Box sx={{ px: 1, pt: 1 }}>
+            <BackButton />
+          </Box>
+
+          {/* Habit identity + actions */}
+          {habit && id && (
+            <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", px: 3, pt: 0.5, pb: 2 }}>
               <Avatar
                 sx={{
                   bgcolor: habit.color || "text.primary",
-                  mt: 0.5, // Small top margin to align with text baseline
+                  width: 56,
+                  height: 56,
+                  fontSize: "1.75rem",
+                  mb: 1.5,
+                  boxShadow: (theme) =>
+                    theme.palette.mode === "dark"
+                      ? `0 4px 20px ${habit.color || "rgba(144, 198, 91, 0.3)"}40`
+                      : `0 4px 16px ${habit.color || "rgba(46, 125, 50, 0.2)"}30`,
                 }}
               >
                 {iconMap[habit.icon]}
               </Avatar>
-              <Box sx={{ flexGrow: 1, minWidth: 0 }}>
-                {/* Added minWidth: 0 for text wrapping */}
-                <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 0.5 }}>
-                  <Typography
-                    variant="h6"
-                    sx={{
-                      color: habit.color || "text.primary",
-                      fontWeight: 600,
-                      lineHeight: 1.2, // Tighter line height
-                    }}
-                  >
-                    {habit.name}
-                  </Typography>
-                  <HabitNotificationIndicator sx={{ color: habit.color }} habit={habit} />
-                </Box>
-                {habit.description && (
-                  <Typography
-                    variant="body2"
-                    color="text.secondary"
-                    sx={{
-                      lineHeight: 1.3, // Improved line height for description
-                      wordBreak: "break-word", // Ensure long words break properly
-                    }}
-                  >
-                    {habit.description}
-                  </Typography>
-                )}
+              <Box sx={{ display: "flex", alignItems: "center", gap: 0.75, mb: 0.5 }}>
+                <Typography
+                  variant="h5"
+                  sx={{
+                    color: habit.color || "text.primary",
+                    fontWeight: 700,
+                    lineHeight: 1.2,
+                    textAlign: "center",
+                  }}
+                >
+                  {habit.name}
+                </Typography>
+                <HabitNotificationIndicator sx={{ color: habit.color }} habit={habit} />
               </Box>
-            </>
+              {habit.description && (
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                  sx={{
+                    lineHeight: 1.4,
+                    wordBreak: "break-word",
+                    textAlign: "center",
+                    maxWidth: 320,
+                    mb: 0.5,
+                  }}
+                >
+                  {habit.description}
+                </Typography>
+              )}
+
+              {/* Actions */}
+              <Box sx={{ display: "flex", gap: 1, mt: 1.5 }}>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  size="small"
+                  startIcon={<EditOutlined />}
+                  onClick={() => navigate(`/${id}/edit`)}
+                  sx={{
+                    borderRadius: 3,
+                    textTransform: "none",
+                    fontWeight: 500,
+                    px: 2,
+                  }}
+                >
+                  Edit
+                </Button>
+                <DeleteHabitWithConfirm habit={habit} id={id} />
+              </Box>
+            </Box>
           )}
         </Box>
-      </Grow>
+      </Fade>
+
       {!habit || !id ? (
-        <Grow in={true} timeout={600}>
+        <Fade in timeout={600}>
           <Box sx={{ pt: 1.5, px: 2 }}>
             <Alert severity="error">
               <AlertTitle>Habit not found! Please check the ID in the URL is correct.</AlertTitle>
             </Alert>
           </Box>
-        </Grow>
+        </Fade>
       ) : (
-        <>
-          {/* Content */}
-          <Grow in={true} timeout={600}>
-            <Box
-              sx={{
-                flexGrow: 1,
-                pt: 2,
-                px: 2,
-                pb: 10, // Add padding bottom to prevent content from being hidden behind sticky footer
-                mx: "auto",
-                maxWidth: 800,
-                overflowY: "auto",
-                scrollbarWidth: "thin",
-                scrollbarColor: "#ccc #222",
-              }}
-            >
-              {/* Summary Section */}
-              {habit.frequency && habit.frequencyUnit && (
-                <Alert
-                  severity="info"
-                  icon={false}
-                  sx={{
-                    mb: 2,
-                    borderRadius: 2,
-                    bgcolor: "action.hover",
-                    border: "2px solid",
-                    borderColor: habit.color || "primary.main",
-                    "& .MuiAlert-message": {
-                      width: "100%",
-                    },
-                  }}
-                >
-                  <Box sx={{ display: "flex", flexDirection: "column", gap: 0.5 }}>
-                    <Typography variant="body2" sx={{ color: habit.color || "text.primary", fontWeight: 500 }}>
-                      Goal: {toFriendlyFrequency(habit)}
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      Total registrations: <strong>{registerCount}</strong>
-                    </Typography>
-                  </Box>
-                </Alert>
-              )}
-
-              <SelectedHabitGraph habit={habit} />
-              <HabitHeatmap habit={habit} />
-              <SelectedHabitList habit={habit} />
-            </Box>
-          </Grow>
-
-          {/* Footer - Sticky */}
-          <Grow in={true} timeout={800}>
-            <Box
-              sx={{
-                position: "sticky",
-                bottom: 0, // Container already accounts for navbar space
-                p: 2,
-                borderTop: 1,
-                borderColor: "divider",
-                bgcolor: "background.default",
-                display: "flex",
-                gap: 1,
-                boxShadow: "0 -2px 8px rgba(0, 0, 0, 0.1)",
-                backdropFilter: "blur(8px)",
-                zIndex: 10,
-              }}
-            >
-              <Button
-                variant="contained"
-                color="primary"
-                startIcon={<EditOutlined />}
-                onClick={() => navigate(`/${id}/edit`)}
+        <Fade in timeout={600}>
+          <Box
+            sx={{
+              pt: 2,
+              px: 2,
+              pb: 2,
+              mx: "auto",
+              maxWidth: 800,
+            }}
+          >
+            {/* Summary */}
+            {habit.frequency && habit.frequencyUnit && (
+              <Box
                 sx={{
-                  borderRadius: 2,
-                  textTransform: "none",
-                  fontWeight: 500,
+                  mb: 2,
+                  p: 2,
+                  borderRadius: 3,
+                  border: 1,
+                  borderColor: (theme) =>
+                    theme.palette.mode === "dark" ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)",
+                  bgcolor: "background.paper",
+                  boxShadow: (theme) =>
+                    theme.palette.mode === "dark"
+                      ? "0 2px 12px rgba(0,0,0,0.25)"
+                      : "0 1px 8px rgba(0,0,0,0.04)",
+                  display: "flex",
+                  gap: 2,
+                  justifyContent: "space-around",
+                  borderLeft: 3,
+                  borderLeftColor: habit.color || "primary.main",
                 }}
               >
-                Edit
-              </Button>
-              <DeleteHabitWithConfirm habit={habit} id={id} />
-            </Box>
-          </Grow>
-        </>
+                <Box textAlign="center">
+                  <Typography
+                    variant="caption"
+                    color="text.secondary"
+                    sx={{ fontWeight: 600, letterSpacing: "0.05em", textTransform: "uppercase", fontSize: "0.65rem" }}
+                  >
+                    Goal
+                  </Typography>
+                  <Typography variant="body1" sx={{ color: habit.color || "primary.main", fontWeight: 600 }}>
+                    {toFriendlyFrequency(habit)}
+                  </Typography>
+                </Box>
+                <Box
+                  sx={{
+                    width: "1px",
+                    bgcolor: (theme) =>
+                      theme.palette.mode === "dark" ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)",
+                  }}
+                />
+                <Box textAlign="center">
+                  <Typography
+                    variant="caption"
+                    color="text.secondary"
+                    sx={{ fontWeight: 600, letterSpacing: "0.05em", textTransform: "uppercase", fontSize: "0.65rem" }}
+                  >
+                    Registrations
+                  </Typography>
+                  <Typography variant="body1" sx={{ fontWeight: 700 }}>
+                    {registerCount}
+                  </Typography>
+                </Box>
+              </Box>
+            )}
+
+            <SelectedHabitGraph habit={habit} />
+            <HabitHeatmap habit={habit} />
+            <SelectedHabitList habit={habit} />
+          </Box>
+        </Fade>
       )}
     </Box>
   );

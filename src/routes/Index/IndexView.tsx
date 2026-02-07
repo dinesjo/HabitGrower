@@ -10,13 +10,13 @@ import {
   CircularProgress,
   Divider,
   Fab,
+  Fade,
   Grow,
   List,
   ListItem,
   ListItemAvatar,
   ListItemButton,
   ListItemText,
-  Paper,
   Typography,
 } from "@mui/material";
 import dayjs from "dayjs";
@@ -113,87 +113,129 @@ export default function IndexView() {
   });
 
   return (
-    <Box
-      sx={{
-        pb: 10, // Space for register FAB
-      }}
-    >
-      {/* Header Section */}
-      <Box
-        sx={{
-          px: 2,
-          py: 2,
-          bgcolor: "background.paper",
-          borderBottom: 1,
-          borderColor: "divider",
-        }}
-      >
-        <Typography variant="h5" color="primary.main" align="center" sx={{ fontWeight: 500 }}>
-          {greeting}
-        </Typography>
-        <Typography variant="body2" color="text.secondary" align="center">
-          Have you kept up with your habits lately?
-        </Typography>
-      </Box>
+    <Box sx={{ pb: 10 }}>
+      {/* ── Header ── */}
+      <Fade in timeout={400}>
+        <Box
+          sx={{
+            position: "relative",
+            overflow: "hidden",
+            background: (theme) =>
+              theme.palette.mode === "dark"
+                ? "linear-gradient(160deg, #071a0e 0%, #0f2b18 60%, #0d2415 100%)"
+                : "linear-gradient(160deg, #e8f5e9 0%, #c8e6c9 60%, #e0f2e1 100%)",
+            px: 2.5,
+            pt: 3,
+            pb: 2.5,
+          }}
+        >
+          {/* Dot-grid texture */}
+          <Box
+            sx={{
+              position: "absolute",
+              inset: 0,
+              backgroundImage: (theme) =>
+                theme.palette.mode === "dark"
+                  ? "radial-gradient(rgba(144, 198, 91, 0.07) 1px, transparent 1px)"
+                  : "radial-gradient(rgba(27, 94, 32, 0.045) 1px, transparent 1px)",
+              backgroundSize: "24px 24px",
+              pointerEvents: "none",
+            }}
+          />
+          {/* Decorative shape */}
+          <Box
+            sx={{
+              position: "absolute",
+              top: -30,
+              right: -20,
+              width: 140,
+              height: 140,
+              borderRadius: "50%",
+              background: (theme) =>
+                theme.palette.mode === "dark"
+                  ? "radial-gradient(circle, rgba(144, 198, 91, 0.12) 0%, transparent 70%)"
+                  : "radial-gradient(circle, rgba(46, 125, 50, 0.08) 0%, transparent 70%)",
+              pointerEvents: "none",
+            }}
+          />
+          <Box sx={{ position: "relative", zIndex: 1 }}>
+            <Typography
+              variant="caption"
+              align="center"
+              display="block"
+              sx={{
+                color: (theme) =>
+                  theme.palette.mode === "dark" ? "rgba(144, 198, 91, 0.7)" : "rgba(46, 125, 50, 0.7)",
+                fontWeight: 600,
+                letterSpacing: "0.08em",
+                textTransform: "uppercase",
+                fontSize: "0.65rem",
+                mb: 0.5,
+              }}
+            >
+              {dayjs().format("dddd, MMMM D")}
+            </Typography>
+            <Typography
+              variant="h5"
+              align="center"
+              sx={{
+                fontWeight: 700,
+                color: (theme) => (theme.palette.mode === "dark" ? "#e8f5e9" : "#1b5e20"),
+              }}
+            >
+              {greeting}
+            </Typography>
+            <Typography
+              variant="body2"
+              align="center"
+              sx={{
+                color: (theme) =>
+                  theme.palette.mode === "dark" ? "rgba(232, 245, 233, 0.55)" : "rgba(27, 94, 32, 0.6)",
+                mt: 0.5,
+                fontWeight: 500,
+              }}
+            >
+              {sortedHabits.length > 0
+                ? `${sortedHabits.filter((h) => getProgress(h, false, userWeekStartsAtMonday) === 100).length} of ${sortedHabits.length} habits completed`
+                : "Have you kept up with your habits lately?"}
+            </Typography>
+          </Box>
+        </Box>
+      </Fade>
 
-      {/* Content Section */}
-      <Box
-        sx={{
-          pt: 1.5,
-          px: 1,
-          mx: "auto",
-          maxWidth: 800,
-        }}
-      >
+      {/* ── Content ── */}
+      <Box sx={{ pt: 1.5, px: 1, mx: "auto", maxWidth: 800 }}>
         {habits ? (
           <Form method="post">
             {allHabitsCompleted && (
-              <Grow in={true} timeout={800}>
+              <Fade in timeout={800}>
                 <Box
                   sx={{
                     py: 2,
                     px: 2,
                     mx: 1,
                     mb: 2,
-                    background: "linear-gradient(135deg, #4caf50 0%, #81c784 100%)",
-                    color: "white",
-                    borderRadius: 2,
+                    background: (theme) =>
+                      theme.palette.mode === "dark"
+                        ? "linear-gradient(135deg, rgba(144, 198, 91, 0.14) 0%, rgba(76, 175, 80, 0.08) 100%)"
+                        : "linear-gradient(135deg, rgba(46, 125, 50, 0.08) 0%, rgba(76, 175, 80, 0.05) 100%)",
+                    border: 1,
+                    borderColor: (theme) =>
+                      theme.palette.mode === "dark" ? "rgba(144, 198, 91, 0.2)" : "rgba(46, 125, 50, 0.15)",
+                    borderRadius: 3,
                     textAlign: "center",
-                    boxShadow: "0 4px 12px rgba(76, 175, 80, 0.3)",
-                    position: "relative",
-                    overflow: "hidden",
-                    "&::before": {
-                      content: '""',
-                      position: "absolute",
-                      top: 0,
-                      left: "-100%",
-                      width: "100%",
-                      height: "100%",
-                      background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent)",
-                      animation: "shimmer 2s infinite",
-                    },
-                    "@keyframes shimmer": {
-                      "0%": { left: "-100%" },
-                      "100%": { left: "100%" },
-                    },
                   }}
                 >
-                  <Typography variant="h6" sx={{ fontWeight: 600, mb: 0.5 }}>
+                  <Typography variant="h6" sx={{ fontWeight: 600, mb: 0.5, color: "primary.main" }}>
                     🎉 Congratulations!
                   </Typography>
-                  <Typography variant="body2" sx={{ opacity: 0.9 }}>
+                  <Typography variant="body2" color="text.secondary">
                     You've completed all your habits for now
                   </Typography>
                 </Box>
-              </Grow>
+              </Fade>
             )}
-            <List
-              disablePadding
-              sx={{
-                px: 1,
-                pt: 3, // Space for "Done!" badge at top
-              }}
-            >
+            <List disablePadding sx={{ px: 1, pt: 3 }}>
               {sortedHabits.map((habit) => {
                 const isChecked = checkedHabitIds.includes(habit.id);
                 const progress = getProgress(habit, isChecked, userWeekStartsAtMonday);
@@ -207,17 +249,24 @@ export default function IndexView() {
                         <Chip label="Completed" size="small" icon={<Checklist />} color="success" variant="filled" />
                       </Divider>
                     )}{" "}
-                    <Paper
-                      elevation={1}
+                    <Box
                       sx={{
-                        borderRadius: 2,
+                        borderRadius: 3,
                         overflow: "visible",
-                        // Smooth transitions for hover effect
+                        border: 1,
+                        borderColor: (theme) =>
+                          theme.palette.mode === "dark" ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)",
+                        boxShadow: (theme) =>
+                          theme.palette.mode === "dark"
+                            ? "0 2px 12px rgba(0,0,0,0.25)"
+                            : "0 1px 8px rgba(0,0,0,0.04)",
                         transition: "box-shadow 0.2s ease-in-out, transform 0.2s ease-in-out",
-                        // Desktop-only hover effects
                         "@media (hover: hover) and (pointer: fine)": {
                           "&:hover": {
-                            boxShadow: "0 6px 16px rgba(0,0,0,0.12)",
+                            boxShadow: (theme) =>
+                              theme.palette.mode === "dark"
+                                ? "0 6px 24px rgba(0,0,0,0.35)"
+                                : "0 6px 20px rgba(0,0,0,0.08)",
                             transform: "translateY(-2px)",
                           },
                         },
@@ -234,177 +283,165 @@ export default function IndexView() {
                             }),
                       }}
                     >
-                        <ListItem
-                          disablePadding
-                          secondaryAction={
-                            <>
-                              {isChecked && <input type="hidden" name="habitIds" value={habit.id} />}
-                              <Checkbox
-                                checked={isChecked}
-                                onClick={() =>
-                                  setCheckedHabitIds((prev) =>
-                                    isChecked ? prev.filter((id) => id !== habit.id) : [...prev, habit.id]
-                                  )
-                                }
-                                sx={{
-                                  "& .MuiSvgIcon-root": { fontSize: 32 },
+                      <ListItem
+                        disablePadding
+                        secondaryAction={
+                          <>
+                            {isChecked && <input type="hidden" name="habitIds" value={habit.id} />}
+                            <Checkbox
+                              checked={isChecked}
+                              onClick={() =>
+                                setCheckedHabitIds((prev) =>
+                                  isChecked ? prev.filter((id) => id !== habit.id) : [...prev, habit.id]
+                                )
+                              }
+                              sx={{
+                                "& .MuiSvgIcon-root": { fontSize: 32 },
+                                color: habit.color,
+                                "&.Mui-checked": {
                                   color: habit.color,
-                                  "&.Mui-checked": {
-                                    color: habit.color,
-                                  },
-                                  // Desktop hover effects
-                                  "@media (hover: hover) and (pointer: fine)": {
-                                    "&:hover": {
-                                      backgroundColor: `${habit.color}15`,
-                                      transform: "scale(1.1)",
-                                    },
-                                  },
-                                  // Mobile touch feedback - larger touch area and bounce effect
-                                  "&:active": {
-                                    transform: "scale(0.9)",
-                                    backgroundColor: `${habit.color}25`,
-                                    transition: "all 0.1s ease-out",
-                                  },
-                                  // Enhanced touch area for mobile
-                                  padding: 2,
-                                  borderRadius: 2,
-                                  transition: "all 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
-                                }}
-                              />
-                            </>
-                          }
-                          sx={{ borderRadius: "inherit", ".MuiListItemButton-root": { borderRadius: "inherit" } }}
-                        >
-                          <ListItemButton
-                            sx={{
-                              py: 1.5,
-                              px: 2,
-                              display: "flex",
-                              flexDirection: "column",
-                              alignItems: "start",
-                              borderRadius: 2,
-                              position: "relative",
-                              overflow: "visible",
-                              // Override global hover transform to prevent offset
-                              "@media (hover: hover) and (pointer: fine)": {
-                                "&:hover": {
-                                  transform: "none",
-                                  backgroundColor: "transparent",
                                 },
+                                "@media (hover: hover) and (pointer: fine)": {
+                                  "&:hover": {
+                                    backgroundColor: `${habit.color}15`,
+                                    transform: "scale(1.1)",
+                                  },
+                                },
+                                "&:active": {
+                                  transform: "scale(0.9)",
+                                  backgroundColor: `${habit.color}25`,
+                                  transition: "all 0.1s ease-out",
+                                },
+                                padding: 2,
+                                borderRadius: 2,
+                                transition: "all 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
+                              }}
+                            />
+                          </>
+                        }
+                        sx={{ borderRadius: "inherit", ".MuiListItemButton-root": { borderRadius: "inherit" } }}
+                      >
+                        <ListItemButton
+                          sx={{
+                            py: 1.5,
+                            px: 2,
+                            display: "flex",
+                            flexDirection: "column",
+                            alignItems: "start",
+                            borderRadius: 3,
+                            position: "relative",
+                            overflow: "visible",
+                            "@media (hover: hover) and (pointer: fine)": {
+                              "&:hover": {
+                                transform: "none",
+                                backgroundColor: "transparent",
                               },
-                            }}
-                            onClick={() => navigate(`/${habit.id}`)}
-                          >
-                            <Box sx={{ display: "flex", alignItems: "center" }}>
-                              <ListItemAvatar sx={{ color: habit.color, overflow: "visible", zIndex: 10 }}>
-                                <Box sx={{ position: "relative", display: "inline-flex", overflow: "visible" }}>
-                                  {/* Circular Progress Indicator - shows preview when checked */}
-                                  <CircularProgress
-                                    variant="determinate"
-                                    value={progress}
-                                    size={56}
-                                    thickness={3}
-                                    sx={{
-                                      color: habit.color || "primary.main",
-                                      position: "absolute",
-                                      top: -4,
-                                      left: -4,
-                                      zIndex: 1,
-                                    }}
-                                  />
-                                  {/* Background Circle */}
-                                  <CircularProgress
-                                    variant="determinate"
-                                    value={100}
-                                    size={56}
-                                    thickness={3}
-                                    sx={{
-                                      color: "action.hover",
-                                      position: "absolute",
-                                      top: -4,
-                                      left: -4,
-                                    }}
-                                  />
-                                  <Badge
-                                    invisible={progress !== 100}
-                                    badgeContent={"Done!"}
-                                    color="success"
-                                    anchorOrigin={{ vertical: "top", horizontal: "right" }}
-                                  >
-                                    <Avatar
-                                      sx={{
-                                        bgcolor: habit.color || "text.primary",
-                                        width: 48,
-                                        height: 48,
-                                        fontSize: "1.5rem",
-                                      }}
-                                    >
-                                      {iconMap[habit.icon]}
-                                    </Avatar>
-                                  </Badge>
-                                </Box>
-                              </ListItemAvatar>
-                              <ListItemText
-                                primary={
-                                  <Box
-                                    sx={{
-                                      display: "flex",
-                                      alignItems: "center",
-                                      pr: 2,
-                                    }}
-                                  >
-                                    <Typography
-                                      lineHeight={1.25}
-                                      sx={{
-                                        color: habit.color,
-                                        fontWeight: 500,
-                                        fontSize: "1.1rem",
-                                      }}
-                                    >
-                                      {habit.name}
-                                    </Typography>
-                                    <HabitNotificationIndicator sx={{ ml: 1 }} habit={habit} />
-                                  </Box>
-                                }
-                                secondary={
-                                  <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
-                                    {toFriendlyFrequency(habit)}
-                                  </Typography>
-                                }
-                              />
-                            </Box>
-                            <Box sx={{ width: "100%", pr: 1, mt: 1 }}>
-                              {habit.frequency && habit.frequencyUnit && (
-                                <LinearProgressWithLabel
-                                  variant="buffer"
-                                  valueBuffer={progressBuffer}
+                            },
+                          }}
+                          onClick={() => navigate(`/${habit.id}`)}
+                        >
+                          <Box sx={{ display: "flex", alignItems: "center" }}>
+                            <ListItemAvatar sx={{ color: habit.color, overflow: "visible", zIndex: 10 }}>
+                              <Box sx={{ position: "relative", display: "inline-flex", overflow: "visible" }}>
+                                <CircularProgress
+                                  variant="determinate"
                                   value={progress}
+                                  size={56}
+                                  thickness={3}
                                   sx={{
-                                    height: 6,
-                                    borderRadius: 3,
-                                    ".MuiLinearProgress-bar1Buffer": {
-                                      backgroundColor: habit.color,
-                                      borderRadius: 3,
-                                    },
-                                    ".MuiLinearProgress-bar2Buffer": {
-                                      backgroundColor: habit.color,
-                                      opacity: 0.3,
-                                      borderRadius: 3,
-                                    },
-                                    ".MuiLinearProgress-dashed": {
-                                      display: "none",
-                                    },
-                                    ".MuiLinearProgress-root": {
-                                      backgroundColor: "rgba(0,0,0,0.08)",
-                                    },
+                                    color: habit.color || "primary.main",
+                                    position: "absolute",
+                                    top: -4,
+                                    left: -4,
+                                    zIndex: 1,
                                   }}
                                 />
-                              )}
-                            </Box>
-                          </ListItemButton>
-                        </ListItem>
-                      </Paper>
+                                <CircularProgress
+                                  variant="determinate"
+                                  value={100}
+                                  size={56}
+                                  thickness={3}
+                                  sx={{
+                                    color: "action.hover",
+                                    position: "absolute",
+                                    top: -4,
+                                    left: -4,
+                                  }}
+                                />
+                                <Badge
+                                  invisible={progress !== 100}
+                                  badgeContent={"Done!"}
+                                  color="success"
+                                  anchorOrigin={{ vertical: "top", horizontal: "right" }}
+                                >
+                                  <Avatar
+                                    sx={{
+                                      bgcolor: habit.color || "text.primary",
+                                      width: 48,
+                                      height: 48,
+                                      fontSize: "1.5rem",
+                                    }}
+                                  >
+                                    {iconMap[habit.icon]}
+                                  </Avatar>
+                                </Badge>
+                              </Box>
+                            </ListItemAvatar>
+                            <ListItemText
+                              primary={
+                                <Box sx={{ display: "flex", alignItems: "center", pr: 2 }}>
+                                  <Typography
+                                    lineHeight={1.25}
+                                    sx={{
+                                      color: habit.color,
+                                      fontWeight: 500,
+                                      fontSize: "1.1rem",
+                                    }}
+                                  >
+                                    {habit.name}
+                                  </Typography>
+                                  <HabitNotificationIndicator sx={{ ml: 1 }} habit={habit} />
+                                </Box>
+                              }
+                              secondary={
+                                <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+                                  {toFriendlyFrequency(habit)}
+                                </Typography>
+                              }
+                            />
+                          </Box>
+                          <Box sx={{ width: "100%", pr: 1, mt: 1 }}>
+                            {habit.frequency && habit.frequencyUnit && (
+                              <LinearProgressWithLabel
+                                variant="buffer"
+                                valueBuffer={progressBuffer}
+                                value={progress}
+                                sx={{
+                                  height: 6,
+                                  borderRadius: 3,
+                                  ".MuiLinearProgress-bar1Buffer": {
+                                    backgroundColor: habit.color,
+                                    borderRadius: 3,
+                                  },
+                                  ".MuiLinearProgress-bar2Buffer": {
+                                    backgroundColor: habit.color,
+                                    opacity: 0.3,
+                                    borderRadius: 3,
+                                  },
+                                  ".MuiLinearProgress-dashed": {
+                                    display: "none",
+                                  },
+                                  ".MuiLinearProgress-root": {
+                                    backgroundColor: "rgba(0,0,0,0.08)",
+                                  },
+                                }}
+                              />
+                            )}
+                          </Box>
+                        </ListItemButton>
+                      </ListItem>
                     </Box>
+                  </Box>
                 );
               })}
             </List>
@@ -415,7 +452,7 @@ export default function IndexView() {
                 width: "100%",
                 display: "flex",
                 justifyContent: "center",
-                bottom: 88, // Above bottom navigation
+                bottom: 88,
                 left: 0,
                 zIndex: 1000,
               }}
@@ -439,7 +476,6 @@ export default function IndexView() {
                     position: "relative",
                     overflow: "hidden",
                     transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-                    // Desktop hover effects
                     "@media (hover: hover) and (pointer: fine)": {
                       "&:hover": {
                         boxShadow: "0 8px 20px rgba(71, 133, 35, 0.4)",
@@ -450,7 +486,6 @@ export default function IndexView() {
                         },
                       },
                     },
-                    // Mobile touch feedback - satisfying bounce and highlight
                     "&:active": {
                       transform: "scale(0.95)",
                       boxShadow: "0 4px 12px rgba(71, 133, 35, 0.5)",
@@ -462,7 +497,6 @@ export default function IndexView() {
                       color: "action.disabled",
                       background: "none",
                     },
-                    // Shimmer effect (works on both desktop and mobile)
                     "&::before": {
                       content: '""',
                       position: "absolute",
@@ -486,7 +520,6 @@ export default function IndexView() {
                         sx={{
                           mr: 1,
                           transition: "transform 0.2s ease-in-out",
-                          // Desktop only rotation effect
                           "@media (hover: hover) and (pointer: fine)": {
                             ".MuiFab-root:hover &": {
                               transform: "rotate(360deg)",
@@ -510,7 +543,6 @@ export default function IndexView() {
                         transition: "all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)",
                         opacity: 0,
                         transform: "translateX(100px) scale(0)",
-                        // Desktop hover effects only
                         "@media (hover: hover) and (pointer: fine)": {
                           "&:hover": {
                             transform: "scale(1.2) rotate(5deg)",
@@ -521,12 +553,10 @@ export default function IndexView() {
                             },
                           },
                         },
-                        // Mobile touch feedback - gentle scale and no rotation
                         "&:active": {
                           transform: "scale(1.1)",
                           transition: "transform 0.1s ease-out",
                         },
-                        // Pulse effect (ambient animation)
                         "&::after": {
                           content: '""',
                           position: "absolute",
@@ -540,7 +570,6 @@ export default function IndexView() {
                           transform: "scale(1)",
                           animation: "avatarPulse 2s infinite",
                         },
-                        // Shimmer effect
                         "&::before": {
                           content: '""',
                           position: "absolute",
@@ -556,7 +585,6 @@ export default function IndexView() {
                       ".MuiSvgIcon-root": {
                         fontSize: "1rem",
                       },
-                      // Define keyframes for the container
                       "@keyframes slideInFromBehind": {
                         "0%": {
                           opacity: 0,
@@ -585,7 +613,6 @@ export default function IndexView() {
                           transform: "scale(1)",
                         },
                       },
-                      // Animate each avatar with staggered timing
                       ".MuiAvatar-root:nth-of-type(1)": {
                         animation: "slideInFromBehind 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.0s both",
                       },
@@ -611,7 +638,6 @@ export default function IndexView() {
                           key={id}
                           sx={{
                             bgcolor: habit.color,
-                            // Add gradient backgrounds for more visual appeal
                             background: `linear-gradient(135deg, ${habit.color} 0%, ${habit.color}cc 100%)`,
                           }}
                         >
@@ -625,46 +651,51 @@ export default function IndexView() {
             </Box>
           </Form>
         ) : (
-          <Box
-            sx={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              justifyContent: "center",
-              height: "60%",
-              textAlign: "center",
-              px: 4,
-            }}
-          >
+          <Fade in timeout={600}>
             <Box
               sx={{
-                width: 120,
-                height: 120,
-                borderRadius: "50%",
-                bgcolor: "primary.light",
                 display: "flex",
+                flexDirection: "column",
                 alignItems: "center",
                 justifyContent: "center",
-                mb: 3,
-                opacity: 0.1,
+                height: "60%",
+                textAlign: "center",
+                px: 4,
+                pt: 6,
               }}
             >
-              <Check sx={{ fontSize: 60, color: "primary.main" }} />
+              <Box
+                sx={{
+                  width: 100,
+                  height: 100,
+                  borderRadius: "50%",
+                  background: (theme) =>
+                    theme.palette.mode === "dark"
+                      ? "radial-gradient(circle, rgba(144, 198, 91, 0.12) 0%, transparent 70%)"
+                      : "radial-gradient(circle, rgba(46, 125, 50, 0.08) 0%, transparent 70%)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  mb: 3,
+                }}
+              >
+                <Check sx={{ fontSize: 48, color: "primary.main", opacity: 0.5 }} />
+              </Box>
+              <Typography variant="h6" color="text.primary" sx={{ mb: 1, fontWeight: 600 }}>
+                No habits yet
+              </Typography>
+              <Typography variant="body2" color="text.secondary" sx={{ mb: 3, lineHeight: 1.6 }}>
+                Start building better habits by tapping the + button below
+              </Typography>
+              <Typography variant="caption" color="text.secondary" sx={{ opacity: 0.6 }}>
+                Your journey to a better you begins with one small step
+              </Typography>
             </Box>
-            <Typography variant="h6" color="text.primary" sx={{ mb: 1, fontWeight: 500 }}>
-              No habits yet
-            </Typography>
-            <Typography variant="body2" color="text.secondary" sx={{ mb: 3, lineHeight: 1.6 }}>
-              Start building better habits by tapping the + button below
-            </Typography>
-            <Typography variant="caption" color="text.secondary" sx={{ opacity: 0.7 }}>
-              Your journey to a better you begins with one small step
-            </Typography>
-          </Box>
+          </Fade>
         )}
       </Box>
 
-      {/* Loading Backdrop for habit registration */}
+      {/* Loading Backdrop */}
       <Backdrop
         sx={{
           color: "#fff",
