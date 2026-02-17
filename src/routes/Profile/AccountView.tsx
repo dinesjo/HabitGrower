@@ -25,6 +25,7 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
+import { alpha } from "@mui/material/styles";
 import { TimePicker } from "@mui/x-date-pickers";
 import { Dayjs } from "dayjs";
 import { User } from "firebase/auth";
@@ -33,6 +34,7 @@ import { ReactNode, Suspense } from "react";
 import { Form, redirect, useLoaderData, useNavigation } from "react-router-dom";
 import { getUser } from "../../firebase";
 import { notificationPermissionAtom, themeAtom, userDayStartsAtAtom, userWeekStartsAtMondayAtom } from "../../store";
+import { ambientPageSx, contentLayerSx, glassPanelSx, sectionLabelSx } from "../../styles/designLanguage";
 
 async function loader() {
   const user = await getUser();
@@ -51,12 +53,7 @@ export default function AccountView() {
 
   return (
     <Box
-      sx={{
-        display: "flex",
-        flexDirection: "column",
-        minHeight: ["calc(100vh - 72px)", "calc(100dvh - 72px)"],
-        bgcolor: "background.default",
-      }}
+      sx={{ ...ambientPageSx, display: "flex", flexDirection: "column", minHeight: ["100vh", "100dvh"] }}
     >
       {/* ── Profile Header ── */}
       <Fade in timeout={500}>
@@ -66,8 +63,10 @@ export default function AccountView() {
             overflow: "hidden",
             background: (theme) =>
               theme.palette.mode === "dark"
-                ? "linear-gradient(160deg, #071a0e 0%, #0f2b18 40%, #163d22 70%, #0d2415 100%)"
-                : "linear-gradient(160deg, #e8f5e9 0%, #c8e6c9 40%, #a5d6a7 70%, #e0f2e1 100%)",
+                ? "linear-gradient(160deg, rgba(14, 38, 23, 0.86) 0%, rgba(16, 49, 28, 0.8) 40%, rgba(17, 58, 33, 0.76) 70%, rgba(12, 31, 19, 0.82) 100%)"
+                : "linear-gradient(160deg, rgba(233, 245, 229, 0.86) 0%, rgba(207, 233, 200, 0.76) 40%, rgba(183, 222, 173, 0.66) 70%, rgba(226, 242, 223, 0.84) 100%)",
+            borderBottom: 1,
+            borderColor: (theme) => alpha(theme.palette.primary.main, theme.palette.mode === "dark" ? 0.28 : 0.12),
             pt: 5,
             pb: 5,
             px: 2,
@@ -135,7 +134,7 @@ export default function AccountView() {
           />
 
           {/* Avatar & identity */}
-          <Stack alignItems="center" spacing={1.5} sx={{ position: "relative", zIndex: 1 }}>
+          <Stack alignItems="center" spacing={1.5} sx={contentLayerSx}>
             <Box
               sx={{
                 p: "3px",
@@ -194,7 +193,7 @@ export default function AccountView() {
       </Fade>
 
       {/* ── Settings ── */}
-      <Box sx={{ flex: 1, px: 2, pt: 0.5, pb: 2, mx: "auto", maxWidth: 560, width: "100%" }}>
+      <Box sx={{ ...contentLayerSx, flex: 1, px: 2, pt: 0.5, pb: 2, mx: "auto", maxWidth: 560, width: "100%" }}>
         {/* Preferences */}
         <Fade in timeout={700}>
           <Box>
@@ -262,12 +261,8 @@ export default function AccountView() {
 
 function SectionLabel({ children }: { children: ReactNode }) {
   return (
-    <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 1.5, mt: 3, px: 0.5 }}>
-      <Box sx={{ width: 6, height: 6, borderRadius: "50%", bgcolor: "primary.main", flexShrink: 0 }} />
-      <Typography
-        variant="overline"
-        sx={{ fontWeight: 700, letterSpacing: "0.1em", color: "primary.main", fontSize: "0.7rem" }}
-      >
+    <Stack direction="row" alignItems="center" spacing={1} sx={{ ...sectionLabelSx, mt: 3, px: 0.5 }}>
+      <Typography variant="overline" sx={{ color: "primary.main", fontSize: "0.7rem" }}>
         {children}
       </Typography>
     </Stack>
@@ -276,18 +271,7 @@ function SectionLabel({ children }: { children: ReactNode }) {
 
 function SettingsCard({ children }: { children: ReactNode }) {
   return (
-    <Box
-      sx={{
-        bgcolor: "background.paper",
-        borderRadius: 3,
-        overflow: "hidden",
-        border: 1,
-        borderColor: (theme) =>
-          theme.palette.mode === "dark" ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)",
-        boxShadow: (theme) =>
-          theme.palette.mode === "dark" ? "0 2px 12px rgba(0,0,0,0.25)" : "0 1px 8px rgba(0,0,0,0.04)",
-      }}
-    >
+    <Box sx={{ ...glassPanelSx, borderRadius: 3, overflow: "hidden" }}>
       {children}
     </Box>
   );

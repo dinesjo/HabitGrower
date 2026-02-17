@@ -12,6 +12,7 @@ import {
   Typography,
   Zoom,
 } from "@mui/material";
+import { alpha } from "@mui/material/styles";
 import { getAuth } from "firebase/auth";
 import { useAtom } from "jotai";
 import { useEffect, useState } from "react";
@@ -44,6 +45,10 @@ export default function Root() {
 
   // Hide nav on sign-in page for immersive experience
   const isSignInPage = location.pathname === "/profile/signin";
+  const safeBottom = "env(safe-area-inset-bottom, 0px)";
+  const navBottom = `calc(12px + ${safeBottom})`;
+  const fabBottom = `calc(18px + ${safeBottom})`;
+  const outletBottomPadding = isSignInPage ? 0 : `calc(78px + ${safeBottom})`;
 
   useEffect(() => {
     let timeoutId: NodeJS.Timeout;
@@ -126,7 +131,15 @@ export default function Root() {
         />
       )}
 
-      <Box sx={{ pb: isSignInPage ? 0 : "72px" }}>
+      <Box
+        sx={{
+          minHeight: ["100vh", "100dvh"],
+          "& > *": {
+            paddingBottom: outletBottomPadding,
+            boxSizing: "border-box",
+          },
+        }}
+      >
         <Outlet />
       </Box>
 
@@ -140,17 +153,21 @@ export default function Root() {
               size="large"
               sx={{
                 position: "fixed",
-                bottom: 16,
-                right: 16,
+                bottom: fabBottom,
+                right: 18,
                 zIndex: 1000,
+                background: "linear-gradient(132deg, #3f7f2d 0%, #5ca942 50%, #87c960 100%)",
                 boxShadow: (theme) =>
                   theme.palette.mode === "dark"
-                    ? "0 2px 12px rgba(0,0,0,0.4)"
-                    : "0 2px 8px rgba(0,0,0,0.12)",
+                    ? "0 14px 28px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.08)"
+                    : "0 14px 26px rgba(33, 76, 30, 0.26), 0 0 0 1px rgba(255,255,255,0.7)",
+                "&:hover": {
+                  background: "linear-gradient(132deg, #4d9437 0%, #67b24a 50%, #99d373 100%)",
+                },
                 "&:active": {
                   transform: "scale(0.92)",
                 },
-                transition: "transform 0.15s ease",
+                transition: "transform 0.15s ease, box-shadow 0.2s ease",
               }}
               aria-label="Add new habit"
             >
@@ -167,7 +184,7 @@ export default function Root() {
           autoHideDuration={snackbarAction ? null : 4000}
           onClose={() => setSnackbarMessage("")}
           sx={{
-            bottom: isSignInPage ? "16px" : "88px",
+            bottom: isSignInPage ? `calc(16px + ${safeBottom})` : `calc(92px + ${safeBottom})`,
             "& .MuiSnackbarContent-root": {
               borderRadius: 2,
               minWidth: "280px",
@@ -198,25 +215,25 @@ export default function Root() {
         <Box
           sx={{
             position: "fixed",
-            bottom: 10,
+            bottom: navBottom,
             left: "50%",
             transform: "translateX(-50%)",
             zIndex: 1001,
             display: "flex",
             alignItems: "center",
-            gap: 0.5,
-            p: 0.75,
+            gap: 0.75,
+            p: 0.8,
             borderRadius: "999px",
-            backdropFilter: "blur(24px)",
+            backdropFilter: "blur(24px) saturate(130%)",
             bgcolor: (theme) =>
-              theme.palette.mode === "dark" ? "rgba(18, 18, 22, 0.88)" : "rgba(255, 255, 255, 0.9)",
+              theme.palette.mode === "dark" ? "rgba(18, 26, 21, 0.88)" : "rgba(255, 255, 255, 0.9)",
             border: 1,
             borderColor: (theme) =>
-              theme.palette.mode === "dark" ? "rgba(144, 198, 91, 0.1)" : "rgba(46, 125, 50, 0.08)",
+              theme.palette.mode === "dark" ? alpha(theme.palette.primary.main, 0.22) : alpha(theme.palette.primary.main, 0.14),
             boxShadow: (theme) =>
               theme.palette.mode === "dark"
-                ? "0 4px 24px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.03), 0 0 48px rgba(144, 198, 91, 0.04)"
-                : "0 4px 24px rgba(0,0,0,0.08), 0 0 0 1px rgba(0,0,0,0.03)",
+                ? "0 12px 28px rgba(0,0,0,0.48), 0 0 0 1px rgba(255,255,255,0.05)"
+                : "0 12px 24px rgba(23, 45, 22, 0.16), 0 0 0 1px rgba(255,255,255,0.75)",
           }}
         >
           {pages.map((page) => {
@@ -237,13 +254,13 @@ export default function Root() {
                   alignItems: "center",
                   justifyContent: "center",
                   px: 3,
-                  py: 0.75,
+                  py: 0.9,
                   borderRadius: "999px",
                   bgcolor: active
                     ? (theme) =>
                         theme.palette.mode === "dark"
-                          ? "rgba(144, 198, 91, 0.13)"
-                          : "rgba(46, 125, 50, 0.09)"
+                          ? alpha(theme.palette.primary.main, 0.2)
+                          : alpha(theme.palette.primary.main, 0.13)
                     : "transparent",
                   color: active ? "primary.main" : "text.secondary",
                   transition: "all 0.25s cubic-bezier(0.4, 0, 0.2, 1)",

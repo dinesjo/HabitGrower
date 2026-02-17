@@ -44,7 +44,17 @@ export default function LinearProgressWithLabel({ ...props }) {
       </Tooltip>
       <Tooltip title="Progress make to goal" arrow>
         <Box sx={{ width: "100%" }}>
-          <LinearProgress variant="determinate" {...props} />
+          <LinearProgress
+            variant="determinate"
+            {...props}
+            sx={{
+              borderRadius: 99,
+              "& .MuiLinearProgress-bar": {
+                borderRadius: 99,
+              },
+              ...(props.sx as object),
+            }}
+          />
         </Box>
       </Tooltip>
     </Box>

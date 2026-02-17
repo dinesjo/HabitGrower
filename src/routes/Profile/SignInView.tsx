@@ -1,12 +1,14 @@
 import { AutoAwesomeOutlined, BarChartOutlined, NotificationsActiveOutlined, TrackChangesOutlined } from "@mui/icons-material";
 import { Box, CircularProgress, Fade, Stack, Typography } from "@mui/material";
+import { alpha } from "@mui/material/styles";
 import firebase from "firebase/compat/app";
 import * as firebaseui from "firebaseui";
 import "firebaseui/dist/firebaseui.css";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { redirect } from "react-router-dom";
 import { getUser } from "../../firebase";
 import { router } from "../../main";
+import { ambientPageSx, contentLayerSx, glassPanelSx } from "../../styles/designLanguage";
 import { showSnackBar } from "../../utils/helpers";
 
 async function loader() {
@@ -27,114 +29,51 @@ const features = [
 ];
 
 export default function SignInView() {
-  const ui = firebaseui.auth.AuthUI.getInstance() || new firebaseui.auth.AuthUI(firebase.auth());
-  const uiConfig = {
-    callbacks: {
-      signInSuccessWithAuthResult: function () {
-        showSnackBar("Sign in successful, welcome!", "success");
-        router.navigate("/");
-        return false;
+  const ui = useMemo(
+    () => firebaseui.auth.AuthUI.getInstance() || new firebaseui.auth.AuthUI(firebase.auth()),
+    []
+  );
+  const uiConfig = useMemo(
+    () => ({
+      callbacks: {
+        signInSuccessWithAuthResult: function () {
+          showSnackBar("Sign in successful, welcome!", "success");
+          router.navigate("/");
+          return false;
+        },
+        uiShown: function () {
+          const loader = document.getElementById("loader");
+          if (loader) loader.style.display = "none";
+        },
       },
-      uiShown: function () {
-        const loader = document.getElementById("loader");
-        if (loader) loader.style.display = "none";
-      },
-    },
-    signInFlow: "popup",
-    signInOptions: [
-      firebase.auth.GoogleAuthProvider.PROVIDER_ID,
-      firebase.auth.EmailAuthProvider.PROVIDER_ID,
-    ],
-  };
+      signInFlow: "popup",
+      signInOptions: [
+        firebase.auth.GoogleAuthProvider.PROVIDER_ID,
+        firebase.auth.EmailAuthProvider.PROVIDER_ID,
+      ],
+    }),
+    []
+  );
   useEffect(() => {
     ui.start("#firebaseui-auth-container", uiConfig);
-  });
+  }, [ui, uiConfig]);
 
   return (
     <Box
       sx={{
+        ...ambientPageSx,
         display: "flex",
         flexDirection: "column",
         height: ["100vh", "100dvh"],
-        bgcolor: "background.default",
         justifyContent: "center",
         alignItems: "center",
-        position: "relative",
-        overflow: "hidden",
         px: 2,
         py: 4,
       }}
     >
-      {/* ── Background atmosphere ── */}
-
-      {/* Dot-grid texture */}
-      <Box
-        sx={{
-          position: "absolute",
-          inset: 0,
-          backgroundImage: (theme) =>
-            theme.palette.mode === "dark"
-              ? "radial-gradient(rgba(144, 198, 91, 0.05) 1px, transparent 1px)"
-              : "radial-gradient(rgba(27, 94, 32, 0.03) 1px, transparent 1px)",
-          backgroundSize: "28px 28px",
-          pointerEvents: "none",
-        }}
-      />
-
-      {/* Large top-right glow */}
-      <Box
-        sx={{
-          position: "absolute",
-          top: "-15%",
-          right: "-12%",
-          width: 480,
-          height: 480,
-          borderRadius: "50%",
-          background: (theme) =>
-            theme.palette.mode === "dark"
-              ? "radial-gradient(circle, rgba(144, 198, 91, 0.13) 0%, rgba(144, 198, 91, 0.04) 40%, transparent 70%)"
-              : "radial-gradient(circle, rgba(46, 125, 50, 0.09) 0%, rgba(46, 125, 50, 0.03) 40%, transparent 70%)",
-          pointerEvents: "none",
-        }}
-      />
-
-      {/* Bottom-left glow */}
-      <Box
-        sx={{
-          position: "absolute",
-          bottom: "-10%",
-          left: "-15%",
-          width: 400,
-          height: 400,
-          borderRadius: "50%",
-          background: (theme) =>
-            theme.palette.mode === "dark"
-              ? "radial-gradient(circle, rgba(144, 198, 91, 0.1) 0%, rgba(144, 198, 91, 0.03) 40%, transparent 70%)"
-              : "radial-gradient(circle, rgba(46, 125, 50, 0.07) 0%, rgba(46, 125, 50, 0.02) 40%, transparent 70%)",
-          pointerEvents: "none",
-        }}
-      />
-
-      {/* Small accent glow */}
-      <Box
-        sx={{
-          position: "absolute",
-          top: "55%",
-          left: "65%",
-          width: 180,
-          height: 180,
-          borderRadius: "50%",
-          background: (theme) =>
-            theme.palette.mode === "dark"
-              ? "radial-gradient(circle, rgba(144, 198, 91, 0.07) 0%, transparent 65%)"
-              : "radial-gradient(circle, rgba(46, 125, 50, 0.04) 0%, transparent 65%)",
-          pointerEvents: "none",
-        }}
-      />
-
       {/* ── Hero section ── */}
       <Fade in timeout={400}>
-        <Box sx={{ textAlign: "center", mb: 4, position: "relative", zIndex: 1 }}>
+        <Box sx={{ ...contentLayerSx, textAlign: "center", mb: 4 }}>
           <Typography
             variant="h3"
             sx={{
@@ -166,23 +105,7 @@ export default function SignInView() {
 
       {/* ── Sign-in card ── */}
       <Fade in timeout={650}>
-        <Box
-          sx={{
-            position: "relative",
-            maxWidth: 420,
-            width: "100%",
-            bgcolor: "background.paper",
-            borderRadius: 4,
-            overflow: "hidden",
-            border: 1,
-            borderColor: (theme) =>
-              theme.palette.mode === "dark" ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)",
-            boxShadow: (theme) =>
-              theme.palette.mode === "dark"
-                ? "0 12px 48px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.04)"
-                : "0 12px 48px rgba(0,0,0,0.1), 0 0 0 1px rgba(0,0,0,0.02)",
-          }}
-        >
+        <Box sx={{ ...contentLayerSx, ...glassPanelSx, maxWidth: 420, width: "100%", borderRadius: 4, overflow: "hidden" }}>
           {/* Green gradient accent bar */}
           <Box
             sx={{
@@ -219,13 +142,7 @@ export default function SignInView() {
           direction="row"
           flexWrap="wrap"
           justifyContent="center"
-          sx={{
-            mt: 4,
-            gap: 1,
-            maxWidth: 420,
-            position: "relative",
-            zIndex: 1,
-          }}
+          sx={{ ...contentLayerSx, mt: 4, gap: 1, maxWidth: 420 }}
         >
           {features.map((f) => (
             <Stack
@@ -241,7 +158,9 @@ export default function SignInView() {
                   theme.palette.mode === "dark" ? "rgba(144, 198, 91, 0.08)" : "rgba(46, 125, 50, 0.06)",
                 border: 1,
                 borderColor: (theme) =>
-                  theme.palette.mode === "dark" ? "rgba(144, 198, 91, 0.12)" : "rgba(46, 125, 50, 0.1)",
+                  theme.palette.mode === "dark"
+                    ? alpha(theme.palette.primary.main, 0.24)
+                    : alpha(theme.palette.primary.main, 0.14),
               }}
             >
               <Box sx={{ color: "primary.main", display: "flex", alignItems: "center" }}>{f.icon}</Box>

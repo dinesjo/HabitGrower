@@ -5,7 +5,14 @@ import { useNavigate } from "react-router-dom";
 export default function BackButton() {
   const navigate = useNavigate();
   return (
-    <Button startIcon={<ChevronLeft />} aria-label="back" onClick={() => navigate("/")}>
+    <Button
+      startIcon={<ChevronLeft />}
+      aria-label="back"
+      variant="outlined"
+      size="small"
+      onClick={() => navigate("/")}
+      sx={{ borderRadius: 999, px: 1.5 }}
+    >
       Back
     </Button>
   );

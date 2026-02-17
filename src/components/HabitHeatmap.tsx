@@ -1,6 +1,7 @@
 import { Box, Paper, Tooltip, Typography, useTheme } from "@mui/material";
 import dayjs from "dayjs";
 import { Habit } from "../types/Habit";
+import { glassPanelSx, sectionLabelSx } from "../styles/designLanguage";
 
 interface HabitHeatmapProps {
   habit: Habit;
@@ -90,20 +91,12 @@ export default function HabitHeatmap({ habit, months = 3 }: HabitHeatmapProps) {
   const dayLabels = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
   return (
-    <Paper
-      elevation={0}
-      sx={{
-        p: 3,
-        mb: 2,
-        borderRadius: 3,
-        border: "1px solid",
-        borderColor: "divider",
-        bgcolor: "background.paper",
-      }}
-    >
-      <Typography variant="h6" sx={{ mb: 2, fontWeight: 600, color: "text.primary" }}>
-        Activity Heatmap
-      </Typography>
+    <Paper elevation={0} sx={{ ...glassPanelSx, p: 3, mb: 2, borderRadius: 3 }}>
+      <Box sx={{ ...sectionLabelSx, mb: 2 }}>
+        <Typography variant="h6" sx={{ color: "text.primary" }}>
+          Activity Heatmap
+        </Typography>
+      </Box>
 
       <Box sx={{ display: "flex", gap: 1, overflowX: "auto", pb: 1 }}>
         {/* Day labels */}

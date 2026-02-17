@@ -1,5 +1,6 @@
 import { DeleteForever, DeleteOutlined, WarningAmber } from "@mui/icons-material";
 import { Box, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Divider, Slide, Typography } from "@mui/material";
+import { alpha } from "@mui/material/styles";
 import { TransitionProps } from "@mui/material/transitions";
 import { forwardRef, ReactElement, Ref, useState } from "react";
 import { Form, useNavigation } from "react-router-dom";
@@ -22,7 +23,7 @@ export default function DeleteHabitWithConfirm({ habit, id }: { habit: Habit; id
 
   return (
     <>
-      <Button startIcon={<DeleteOutlined />} variant="outlined" color="error" onClick={handleOpen}>
+      <Button startIcon={<DeleteOutlined />} variant="outlined" color="error" onClick={handleOpen} sx={{ borderRadius: 999 }}>
         Delete
       </Button>
       <Dialog
@@ -42,8 +43,14 @@ export default function DeleteHabitWithConfirm({ habit, id }: { habit: Habit; id
             m: 0,
             maxWidth: "100%",
             width: "100%",
-            borderRadius: "24px 24px 0 0",
+            borderRadius: "26px 26px 0 0",
             maxHeight: "90vh",
+            border: "1px solid",
+            borderColor: (theme) => alpha(theme.palette.error.main, theme.palette.mode === "dark" ? 0.4 : 0.2),
+            background: (theme) =>
+              theme.palette.mode === "dark"
+                ? "linear-gradient(172deg, rgba(34, 16, 16, 0.95) 0%, rgba(22, 11, 11, 0.98) 100%)"
+                : "linear-gradient(172deg, rgba(255, 249, 249, 0.95) 0%, rgba(252, 242, 242, 0.98) 100%)",
           },
         }}
         sx={{

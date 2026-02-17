@@ -7,6 +7,7 @@ import { useAtom } from "jotai";
 import { useMemo } from "react";
 import { daysShownAtom, graphFrequencyUnitAtom, userWeekStartsAtMondayAtom } from "../../store";
 import { Habit } from "../../types/Habit";
+import { glassPanelSx, sectionLabelSx } from "../../styles/designLanguage";
 
 const daysShownMap: Record<number, string> = {
   14: "14 Days",
@@ -210,19 +211,32 @@ export default function SelectedHabitGraph({ habit }: { habit: Habit }) {
   // Check if there's any data
   const hasData = habit.dates && Object.keys(habit.dates).length > 0;
 
+  const stats = useMemo(() => {
+    if (!habit.dates) return null;
+
+    // Sum up total registrations in the period (values can be numbers for multiple registrations)
+    const totalRegistrationsInPeriod = Object.values(filteredDates).reduce(
+      (sum, val) => sum + Number(val || 0),
+      0
+    );
+
+    // Average registrations per day
+    const avgPerDay = (totalRegistrationsInPeriod / daysShown).toFixed(1);
+
+    // Streaks count consecutive DAYS (not total registrations)
+    const currentStreak = calculateStreak(habit.dates);
+    const longestStreak = calculateLongestStreak(habit.dates);
+
+    return {
+      avgPerDay,
+      currentStreak,
+      longestStreak,
+    };
+  }, [filteredDates, daysShown, habit.dates]);
+
   if (!hasData) {
     return (
-      <Box
-        sx={{
-          p: 3,
-          mb: 2,
-          borderRadius: 3,
-          border: 1,
-          borderColor: (t) => (t.palette.mode === "dark" ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)"),
-          bgcolor: "background.paper",
-          boxShadow: (t) => (t.palette.mode === "dark" ? "0 2px 12px rgba(0,0,0,0.25)" : "0 1px 8px rgba(0,0,0,0.04)"),
-        }}
-      >
+      <Box sx={{ ...glassPanelSx, p: 3, mb: 2, borderRadius: 3 }}>
         <SectionTitle>Progress Chart</SectionTitle>
         <Box sx={{ mb: 3, display: "flex", justifyContent: "center", px: { xs: 2, sm: 2 } }}>
           <GraphControls />
@@ -252,47 +266,13 @@ export default function SelectedHabitGraph({ habit }: { habit: Habit }) {
   // Get max value in the dataSet
   const maxValue = Math.max(...dateData.map((data) => data.value));
 
-  // Calculate stats
-  const stats = useMemo(() => {
-    if (!habit.dates) return null;
-
-    // Sum up total registrations in the period (values can be numbers for multiple registrations)
-    const totalRegistrationsInPeriod = Object.values(filteredDates).reduce(
-      (sum, val) => sum + Number(val || 0),
-      0
-    );
-
-    // Average registrations per day
-    const avgPerDay = (totalRegistrationsInPeriod / daysShown).toFixed(1);
-
-    // Streaks count consecutive DAYS (not total registrations)
-    const currentStreak = calculateStreak(habit.dates);
-    const longestStreak = calculateLongestStreak(habit.dates);
-
-    return {
-      avgPerDay,
-      currentStreak,
-      longestStreak,
-    };
-  }, [filteredDates, daysShown, habit.dates]);
-
   // Calculate target line value
   const targetValue = habit.frequency && habit.frequencyUnit && graphFrequencyUnit === habit.frequencyUnit
     ? habit.frequency
     : null;
 
   return (
-    <Box
-      sx={{
-        p: 3,
-        mb: 2,
-        borderRadius: 3,
-        border: 1,
-        borderColor: (t) => (t.palette.mode === "dark" ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)"),
-        bgcolor: "background.paper",
-        boxShadow: (t) => (t.palette.mode === "dark" ? "0 2px 12px rgba(0,0,0,0.25)" : "0 1px 8px rgba(0,0,0,0.04)"),
-      }}
-    >
+    <Box sx={{ ...glassPanelSx, p: 3, mb: 2, borderRadius: 3 }}>
       <SectionTitle>Progress Chart</SectionTitle>
       <Box sx={{ mb: 3, display: "flex", justifyContent: "center", px: { xs: 2, sm: 2 } }}>
         <GraphControls />
@@ -470,9 +450,8 @@ export default function SelectedHabitGraph({ habit }: { habit: Habit }) {
 
 function SectionTitle({ children }: { children: React.ReactNode }) {
   return (
-    <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}>
-      <Box sx={{ width: 6, height: 6, borderRadius: "50%", bgcolor: "primary.main", flexShrink: 0 }} />
-      <Typography variant="h6" sx={{ fontWeight: 600, color: "text.primary" }}>
+    <Box sx={{ ...sectionLabelSx, mb: 2 }}>
+      <Typography variant="h6" sx={{ color: "text.primary" }}>
         {children}
       </Typography>
     </Box>
@@ -486,7 +465,7 @@ function GraphControls() {
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, width: '100%', maxWidth: 400 }}>
       <Box>
-        <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1, fontSize: '0.75rem', fontWeight: 600 }}>
+        <Typography variant="overline" color="text.secondary" sx={{ mb: 1, fontSize: '0.67rem' }}>
           TIME SPAN
         </Typography>
         <ToggleButtonGroup
@@ -506,7 +485,7 @@ function GraphControls() {
               fontSize: '0.8rem',
               fontWeight: 500,
               textTransform: 'none',
-              borderRadius: 1.5,
+              borderRadius: 2,
               transition: 'all 0.2s ease-in-out',
               border: '1px solid',
               borderColor: 'divider',
@@ -537,7 +516,7 @@ function GraphControls() {
       </Box>
 
       <Box>
-        <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1, fontSize: '0.75rem', fontWeight: 600 }}>
+        <Typography variant="overline" color="text.secondary" sx={{ mb: 1, fontSize: '0.67rem' }}>
           GROUP BY
         </Typography>
         <ToggleButtonGroup
@@ -557,7 +536,7 @@ function GraphControls() {
               fontSize: '0.8rem',
               fontWeight: 500,
               textTransform: 'none',
-              borderRadius: 1.5,
+              borderRadius: 2,
               transition: 'all 0.2s ease-in-out',
               border: '1px solid',
               borderColor: 'divider',

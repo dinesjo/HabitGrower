@@ -19,6 +19,7 @@ import {
   ListItemText,
   Typography,
 } from "@mui/material";
+import { alpha } from "@mui/material/styles";
 import dayjs from "dayjs";
 import { useAtom } from "jotai";
 import { Form, redirect, useLoaderData, useNavigate, useNavigation } from "react-router-dom";
@@ -30,6 +31,7 @@ import { checkedHabitIdsAtom, store, userDayStartsAtAtom, userWeekStartsAtMonday
 import { FrequencyUnit } from "../../types/FrequencyUnit";
 import { Habit } from "../../types/Habit";
 import { getProgress, getProgressBuffer, showSnackBar, toFriendlyFrequency } from "../../utils/helpers";
+import { ambientPageSx, contentLayerSx, glassPanelSx } from "../../styles/designLanguage";
 
 async function loader() {
   return {
@@ -113,7 +115,7 @@ export default function IndexView() {
   });
 
   return (
-    <Box sx={{ pb: 10 }}>
+    <Box sx={{ ...ambientPageSx, pb: 10 }}>
       {/* ── Header ── */}
       <Fade in timeout={400}>
         <Box
@@ -122,8 +124,10 @@ export default function IndexView() {
             overflow: "hidden",
             background: (theme) =>
               theme.palette.mode === "dark"
-                ? "linear-gradient(160deg, #071a0e 0%, #0f2b18 60%, #0d2415 100%)"
-                : "linear-gradient(160deg, #e8f5e9 0%, #c8e6c9 60%, #e0f2e1 100%)",
+                ? "linear-gradient(160deg, rgba(13, 37, 20, 0.9) 0%, rgba(19, 53, 29, 0.78) 60%, rgba(13, 37, 20, 0.86) 100%)"
+                : "linear-gradient(160deg, rgba(227, 243, 224, 0.88) 0%, rgba(207, 235, 204, 0.82) 60%, rgba(224, 242, 225, 0.88) 100%)",
+            borderBottom: 1,
+            borderColor: (theme) => alpha(theme.palette.primary.main, theme.palette.mode === "dark" ? 0.28 : 0.16),
             px: 2.5,
             pt: 3,
             pb: 2.5,
@@ -158,7 +162,7 @@ export default function IndexView() {
               pointerEvents: "none",
             }}
           />
-          <Box sx={{ position: "relative", zIndex: 1 }}>
+          <Box sx={contentLayerSx}>
             <Typography
               variant="caption"
               align="center"
@@ -204,25 +208,18 @@ export default function IndexView() {
       </Fade>
 
       {/* ── Content ── */}
-      <Box sx={{ pt: 1.5, px: 1, mx: "auto", maxWidth: 800 }}>
+      <Box sx={{ ...contentLayerSx, pt: 1.5, px: 1, mx: "auto", maxWidth: 800 }}>
         {habits ? (
           <Form method="post">
             {allHabitsCompleted && (
               <Fade in timeout={800}>
                 <Box
                   sx={{
+                    ...glassPanelSx,
                     py: 2,
                     px: 2,
                     mx: 1,
                     mb: 2,
-                    background: (theme) =>
-                      theme.palette.mode === "dark"
-                        ? "linear-gradient(135deg, rgba(144, 198, 91, 0.14) 0%, rgba(76, 175, 80, 0.08) 100%)"
-                        : "linear-gradient(135deg, rgba(46, 125, 50, 0.08) 0%, rgba(76, 175, 80, 0.05) 100%)",
-                    border: 1,
-                    borderColor: (theme) =>
-                      theme.palette.mode === "dark" ? "rgba(144, 198, 91, 0.2)" : "rgba(46, 125, 50, 0.15)",
-                    borderRadius: 3,
                     textAlign: "center",
                   }}
                 >
@@ -251,15 +248,13 @@ export default function IndexView() {
                     )}{" "}
                     <Box
                       sx={{
+                        ...glassPanelSx,
                         borderRadius: 3,
                         overflow: "visible",
-                        border: 1,
-                        borderColor: (theme) =>
-                          theme.palette.mode === "dark" ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)",
                         boxShadow: (theme) =>
                           theme.palette.mode === "dark"
-                            ? "0 2px 12px rgba(0,0,0,0.25)"
-                            : "0 1px 8px rgba(0,0,0,0.04)",
+                            ? "0 12px 24px rgba(0,0,0,0.3)"
+                            : "0 10px 18px rgba(24, 54, 25, 0.12)",
                         transition: "box-shadow 0.2s ease-in-out, transform 0.2s ease-in-out",
                         "@media (hover: hover) and (pointer: fine)": {
                           "&:hover": {
@@ -276,10 +271,14 @@ export default function IndexView() {
                                 filter: "grayscale(100%)",
                               },
                               opacity: 0.7,
-                              bgcolor: "background.default",
+                              bgcolor: (theme) =>
+                                theme.palette.mode === "dark"
+                                  ? alpha(theme.palette.background.default, 0.9)
+                                  : alpha(theme.palette.background.default, 0.95),
                             }
                           : {
-                              bgcolor: "background.paper",
+                              bgcolor: (theme) =>
+                                alpha(theme.palette.background.paper, theme.palette.mode === "dark" ? 0.8 : 0.88),
                             }),
                       }}
                     >
@@ -471,16 +470,16 @@ export default function IndexView() {
                     height: 56,
                     fontSize: "1rem",
                     fontWeight: 500,
-                    background: "linear-gradient(135deg, #478523 0%, #5a9c2d 50%, #6db13c 100%)",
-                    boxShadow: "0 6px 16px rgba(71, 133, 35, 0.3)",
+                    background: "linear-gradient(132deg, #3f7f2d 0%, #5ca942 52%, #87c960 100%)",
+                    boxShadow: "0 12px 24px rgba(44, 101, 38, 0.34)",
                     position: "relative",
                     overflow: "hidden",
                     transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
                     "@media (hover: hover) and (pointer: fine)": {
                       "&:hover": {
-                        boxShadow: "0 8px 20px rgba(71, 133, 35, 0.4)",
+                        boxShadow: "0 16px 28px rgba(44, 101, 38, 0.4)",
                         transform: "translateY(-2px) scale(1.02)",
-                        background: "linear-gradient(135deg, #5a9c2d 0%, #6db13c 50%, #7ec247 100%)",
+                        background: "linear-gradient(132deg, #4d9437 0%, #67b24a 52%, #99d373 100%)",
                         "&::before": {
                           left: "100%",
                         },
@@ -489,7 +488,7 @@ export default function IndexView() {
                     "&:active": {
                       transform: "scale(0.95)",
                       boxShadow: "0 4px 12px rgba(71, 133, 35, 0.5)",
-                      background: "linear-gradient(135deg, #5a9c2d 0%, #6db13c 50%, #7ec247 100%)",
+                      background: "linear-gradient(132deg, #4d9437 0%, #67b24a 52%, #99d373 100%)",
                       transition: "all 0.1s ease-out",
                     },
                     "&.Mui-disabled": {

@@ -15,6 +15,7 @@ import {
   Slide,
   Typography,
 } from "@mui/material";
+import { alpha } from "@mui/material/styles";
 import { TransitionProps } from "@mui/material/transitions";
 import dayjs from "dayjs";
 import { useAtom, useAtomValue } from "jotai";
@@ -22,6 +23,7 @@ import { atomWithStorage } from "jotai/utils";
 import { forwardRef, ReactElement, Ref, useMemo, useState } from "react";
 import { Form, useNavigation } from "react-router-dom";
 import { Habit } from "../../types/Habit";
+import { glassPanelSx, sectionLabelSx } from "../../styles/designLanguage";
 
 const sortDirectionAtom = atomWithStorage<"asc" | "desc">("sortHabitListDirection", "desc");
 
@@ -59,17 +61,7 @@ export default function SelectedHabitList({ habit }: { habit: Habit }) {
 
   if (!hasData) {
     return (
-      <Box
-        sx={{
-          p: 3,
-          mb: 2,
-          borderRadius: 3,
-          border: 1,
-          borderColor: (t) => (t.palette.mode === "dark" ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)"),
-          bgcolor: "background.paper",
-          boxShadow: (t) => (t.palette.mode === "dark" ? "0 2px 12px rgba(0,0,0,0.25)" : "0 1px 8px rgba(0,0,0,0.04)"),
-        }}
-      >
+      <Box sx={{ ...glassPanelSx, p: 3, mb: 2, borderRadius: 3 }}>
         <SectionTitle>Registration History</SectionTitle>
         <Box
           sx={{
@@ -94,17 +86,7 @@ export default function SelectedHabitList({ habit }: { habit: Habit }) {
   }
 
   return (
-    <Box
-      sx={{
-        p: 3,
-        mb: 2,
-        borderRadius: 3,
-        border: 1,
-        borderColor: (t) => (t.palette.mode === "dark" ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)"),
-        bgcolor: "background.paper",
-        boxShadow: (t) => (t.palette.mode === "dark" ? "0 2px 12px rgba(0,0,0,0.25)" : "0 1px 8px rgba(0,0,0,0.04)"),
-      }}
-    >
+    <Box sx={{ ...glassPanelSx, p: 3, mb: 2, borderRadius: 3 }}>
       <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
         <SectionTitle>Registration History</SectionTitle>
         <SortDirectionButton />
@@ -125,8 +107,14 @@ export default function SelectedHabitList({ habit }: { habit: Habit }) {
             m: 0,
             maxWidth: "100%",
             width: "100%",
-            borderRadius: "24px 24px 0 0",
+            borderRadius: "26px 26px 0 0",
             maxHeight: "90vh",
+            border: "1px solid",
+            borderColor: (theme) => alpha(theme.palette.primary.main, theme.palette.mode === "dark" ? 0.32 : 0.18),
+            background: (theme) =>
+              theme.palette.mode === "dark"
+                ? "linear-gradient(172deg, rgba(20, 33, 24, 0.95) 0%, rgba(12, 22, 16, 0.98) 100%)"
+                : "linear-gradient(172deg, rgba(249, 252, 248, 0.95) 0%, rgba(241, 248, 239, 0.98) 100%)",
           },
         }}
         sx={{
@@ -199,7 +187,7 @@ export default function SelectedHabitList({ habit }: { habit: Habit }) {
                   gap: 1,
                   p: 2,
                   borderRadius: 2,
-                  bgcolor: "action.hover",
+                  bgcolor: (theme) => alpha(theme.palette.primary.main, theme.palette.mode === "dark" ? 0.15 : 0.08),
                   width: "100%",
                   justifyContent: "center",
                 }}
@@ -262,18 +250,21 @@ export default function SelectedHabitList({ habit }: { habit: Habit }) {
       <List
         disablePadding
         dense
-        sx={{
-          width: "100%",
-          "& .MuiListItem-root": {
-            borderRadius: 2,
-            mb: 0.5,
-            transition: "all 0.2s ease-in-out",
-            "@media (hover: hover) and (pointer: fine)": {
-              "&:hover": {
-                bgcolor: "action.hover",
-                transform: "translateX(4px)",
+          sx={{
+            width: "100%",
+            "& .MuiListItem-root": {
+              borderRadius: 2,
+              mb: 0.5,
+              border: "1px solid",
+              borderColor: "transparent",
+              transition: "all 0.2s ease-in-out",
+              "@media (hover: hover) and (pointer: fine)": {
+                "&:hover": {
+                  bgcolor: (theme) => alpha(theme.palette.primary.main, theme.palette.mode === "dark" ? 0.12 : 0.08),
+                  borderColor: (theme) => alpha(theme.palette.primary.main, theme.palette.mode === "dark" ? 0.24 : 0.12),
+                  transform: "translateX(4px)",
+                },
               },
-            },
           },
         }}
       >
@@ -324,9 +315,8 @@ export default function SelectedHabitList({ habit }: { habit: Habit }) {
 
 function SectionTitle({ children }: { children: React.ReactNode }) {
   return (
-    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-      <Box sx={{ width: 6, height: 6, borderRadius: "50%", bgcolor: "primary.main", flexShrink: 0 }} />
-      <Typography variant="h6" sx={{ fontWeight: 600, color: "text.primary" }}>
+    <Box sx={{ ...sectionLabelSx }}>
+      <Typography variant="h6" sx={{ color: "text.primary" }}>
         {children}
       </Typography>
     </Box>
@@ -341,6 +331,9 @@ function SortDirectionButton() {
     <Button
       startIcon={isDesc ? <KeyboardArrowUpOutlined /> : <KeyboardArrowDownOutlined />}
       onClick={() => setSortDirection(sortDirection === "asc" ? "desc" : "asc")}
+      variant="outlined"
+      size="small"
+      sx={{ borderRadius: 999, px: 1.5 }}
     >
       {isDesc ? "Newest first" : "Oldest first"}
     </Button>

@@ -1,5 +1,6 @@
 import { EditOutlined } from "@mui/icons-material";
 import { Alert, AlertTitle, Avatar, Box, Button, Fade, Typography } from "@mui/material";
+import { alpha } from "@mui/material/styles";
 import { LoaderFunctionArgs, useLoaderData, useNavigate, useParams } from "react-router-dom";
 import BackButton from "../../components/BackButton";
 import DeleteHabitWithConfirm from "../../components/DeleteHabitWithConfirm";
@@ -8,7 +9,9 @@ import HabitNotificationIndicator from "../../components/HabitNotificationIndica
 import { iconMap } from "../../constants/iconMap";
 import { fetchHabitById } from "../../services/habitsPersistance";
 import { Habit } from "../../types/Habit";
+import { alphaOrFallback } from "../../utils/color";
 import { toFriendlyFrequency } from "../../utils/helpers";
+import { ambientPageSx, contentLayerSx, glassPanelSx } from "../../styles/designLanguage";
 import SelectedHabitGraph from "./SelectedHabitGraph";
 import SelectedHabitList from "./SelectedHabitList";
 
@@ -31,7 +34,7 @@ export default function SelectedHabit() {
 
   const registerCount = habit.dates ? Object.keys(habit.dates).length : 0;
   return (
-    <Box sx={{ bgcolor: "background.default" }}>
+    <Box sx={ambientPageSx}>
       {/* ── Header ── */}
       <Fade in timeout={400}>
         <Box
@@ -40,21 +43,20 @@ export default function SelectedHabit() {
             overflow: "hidden",
             background: (theme) =>
               theme.palette.mode === "dark"
-                ? "linear-gradient(180deg, rgba(14, 30, 18, 0.5) 0%, rgba(14, 30, 18, 0.15) 100%)"
-                : "linear-gradient(180deg, rgba(232, 245, 233, 0.5) 0%, rgba(232, 245, 233, 0.15) 100%)",
+                ? "linear-gradient(180deg, rgba(15, 35, 22, 0.72) 0%, rgba(15, 35, 22, 0.2) 100%)"
+                : "linear-gradient(180deg, rgba(226, 241, 222, 0.78) 0%, rgba(226, 241, 222, 0.25) 100%)",
             borderBottom: 1,
-            borderColor: (theme) =>
-              theme.palette.mode === "dark" ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)",
+            borderColor: (theme) => alpha(theme.palette.primary.main, theme.palette.mode === "dark" ? 0.24 : 0.12),
           }}
         >
           {/* Back button row */}
-          <Box sx={{ px: 1, pt: 1 }}>
+          <Box sx={{ ...contentLayerSx, px: 1, pt: 1 }}>
             <BackButton />
           </Box>
 
           {/* Habit identity + actions */}
           {habit && id && (
-            <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", px: 3, pt: 0.5, pb: 2 }}>
+            <Box sx={{ ...contentLayerSx, display: "flex", flexDirection: "column", alignItems: "center", px: 3, pt: 0.5, pb: 2 }}>
               <Avatar
                 sx={{
                   bgcolor: habit.color || "text.primary",
@@ -64,8 +66,8 @@ export default function SelectedHabit() {
                   mb: 1.5,
                   boxShadow: (theme) =>
                     theme.palette.mode === "dark"
-                      ? `0 4px 20px ${habit.color || "rgba(144, 198, 91, 0.3)"}40`
-                      : `0 4px 16px ${habit.color || "rgba(46, 125, 50, 0.2)"}30`,
+                      ? `0 12px 24px ${habit.color || "rgba(156, 207, 107, 0.3)"}55`
+                      : `0 10px 20px ${habit.color || "rgba(63, 127, 45, 0.2)"}45`,
                 }}
               >
                 {iconMap[habit.icon]}
@@ -105,7 +107,7 @@ export default function SelectedHabit() {
                 <Button
                   variant="contained"
                   color="primary"
-                  size="small"
+                  size="medium"
                   startIcon={<EditOutlined />}
                   onClick={() => navigate(`/${id}/edit`)}
                   sx={{
@@ -134,42 +136,34 @@ export default function SelectedHabit() {
         </Fade>
       ) : (
         <Fade in timeout={600}>
-          <Box
-            sx={{
-              pt: 2,
-              px: 2,
-              pb: 2,
-              mx: "auto",
-              maxWidth: 800,
-            }}
-          >
+          <Box sx={{ ...contentLayerSx, pt: 2, px: 2, pb: 2, mx: "auto", maxWidth: 800 }}>
             {/* Summary */}
             {habit.frequency && habit.frequencyUnit && (
               <Box
                 sx={{
+                  ...glassPanelSx,
                   mb: 2,
                   p: 2,
-                  borderRadius: 3,
-                  border: 1,
-                  borderColor: (theme) =>
-                    theme.palette.mode === "dark" ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)",
-                  bgcolor: "background.paper",
-                  boxShadow: (theme) =>
-                    theme.palette.mode === "dark"
-                      ? "0 2px 12px rgba(0,0,0,0.25)"
-                      : "0 1px 8px rgba(0,0,0,0.04)",
                   display: "flex",
                   gap: 2,
                   justifyContent: "space-around",
                   borderLeft: 3,
                   borderLeftColor: habit.color || "primary.main",
+                  borderColor: (theme) =>
+                    alphaOrFallback(habit.color, theme.palette.primary.main, theme.palette.mode === "dark" ? 0.45 : 0.22),
+                  bgcolor: (theme) =>
+                    alphaOrFallback(habit.color, theme.palette.primary.main, theme.palette.mode === "dark" ? 0.1 : 0.08),
+                  boxShadow: (theme) =>
+                    theme.palette.mode === "dark"
+                      ? `0 12px 24px ${alphaOrFallback(habit.color, theme.palette.primary.main, 0.2)}`
+                      : `0 10px 20px ${alphaOrFallback(habit.color, theme.palette.primary.main, 0.14)}`,
                 }}
               >
                 <Box textAlign="center">
                   <Typography
-                    variant="caption"
+                    variant="overline"
                     color="text.secondary"
-                    sx={{ fontWeight: 600, letterSpacing: "0.05em", textTransform: "uppercase", fontSize: "0.65rem" }}
+                    sx={{ fontWeight: 700, letterSpacing: "0.08em", fontSize: "0.64rem" }}
                   >
                     Goal
                   </Typography>
@@ -186,9 +180,9 @@ export default function SelectedHabit() {
                 />
                 <Box textAlign="center">
                   <Typography
-                    variant="caption"
+                    variant="overline"
                     color="text.secondary"
-                    sx={{ fontWeight: 600, letterSpacing: "0.05em", textTransform: "uppercase", fontSize: "0.65rem" }}
+                    sx={{ fontWeight: 700, letterSpacing: "0.08em", fontSize: "0.64rem" }}
                   >
                     Registrations
                   </Typography>

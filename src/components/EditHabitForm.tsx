@@ -18,6 +18,7 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
+import { alpha } from "@mui/material/styles";
 import { TimePicker } from "@mui/x-date-pickers/TimePicker";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
@@ -30,6 +31,7 @@ import { fetchHabitById } from "../services/habitsPersistance";
 import { notificationPermissionAtom } from "../store";
 import { Habit } from "../types/Habit";
 import { toFriendlyString } from "../utils/helpers";
+import { ambientPageSx, contentLayerSx, glassPanelSx, sectionLabelSx } from "../styles/designLanguage";
 import BackButton from "./BackButton";
 import DeleteHabitWithConfirm from "./DeleteHabitWithConfirm";
 
@@ -77,32 +79,61 @@ export default function EditHabitForm() {
   return (
     <Box
       sx={{
-        display: "flex",
-        flexDirection: "column",
-        height: ["calc(100vh - 72px)", "calc(100dvh - 72px)"], // Account for bottom navigation, use dvh for iOS Safari
-        bgcolor: "background.default",
+        ...ambientPageSx,
+        minHeight: ["100vh", "100dvh"],
       }}
     >
-      <Form autoComplete="off" method="post" style={{ display: "flex", flexDirection: "column", height: "100%" }}>
+      <Form autoComplete="off" method="post">
         {/* Header */}
         <Grow in={true} timeout={400}>
           <Box
             sx={{
+              ...contentLayerSx,
               display: "flex",
-              alignItems: "center",
+              flexDirection: "column",
               p: 2,
-              gap: 2,
               borderBottom: 1,
-              borderColor: "divider",
+              borderColor: (theme) => alpha(theme.palette.primary.main, theme.palette.mode === "dark" ? 0.24 : 0.12),
+              background: (theme) =>
+                theme.palette.mode === "dark"
+                  ? "linear-gradient(180deg, rgba(14, 35, 22, 0.8) 0%, rgba(14, 35, 22, 0.24) 100%)"
+                  : "linear-gradient(180deg, rgba(227, 242, 223, 0.75) 0%, rgba(227, 242, 223, 0.24) 100%)",
             }}
           >
-            <BackButton />
-            <Typography variant="h6" sx={{ fontWeight: 600, flexGrow: 1 }}>
-              Edit Habit:{" "}
-              <Box component="span" sx={{ color: "primary.main", fontWeight: 700 }}>
-                {habit.name}
-              </Box>
-            </Typography>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 2, width: "100%" }}>
+              <BackButton />
+              <Typography variant="h6" sx={{ fontWeight: 600, flexGrow: 1 }}>
+                Edit Habit:{" "}
+                <Box component="span" sx={{ color: "primary.main", fontWeight: 700 }}>
+                  {habit.name}
+                </Box>
+              </Typography>
+            </Box>
+            <Box sx={{ display: "flex", gap: 1, mt: 1.5, flexWrap: "wrap", justifyContent: "center", width: "100%" }}>
+              <Button
+                loading={navigation.state === "submitting"}
+                loadingPosition="start"
+                startIcon={<Save />}
+                variant="contained"
+                type="submit"
+                sx={{
+                  borderRadius: 999,
+                  px: 2.2,
+                }}
+              >
+                Save
+              </Button>
+              <Button
+                onClick={handleBack}
+                sx={{
+                  borderRadius: 999,
+                  px: 2.2,
+                }}
+              >
+                Cancel
+              </Button>
+              <DeleteHabitWithConfirm habit={habit} id={id!} />
+            </Box>
           </Box>
         </Grow>
 
@@ -110,34 +141,18 @@ export default function EditHabitForm() {
         <Grow in={true} timeout={600}>
           <Box
             sx={{
-              flexGrow: 1,
-              pt: 1.5,
+              ...contentLayerSx,
+              pt: 2,
               px: 2,
-              pb: 10, // Add padding bottom to prevent content from being hidden behind sticky footer
+              pb: 2,
               mx: "auto",
               maxWidth: 800,
-              overflowY: "auto",
-              scrollbarWidth: "thin",
-              scrollbarColor: "#ccc #222",
             }}
           >
-            <Grid2 container spacing={2}>
+            <Grid2 container spacing={2} sx={{ ...glassPanelSx, p: 2.5, borderRadius: 3, mb: 2 }}>
               {/* Section tile */}
               <Grid2 size={12}>
-                <Box
-                  sx={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 1,
-                    mb: 2,
-                    "&::before, &::after": {
-                      content: '""',
-                      flexGrow: 1,
-                      height: 1,
-                      bgcolor: "divider",
-                    },
-                  }}
-                >
+                <Box sx={{ ...sectionLabelSx, mb: 2 }}>
                   <Chip icon={<ColorLens />} label="Appearance" size="small" variant="outlined" />
                 </Box>
               </Grid2>
@@ -295,20 +310,7 @@ export default function EditHabitForm() {
               </Grid2>
               {/* Section tile */}
               <Grid2 size={12}>
-                <Box
-                  sx={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 1,
-                    mb: 2,
-                    "&::before, &::after": {
-                      content: '""',
-                      flexGrow: 1,
-                      height: 1,
-                      bgcolor: "divider",
-                    },
-                  }}
-                >
+                <Box sx={{ ...sectionLabelSx, mb: 2 }}>
                   <Chip icon={<EventRepeat />} label="How often?" size="small" variant="outlined" />
                 </Box>
               </Grid2>
@@ -346,20 +348,7 @@ export default function EditHabitForm() {
               </Grid2>
               {/* Notifications section */}
               <Grid2 size={12}>
-                <Box
-                  sx={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 1,
-                    mb: 2,
-                    "&::before, &::after": {
-                      content: '""',
-                      flexGrow: 1,
-                      height: 1,
-                      bgcolor: "divider",
-                    },
-                  }}
-                >
+                <Box sx={{ ...sectionLabelSx, mb: 2 }}>
                   <Chip icon={<EditNotificationsOutlined />} label="Notifications" size="small" variant="outlined" />
                 </Box>
               </Grid2>
@@ -446,50 +435,6 @@ export default function EditHabitForm() {
             </Grid2>
           </Box>
         </Grow>
-
-        {/* Footer - Sticky */}
-        <Grow in={true} timeout={800}>
-          <Box
-            sx={{
-              position: "sticky",
-              bottom: 0,
-              p: 2,
-              borderTop: 1,
-              borderColor: "divider",
-              bgcolor: "background.default",
-              display: "flex",
-              gap: 1,
-              boxShadow: "0 -2px 8px rgba(0, 0, 0, 0.1)",
-              backdropFilter: "blur(8px)",
-              zIndex: 10,
-            }}
-          >
-            <Button
-              loading={navigation.state === "submitting"}
-              loadingPosition="start"
-              startIcon={<Save />}
-              variant="contained"
-              type="submit"
-              sx={{
-                borderRadius: 2,
-                textTransform: "none",
-                fontWeight: 500,
-              }}
-            >
-              Save
-            </Button>
-            <Button
-              onClick={handleBack}
-              sx={{
-                borderRadius: 2,
-                textTransform: "none",
-              }}
-            >
-              Cancel
-            </Button>
-            <DeleteHabitWithConfirm habit={habit} id={id!} />
-          </Box>
-        </Grow>
       </Form>
     </Box>
   );
@@ -513,24 +458,18 @@ function NotificationPreview({ habit }: { habit: Habit }) {
   const sampleProgress = habit.frequency && habit.frequencyUnit ? "50" : "0";
 
   return (
-    <Box
-      sx={{
-        border: "1px solid",
-        borderColor: "divider",
-        borderRadius: 2,
-        p: 2,
-        bgcolor: "action.hover",
-      }}
-    >
+    <Box sx={{ ...glassPanelSx, borderRadius: 2.5, p: 2 }}>
       <Typography variant="caption" color="text.secondary" sx={{ mb: 1, display: "block", fontWeight: 600 }}>
         Notification Preview
       </Typography>
       <Box
         sx={{
-          bgcolor: "background.paper",
+          bgcolor: (theme) => alpha(theme.palette.background.paper, theme.palette.mode === "dark" ? 0.66 : 0.9),
           borderRadius: 1.5,
           p: 2,
-          boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+          border: "1px solid",
+          borderColor: (theme) => alpha(theme.palette.primary.main, theme.palette.mode === "dark" ? 0.24 : 0.1),
+          boxShadow: "0 8px 16px rgba(0,0,0,0.16)",
           display: "flex",
           gap: 2,
           alignItems: "start",
