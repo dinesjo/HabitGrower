@@ -451,7 +451,10 @@ export default function IndexView() {
                 width: "100%",
                 display: "flex",
                 justifyContent: "center",
-                bottom: "calc(88px + env(safe-area-inset-bottom, 0px))",
+                bottom: "calc(96px + env(safe-area-inset-bottom, 0px))",
+                "@media (display-mode: standalone)": {
+                  bottom: "calc(104px + env(safe-area-inset-bottom, 0px))",
+                },
                 left: 0,
                 zIndex: 1000,
               }}
