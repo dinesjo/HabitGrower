@@ -235,7 +235,7 @@ export default function SelectedHabitGraph({ habit }: { habit: Habit }) {
         <SectionTitle>Progress</SectionTitle>
         <Box sx={{ py: 3, textAlign: "center" }}>
           <Typography variant="body2" color="text.secondary">
-            Your chart will appear after your first registration.
+            Your progress will appear after your first registration.
           </Typography>
         </Box>
       </Box>

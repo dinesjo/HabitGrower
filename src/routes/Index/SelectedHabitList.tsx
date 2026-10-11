@@ -17,13 +17,31 @@ import {
 import { TransitionProps } from "@mui/material/transitions";
 import dayjs from "dayjs";
 import { useAtom, useAtomValue } from "jotai";
-import { atomWithStorage } from "jotai/utils";
-import { forwardRef, ReactElement, Ref, useId, useMemo, useState } from "react";
+import { atomWithStorage, createJSONStorage } from "jotai/utils";
+import { forwardRef, ReactElement, Ref, useId, useMemo, useRef, useState } from "react";
 import { Form, useNavigation } from "react-router-dom";
 import { Habit } from "../../types/Habit";
 import { confirmationActionsSx, confirmationPaperSx, glassPanelSx, sectionLabelSx } from "../../styles/designLanguage";
 
 const sortDirectionAtom = atomWithStorage<"asc" | "desc">("sortHabitListDirection", "desc");
+const historyPageSize = 12;
+const historyViewStorage = createJSONStorage<Record<string, number>>(() => ({
+  getItem(key) {
+    try { return sessionStorage.getItem(key); } catch { return null; }
+  },
+  setItem(key, value) {
+    try { sessionStorage.setItem(key, value); } catch { /* Retain the view in memory when browser storage is unavailable. */ }
+  },
+  removeItem(key) {
+    try { sessionStorage.removeItem(key); } catch { /* This preference is optional. */ }
+  },
+}));
+const visibleEntryCountsAtom = atomWithStorage<Record<string, number>>(
+  "habitHistoryVisibleCounts",
+  {},
+  historyViewStorage,
+  { getOnInit: true }
+);
 
 const Transition = forwardRef(function Transition(
   props: TransitionProps & {
@@ -38,9 +56,13 @@ export default function SelectedHabitList({ habit }: { habit: Habit }) {
   const navigation = useNavigation();
   const titleId = useId();
   const descriptionId = useId();
+  const historyHeadingRef = useRef<HTMLHeadingElement>(null);
   const [open, setOpen] = useState(false);
   const [dateToDelete, setDateToDelete] = useState<string | null>(null);
   const sortDirection = useAtomValue(sortDirectionAtom);
+  const [visibleEntryCounts, setVisibleEntryCounts] = useAtom(visibleEntryCountsAtom);
+  const storedCount = visibleEntryCounts?.[habit.id];
+  const visibleEntryCount = Number.isSafeInteger(storedCount) && storedCount >= historyPageSize ? storedCount : historyPageSize;
 
   // Memoize sorted entries to avoid sorting on every render
   const sortedEntries = useMemo(() => {
@@ -53,6 +75,9 @@ export default function SelectedHabitList({ habit }: { habit: Habit }) {
   }, [habit.dates, sortDirection]);
 
   const hasData = habit.dates && Object.keys(habit.dates).length > 0;
+  const visibleEntries = sortedEntries.slice(0, visibleEntryCount);
+  const remainingEntryCount = sortedEntries.length - visibleEntries.length;
+  const canShowFewer = visibleEntries.length > historyPageSize;
 
   function handleOpen(date: string) {
     setDateToDelete(date);
@@ -73,7 +98,12 @@ export default function SelectedHabitList({ habit }: { habit: Habit }) {
   return (
     <Box sx={{ ...glassPanelSx, p: { xs: 2, sm: 3 }, mb: 2 }}>
       <Box sx={{ display: "flex", justifyContent: "space-between", gap: 1, alignItems: "center", mb: 2 }}>
-        <Typography component="h2" variant="h6">History</Typography>
+        <Box>
+          <Typography ref={historyHeadingRef} tabIndex={-1} component="h2" variant="h6">History</Typography>
+          <Typography variant="caption" color="text.secondary">
+            {sortedEntries.length} {sortedEntries.length === 1 ? "entry" : "entries"}
+          </Typography>
+        </Box>
         <SortDirectionButton />
       </Box>
       <Dialog
@@ -122,7 +152,7 @@ export default function SelectedHabitList({ habit }: { habit: Habit }) {
         },
         "& .MuiListItemSecondaryAction-root": { right: 0 },
       }}>
-        {sortedEntries.map(([date]) => {
+        {visibleEntries.map(([date, count]) => {
           const daysAgo = dayjs().startOf("day").diff(dayjs(date).startOf("day"), "days");
           const daysAgoFriendly = daysAgo === 0 ? "Today" : daysAgo === 1 ? "Yesterday" : `${daysAgo} days ago`;
           const isToday = daysAgo === 0;
@@ -145,7 +175,7 @@ export default function SelectedHabitList({ habit }: { habit: Habit }) {
             >
               <ListItemText
                 primary={`${dayjs(date).format(dayjs(date).year() === dayjs().year() ? "ddd, MMM D" : "ddd, MMM D, YYYY")}, ${dayjs(date).format("HH:mm")}`}
-                secondary={daysAgoFriendly}
+                secondary={`${daysAgoFriendly}${typeof count === "number" && count > 1 ? ` · ${count} registrations` : ""}`}
                 primaryTypographyProps={{ fontSize: "0.9375rem", fontWeight: 600, lineHeight: 1.5 }}
                 secondaryTypographyProps={{ fontSize: "0.8125rem", color: isToday ? "primary.main" : "text.secondary" }}
               />
@@ -153,6 +183,34 @@ export default function SelectedHabitList({ habit }: { habit: Habit }) {
           );
         })}
       </List>
+      {(remainingEntryCount > 0 || canShowFewer) && (
+        <Box sx={{ pt: 2, textAlign: "center" }}>
+          {remainingEntryCount > 0 && (
+            <Typography variant="caption" color="text.secondary" sx={{ display: "block", mb: 1 }}>
+              {visibleEntries.length} of {sortedEntries.length} entries
+            </Typography>
+          )}
+          <Box sx={{ display: "flex", gap: 1, "& .MuiButton-root": { flex: 1, px: 1, whiteSpace: "nowrap", fontSize: "0.8125rem" } }}>
+            {remainingEntryCount > 0 && (
+              <Button
+                variant="outlined"
+                onClick={() => setVisibleEntryCounts((counts) => ({ ...counts, [habit.id]: visibleEntryCount + historyPageSize }))}
+              >
+                Show {Math.min(historyPageSize, remainingEntryCount)} more
+              </Button>
+            )}
+            {canShowFewer && (
+              <Button onClick={() => {
+                setVisibleEntryCounts((counts) => ({ ...counts, [habit.id]: historyPageSize }));
+                historyHeadingRef.current?.scrollIntoView({ block: "start" });
+                historyHeadingRef.current?.focus({ preventScroll: true });
+              }}>
+                Show fewer
+              </Button>
+            )}
+          </Box>
+        </Box>
+      )}
     </Box>
   );
 }
@@ -177,7 +235,7 @@ function SortDirectionButton() {
       onClick={() => setSortDirection(sortDirection === "asc" ? "desc" : "asc")}
       variant="outlined"
       size="small"
-      sx={{ px: 1, flexShrink: 0, whiteSpace: "nowrap", fontSize: "0.75rem" }}
+      sx={{ px: 1, flexShrink: 0, whiteSpace: "nowrap", fontSize: "0.8125rem" }}
     >
       {isDesc ? "Newest first" : "Oldest first"}
     </Button>

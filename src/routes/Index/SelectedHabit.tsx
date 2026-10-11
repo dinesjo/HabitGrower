@@ -1,7 +1,8 @@
 import { EditOutlined } from "@mui/icons-material";
-import { Alert, AlertTitle, Avatar, Box, Button, Fade, Typography } from "@mui/material";
+import { Alert, AlertTitle, Avatar, Box, Button, Fade, LinearProgress, Typography } from "@mui/material";
 import { alpha } from "@mui/material/styles";
 import { LoaderFunctionArgs, useLoaderData, useNavigate, useParams } from "react-router-dom";
+import { useAtomValue } from "jotai";
 import BackButton from "../../components/BackButton";
 import DeleteHabitWithConfirm from "../../components/DeleteHabitWithConfirm";
 import HabitHeatmap from "../../components/HabitHeatmap";
@@ -10,7 +11,8 @@ import { iconMap } from "../../constants/iconMap";
 import { fetchHabitById } from "../../services/habitsPersistance";
 import { Habit } from "../../types/Habit";
 import { alphaOrFallback, readableHabitColor } from "../../utils/color";
-import { toFriendlyFrequency } from "../../utils/helpers";
+import { getProgress, toFriendlyFrequency } from "../../utils/helpers";
+import { userWeekStartsAtMondayAtom } from "../../store";
 import { ambientPageSx, contentLayerSx, glassPanelSx } from "../../styles/designLanguage";
 import SelectedHabitGraph from "./SelectedHabitGraph";
 import SelectedHabitList from "./SelectedHabitList";
@@ -32,7 +34,10 @@ export default function SelectedHabit() {
   const { id } = useParams();
   const navigate = useNavigate();
 
-  const registerCount = habit.dates ? Object.keys(habit.dates).length : 0;
+  const userWeekStartsAtMonday = useAtomValue(userWeekStartsAtMondayAtom);
+  const progress = getProgress(habit, false, userWeekStartsAtMonday);
+  const periodLabel = habit.frequencyUnit === "day" ? "Today" : habit.frequencyUnit === "week" ? "This week" : "This month";
+  const hasHistory = Boolean(habit.dates && Object.keys(habit.dates).length);
   return (
     <Box sx={ambientPageSx}>
       {/* ── Header ── */}
@@ -146,6 +151,7 @@ export default function SelectedHabit() {
                   display: "grid",
                   gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
                   gap: 2,
+                  rowGap: 1.5,
                   borderLeft: 3,
                   borderLeftColor: habit.color || "primary.main",
 
@@ -169,18 +175,24 @@ export default function SelectedHabit() {
                     color="text.secondary"
                     sx={{ fontWeight: 700, letterSpacing: "0.08em", fontSize: "0.75rem" }}
                   >
-                    Registrations
+                    {periodLabel}
                   </Typography>
-                  <Typography variant="body1" sx={{ fontWeight: 700 }}>
-                    {registerCount}
+                  <Typography variant="body1" sx={{ fontWeight: 700, fontVariantNumeric: "tabular-nums" }}>
+                    {Math.round(progress)}%
                   </Typography>
                 </Box>
+                <LinearProgress
+                  variant="determinate"
+                  value={progress}
+                  aria-label={`Registered progress ${periodLabel.toLowerCase()}`}
+                  sx={{ gridColumn: "1 / -1", height: 6, "& .MuiLinearProgress-bar": { bgcolor: habit.color || "primary.main" } }}
+                />
               </Box>
             )}
 
             <SelectedHabitGraph habit={habit} />
-            <HabitHeatmap habit={habit} />
-            <SelectedHabitList habit={habit} />
+            {hasHistory && <HabitHeatmap habit={habit} />}
+            {hasHistory && <SelectedHabitList habit={habit} />}
           </Box>
         </Fade>
       )}
