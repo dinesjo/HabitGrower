@@ -1,4 +1,4 @@
-import { Box, Container, Grow, Link, Typography } from "@mui/material";
+import { Box, Button, Container, Typography } from "@mui/material";
 import { Link as RouterLink, isRouteErrorResponse, useRouteError } from "react-router-dom";
 import { ambientPageSx, contentLayerSx, glassPanelSx } from "../styles/designLanguage";
 
@@ -17,27 +17,21 @@ export default function ErrorPage() {
     console.error(error);
     errorMessage = "Unknown error";
   }
+  const missingHabit = isRouteErrorResponse(error) && error.status === 404;
   return (
-    <Box sx={ambientPageSx}>
-      <Container
-        sx={{ ...contentLayerSx, display: "flex", minHeight: "75vh", flexDirection: "column", justifyContent: "center", alignItems: "center" }}
-      >
-        <Grow in={true} timeout={600}>
-          <Box sx={{ ...glassPanelSx, px: 4, py: 3.5, maxWidth: 520, textAlign: "center" }}>
-            <Typography variant="h3" sx={{ mb: 1 }}>
-              Oops!
-            </Typography>
-            <Typography variant="subtitle1" sx={{ mb: 1 }}>
-              Sorry, an unexpected error has occurred.
-            </Typography>
-            <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-              {errorMessage}
-            </Typography>
-            <Link component={RouterLink} to="/" sx={{ fontWeight: 700 }}>
-              Return to Homepage
-            </Link>
-          </Box>
-        </Grow>
+    <Box sx={{ ...ambientPageSx, minHeight: ["100vh", "100dvh"] }}>
+      <Container sx={{ ...contentLayerSx, display: "flex", minHeight: ["100vh", "100dvh"], alignItems: "center", justifyContent: "center", py: 4 }}>
+        <Box sx={{ ...glassPanelSx, p: { xs: 3, sm: 4 }, maxWidth: 480, width: "100%", textAlign: "center" }}>
+          <Typography component="h1" variant="h4" sx={{ fontSize: "2rem", mb: 1.5 }}>
+            {missingHabit ? "Habit not found" : "Something went wrong"}
+          </Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 3, lineHeight: 1.6, overflowWrap: "anywhere" }}>
+            {missingHabit ? "Open a habit from your list to continue." : errorMessage}
+          </Typography>
+          <Button component={RouterLink} to="/" variant="contained" fullWidth sx={{ minHeight: 48 }}>
+            Back to habits
+          </Button>
+        </Box>
       </Container>
     </Box>
   );

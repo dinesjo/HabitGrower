@@ -73,7 +73,7 @@ export default function HabitHeatmap({ habit, months = 3 }: HabitHeatmapProps) {
   // Get color for intensity level
   const getIntensityColor = (level: number): { bgcolor: string; opacity: number } => {
     if (level === 0) {
-      return { bgcolor: theme.palette.action.hover, opacity: 0.3 };
+      return { bgcolor: theme.palette.divider, opacity: 1 };
     }
 
     const baseColor = habit.color || theme.palette.primary.main;
@@ -106,7 +106,7 @@ export default function HabitHeatmap({ habit, months = 3 }: HabitHeatmapProps) {
               key={day}
               variant="caption"
               sx={{
-                fontSize: "0.65rem",
+                fontSize: "0.75rem",
                 height: 12,
                 display: "flex",
                 alignItems: "center",
@@ -128,7 +128,7 @@ export default function HabitHeatmap({ habit, months = 3 }: HabitHeatmapProps) {
                 <Typography
                   variant="caption"
                   sx={{
-                    fontSize: "0.65rem",
+                    fontSize: "0.75rem",
                     height: 12,
                     color: "text.secondary",
                     textAlign: weekIdx === maxWeeks - 1 ? "right" : "left",
@@ -195,7 +195,7 @@ export default function HabitHeatmap({ habit, months = 3 }: HabitHeatmapProps) {
 
       {/* Legend */}
       <Box sx={{ display: "flex", alignItems: "center", gap: 1, mt: 2, justifyContent: "flex-end" }}>
-        <Typography variant="caption" color="text.secondary" sx={{ fontSize: "0.7rem" }}>
+        <Typography variant="caption" color="text.secondary" sx={{ fontSize: "0.75rem" }}>
           Less
         </Typography>
         {[0, 1, 2, 3, 4].map((level) => {
@@ -213,7 +213,7 @@ export default function HabitHeatmap({ habit, months = 3 }: HabitHeatmapProps) {
             />
           );
         })}
-        <Typography variant="caption" color="text.secondary" sx={{ fontSize: "0.7rem" }}>
+        <Typography variant="caption" color="text.secondary" sx={{ fontSize: "0.75rem" }}>
           More
         </Typography>
       </Box>

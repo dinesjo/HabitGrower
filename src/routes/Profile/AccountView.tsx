@@ -60,12 +60,12 @@ export default function AccountView() {
           <Avatar
             alt={displayName || "Profile picture"}
             src={photoURL || undefined}
-            sx={{ width: 56, height: 56, fontWeight: 700, bgcolor: "primary.dark", color: "#fff" }}
+            sx={{ width: 56, height: 56, fontWeight: 700, bgcolor: "primary.dark", color: (theme) => theme.palette.getContrastText(theme.palette.primary.dark) }}
           >
             {displayName?.charAt(0)?.toUpperCase() || "?"}
           </Avatar>
           <Box sx={{ minWidth: 0 }}>
-            <Typography variant="subtitle1" sx={{ fontSize: "1.125rem", fontWeight: 700, overflowWrap: "anywhere" }}>
+            <Typography component="p" variant="subtitle1" sx={{ fontSize: "1.125rem", fontWeight: 700, overflowWrap: "anywhere" }}>
               {displayName || "Welcome!"}
             </Typography>
             <Typography variant="body2" color="text.secondary" sx={{ mt: 0.25, lineHeight: 1.5, overflowWrap: "anywhere" }}>

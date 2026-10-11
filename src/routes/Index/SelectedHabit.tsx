@@ -9,7 +9,7 @@ import HabitNotificationIndicator from "../../components/HabitNotificationIndica
 import { iconMap } from "../../constants/iconMap";
 import { fetchHabitById } from "../../services/habitsPersistance";
 import { Habit } from "../../types/Habit";
-import { readableHabitColor } from "../../utils/color";
+import { alphaOrFallback, readableHabitColor } from "../../utils/color";
 import { toFriendlyFrequency } from "../../utils/helpers";
 import { ambientPageSx, contentLayerSx, glassPanelSx } from "../../styles/designLanguage";
 import SelectedHabitGraph from "./SelectedHabitGraph";
@@ -59,12 +59,12 @@ export default function SelectedHabit() {
             <Box sx={{ ...contentLayerSx, display: "flex", flexDirection: "column", alignItems: "center", px: 3, pt: 0.5, pb: 2 }}>
               <Avatar
                 sx={{
-                  bgcolor: habit.color || "text.primary",
+                  bgcolor: habit.color || "primary.main",
+                  color: (theme) => theme.palette.getContrastText(alphaOrFallback(habit.color, theme.palette.primary.main, 1)),
                   width: 56,
                   height: 56,
                   fontSize: "1.75rem",
                   mb: 1.5,
-
                 }}
               >
                 {iconMap[habit.icon]}
@@ -83,7 +83,6 @@ export default function SelectedHabit() {
                 >
                   {habit.name}
                 </Typography>
-                <HabitNotificationIndicator sx={{ color: habit.color }} habit={habit} />
               </Box>
               {habit.description && (
                 <Typography
@@ -100,6 +99,8 @@ export default function SelectedHabit() {
                   {habit.description}
                 </Typography>
               )}
+
+              <HabitNotificationIndicator sx={{ mt: 1 }} habit={habit} />
 
               {/* Actions */}
               <Box sx={{ display: "flex", gap: 1, mt: 1.5 }}>

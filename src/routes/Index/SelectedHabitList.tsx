@@ -144,7 +144,7 @@ export default function SelectedHabitList({ habit }: { habit: Habit }) {
               }
             >
               <ListItemText
-                primary={`${dayjs(date).format("ddd, MMM D")}, ${dayjs(date).format("HH:mm")}`}
+                primary={`${dayjs(date).format(dayjs(date).year() === dayjs().year() ? "ddd, MMM D" : "ddd, MMM D, YYYY")}, ${dayjs(date).format("HH:mm")}`}
                 secondary={daysAgoFriendly}
                 primaryTypographyProps={{ fontSize: "0.9375rem", fontWeight: 600, lineHeight: 1.5 }}
                 secondaryTypographyProps={{ fontSize: "0.8125rem", color: isToday ? "primary.main" : "text.secondary" }}

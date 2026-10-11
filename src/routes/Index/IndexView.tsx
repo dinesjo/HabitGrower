@@ -12,7 +12,6 @@ import {
   Divider,
   Fab,
   Fade,
-  Grow,
   List,
   ListItem,
   ListItemAvatar,
@@ -33,7 +32,7 @@ import { FrequencyUnit } from "../../types/FrequencyUnit";
 import { Habit } from "../../types/Habit";
 import { getProgress, getProgressBuffer, showSnackBar, toFriendlyFrequency } from "../../utils/helpers";
 import { ambientPageSx, contentLayerSx, glassPanelSx } from "../../styles/designLanguage";
-import { readableHabitColor } from "../../utils/color";
+import { alphaOrFallback, readableHabitColor } from "../../utils/color";
 
 async function loader() {
   return {
@@ -141,8 +140,7 @@ export default function IndexView() {
               align="center"
               display="block"
               sx={{
-                color: (theme) =>
-                  theme.palette.mode === "dark" ? "rgba(144, 198, 91, 0.7)" : "rgba(46, 125, 50, 0.7)",
+                color: "text.secondary",
                 fontWeight: 600,
                 letterSpacing: "0.08em",
                 textTransform: "uppercase",
@@ -167,8 +165,7 @@ export default function IndexView() {
               variant="body2"
               align="center"
               sx={{
-                color: (theme) =>
-                  theme.palette.mode === "dark" ? "rgba(232, 245, 233, 0.55)" : "rgba(27, 94, 32, 0.6)",
+                color: "text.secondary",
                 mt: 0.5,
                 fontWeight: 500,
               }}
@@ -249,6 +246,7 @@ export default function IndexView() {
                           <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", width: 48 }}>
                             {isChecked && <input type="hidden" name="habitIds" value={habit.id} />}
                             <Checkbox
+                              disableRipple
                               inputProps={{ "aria-label": `Select ${habit.name} for registration` }}
                               checked={isChecked}
                               onClick={() =>
@@ -262,15 +260,7 @@ export default function IndexView() {
                                 "&.Mui-checked": {
                                   color: "primary.main",
                                 },
-                                "@media (hover: hover) and (pointer: fine)": {
-                                  "&:hover": {
-                                    backgroundColor: (theme) => alpha(theme.palette.primary.main, 0.08),
-                                  },
-                                },
-                                "&:active": {
-                                  backgroundColor: (theme) => alpha(theme.palette.primary.main, 0.14),
-                                  transition: "all 0.1s ease-out",
-                                },
+                                "&:hover": { backgroundColor: "transparent" },
                                 "&.Mui-focusVisible": {
                                   outline: "2px solid",
                                   outlineColor: "primary.main",
@@ -278,7 +268,7 @@ export default function IndexView() {
                                 },
                                 padding: 1,
                                 borderRadius: "50%",
-                                transition: "color 0.2s ease, background-color 0.2s ease",
+                                transition: "color 150ms ease",
                               }}
                             />
                           </Box>
@@ -305,7 +295,7 @@ export default function IndexView() {
                           }}
                           onClick={() => navigate(`/${habit.id}`)}
                         >
-                          <Box sx={{ display: "flex", alignItems: "center" }}>
+                          <Box sx={{ display: "flex", alignItems: "center", width: "100%", minWidth: 0 }}>
                             <ListItemAvatar sx={{ color: habit.color, overflow: "visible", zIndex: 10 }}>
                               <Box aria-hidden="true" sx={{ position: "relative", display: "inline-flex", overflow: "visible" }}>
                                 <CircularProgress
@@ -341,7 +331,8 @@ export default function IndexView() {
                                 >
                                   <Avatar
                                     sx={{
-                                      bgcolor: habit.color || "text.primary",
+                                      bgcolor: habit.color || "primary.main",
+                                      color: (theme) => theme.palette.getContrastText(alphaOrFallback(habit.color, theme.palette.primary.main, 1)),
                                       width: 48,
                                       height: 48,
                                       fontSize: "1.5rem",
@@ -352,9 +343,8 @@ export default function IndexView() {
                                 </Badge>
                               </Box>
                             </ListItemAvatar>
-                            <ListItemText
+                            <ListItemText disableTypography sx={{ minWidth: 0 }}
                               primary={
-                                <Box sx={{ display: "flex", alignItems: "center", pr: 2 }}>
                                   <Typography
                                     lineHeight={1.35}
                                     sx={{
@@ -366,13 +356,12 @@ export default function IndexView() {
                                   >
                                     {habit.name}
                                   </Typography>
-                                  <HabitNotificationIndicator sx={{ ml: 1 }} habit={habit} />
-                                </Box>
                               }
                               secondary={
-                                <Typography component="span" display="block" variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
-                                  {toFriendlyFrequency(habit)}
-                                </Typography>
+                                <Box component="span" sx={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 1, mt: 0.5 }}>
+                                  <Typography component="span" variant="body2" color="text.secondary">{toFriendlyFrequency(habit)}</Typography>
+                                  <HabitNotificationIndicator habit={habit} />
+                                </Box>
                               }
                             />
                           </Box>
@@ -427,7 +416,7 @@ export default function IndexView() {
                 pointerEvents: "none",
               }}
             >
-              <Grow in={checkedHabitIds.length > 0} timeout={300}>
+              <Fade in={checkedHabitIds.length > 0} timeout={180}>
                 <Fab
                   variant="extended"
                   color="primary"
@@ -476,21 +465,21 @@ export default function IndexView() {
                         sx={{
                           minWidth: 84,
                           justifyContent: "flex-start",
-                          "& .MuiAvatar-root": { width: 26, height: 26, fontSize: "0.75rem", border: "2px solid #386c2c", color: "#142019" },
+                          "& .MuiAvatar-root": { width: 26, height: 26, fontSize: "0.75rem", border: "2px solid #386c2c" },
                           "& .MuiSvgIcon-root": { fontSize: 16 },
-                          "@keyframes habitEnter": { from: { opacity: 0, transform: "translateY(4px) scale(0.85)" }, to: { opacity: 1, transform: "none" } },
+                          "@keyframes habitEnter": { from: { opacity: 0, transform: "translateY(3px)" }, to: { opacity: 1, transform: "none" } },
                           "@media (prefers-reduced-motion: reduce)": { "& .MuiAvatar-root": { animation: "none" } },
                         }}
                       >
                         {checkedHabitIds.map((id) => {
                           const habit = habits.find((habit) => habit.id === id);
-                          return habit ? <Avatar key={id} sx={{ bgcolor: habit.color, animation: "habitEnter 200ms ease-out" }}>{iconMap[habit.icon]}</Avatar> : null;
+                          return habit ? <Avatar key={id} sx={{ bgcolor: habit.color || "primary.main", color: (theme) => theme.palette.getContrastText(alphaOrFallback(habit.color, theme.palette.primary.main, 1)), animation: "habitEnter 160ms ease-out" }}>{iconMap[habit.icon]}</Avatar> : null;
                         })}
                       </AvatarGroup>
                     </>
                   )}
                 </Fab>
-              </Grow>
+              </Fade>
             </Box>
           </Form>
         ) : (
@@ -501,30 +490,26 @@ export default function IndexView() {
                 flexDirection: "column",
                 alignItems: "center",
                 justifyContent: "center",
-                height: "60%",
                 textAlign: "center",
-                px: 4,
-                pt: 6,
+                px: 3,
+                py: 6,
               }}
             >
               <Box
                 sx={{
-                  width: 100,
-                  height: 100,
-                  borderRadius: "50%",
-                  background: (theme) =>
-                    theme.palette.mode === "dark"
-                      ? "radial-gradient(circle, rgba(144, 198, 91, 0.12) 0%, transparent 70%)"
-                      : "radial-gradient(circle, rgba(46, 125, 50, 0.08) 0%, transparent 70%)",
+                  width: 72,
+                  height: 72,
+                  borderRadius: "var(--hg-radius)",
+                  bgcolor: "action.hover",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  mb: 3,
+                  mb: 2.5,
                 }}
               >
-                <Checklist sx={{ fontSize: 48, color: "primary.main" }} />
+                <Checklist sx={{ fontSize: 36, color: "primary.main" }} />
               </Box>
-              <Typography variant="h6" color="text.primary" sx={{ mb: 1, fontWeight: 600 }}>
+              <Typography component="h2" variant="h6" color="text.primary" sx={{ mb: 1, fontWeight: 600 }}>
                 No habits yet
               </Typography>
               <Typography variant="body2" color="text.secondary" sx={{ mb: 3, lineHeight: 1.6 }}>

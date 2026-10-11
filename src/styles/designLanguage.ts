@@ -60,6 +60,16 @@ export const mobileTimePickerDialogSx = {
     maxWidth: 360,
     maxHeight: "calc(100dvh - 16px)",
   },
-  "& .MuiTimeClock-root": { width: "100%" },
+  "& .MuiTimeClock-root": { width: "100%", pt: 5, maxHeight: "none" },
+  "& .MuiTimeClock-arrowSwitcher": { top: 0 },
+  "& .MuiClock-clock": { bgcolor: "action.hover" },
+  "& .MuiTimePickerToolbar-root": { p: 2 },
+  "& .MuiTimePickerToolbar-hourMinuteLabel .MuiTypography-root": {
+    fontFamily: "inherit",
+    fontSize: "2.5rem",
+    fontWeight: 600,
+    fontVariantNumeric: "tabular-nums",
+    letterSpacing: "-0.02em",
+  },
   "& .MuiDialogActions-root": { px: 2, py: 1.5 },
 } as const;

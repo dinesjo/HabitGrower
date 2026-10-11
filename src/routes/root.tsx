@@ -17,7 +17,7 @@ import { isLocalMode } from "../data/mode";
 import { useAtom } from "jotai";
 import { useEffect, useState } from "react";
 import { Form, Link, Outlet, ScrollRestoration, useLocation, useNavigation } from "react-router-dom";
-import { snackbarActionAtom, snackbarMessageAtom, snackbarOpenAtom, snackbarSeverityAtom, userWeekStartsAtMondayAtom } from "../store";
+import { checkedHabitIdsAtom, snackbarActionAtom, snackbarMessageAtom, snackbarOpenAtom, snackbarSeverityAtom, userWeekStartsAtMondayAtom } from "../store";
 import { fetchAllHabits } from "../services/habitsPersistance";
 import { getProgress } from "../utils/helpers";
 import { Habit } from "../types/Habit";
@@ -37,6 +37,7 @@ export default function Root() {
   const [snackbarMessage, setSnackbarMessage] = useAtom(snackbarMessageAtom);
   const [snackbarSeverity] = useAtom(snackbarSeverityAtom);
   const [snackbarAction] = useAtom(snackbarActionAtom);
+  const [checkedHabitIds] = useAtom(checkedHabitIdsAtom);
 
   // Incomplete habits count for badge
   const [incompleteCount, setIncompleteCount] = useState(0);
@@ -45,6 +46,7 @@ export default function Root() {
   // Hide nav on sign-in page for immersive experience
   const isSignInPage = location.pathname === "/profile/signin";
   const isEditingHabit = location.pathname.endsWith("/edit");
+  const hasPendingRegistration = location.pathname === "/" && checkedHabitIds.length > 0;
   const safeBottom = "env(safe-area-inset-bottom, 0px)";
   const navBottom = `calc(12px + ${safeBottom})`;
   const outletBottomPadding = isSignInPage ? 0 : `calc(96px + ${safeBottom})`;
@@ -159,11 +161,12 @@ export default function Root() {
         autoHideDuration={snackbarAction ? null : 4000}
         onClose={() => setSnackbarMessage("")}
         sx={{
-          bottom: isSignInPage ? `calc(16px + ${safeBottom})` : `calc(92px + ${safeBottom})`,
-          "& .MuiSnackbarContent-root": {
-            borderRadius: 2,
-            minWidth: "280px",
-          },
+          bottom: `calc(${isSignInPage ? 16 : hasPendingRegistration ? 176 : 92}px + ${safeBottom})`,
+          left: "50%",
+          right: "auto",
+          transform: "translateX(-50%)",
+          width: "calc(100% - 32px)",
+          maxWidth: 480,
         }}
       >
         <Alert
@@ -171,14 +174,21 @@ export default function Root() {
           severity={snackbarSeverity}
           sx={{
             width: "100%",
-            borderRadius: 2,
+            borderRadius: "var(--hg-control-radius)",
+            bgcolor: "background.paper",
+            color: "text.primary",
+            border: "1px solid",
+            borderColor: "divider",
+            alignItems: "center",
+            boxShadow: "0 4px 16px rgba(0,0,0,0.12)",
+            "& .MuiAlert-message": { minWidth: 0, overflowWrap: "anywhere", lineHeight: 1.5 },
             "& .MuiAlert-icon": {
               fontSize: "1.2rem",
             },
           }}
           action={snackbarAction}
-          elevation={6}
-          variant="filled"
+          elevation={0}
+          variant="standard"
         >
           {snackbarMessage}
         </Alert>

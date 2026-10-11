@@ -8,9 +8,9 @@ import { Habit } from "../../types/Habit";
 import { glassPanelSx, sectionLabelSx } from "../../styles/designLanguage";
 
 const daysShownMap: Record<number, string> = {
-  14: "14 Days",
-  30: "30 Days",
-  90: "3 Months",
+  14: "14 days",
+  30: "30 days",
+  90: "3 months",
 } as const;
 
 // Helper function to calculate current streak - counts consecutive DAYS, not registrations
@@ -233,13 +233,9 @@ export default function SelectedHabitGraph({ habit }: { habit: Habit }) {
     return (
       <Box sx={{ ...glassPanelSx, p: { xs: 2, sm: 3 }, mb: 2 }}>
         <SectionTitle>Progress</SectionTitle>
-        <GraphControls />
-        <Box sx={{ py: 4, textAlign: "center" }}>
-          <Typography variant="body1" sx={{ fontWeight: 600, mb: 1 }}>
-            Your progress starts here
-          </Typography>
+        <Box sx={{ py: 3, textAlign: "center" }}>
           <Typography variant="body2" color="text.secondary">
-            Register this habit to see your progress over time.
+            Your chart will appear after your first registration.
           </Typography>
         </Box>
       </Box>
@@ -248,6 +244,7 @@ export default function SelectedHabitGraph({ habit }: { habit: Habit }) {
 
   // Get max value in the dataSet
   const maxValue = Math.max(...dateData.map((data) => data.value));
+  const hasVisibleData = maxValue > 0;
 
   // Calculate target line value
   const targetValue = habit.frequency && habit.frequencyUnit && graphFrequencyUnit === habit.frequencyUnit
@@ -258,7 +255,8 @@ export default function SelectedHabitGraph({ habit }: { habit: Habit }) {
     <Box sx={{ ...glassPanelSx, p: { xs: 2, sm: 3 }, mb: 2 }}>
       <SectionTitle>Progress</SectionTitle>
       <GraphControls />
-      <Box sx={{ width: "100%", minWidth: 0, mt: 2, touchAction: "pan-y" }}>
+      <Box sx={{ width: "100%", minWidth: 0, mt: 2, touchAction: "pan-y pinch-zoom" }}>
+        {hasVisibleData ? (
           <BarChart
             dataset={dateData}
             height={220}
@@ -268,6 +266,7 @@ export default function SelectedHabitGraph({ habit }: { habit: Habit }) {
               {
                 dataKey: "period",
                 scaleType: "band",
+                tickSize: 0,
                 valueFormatter: (value) => {
                   const dataPoint = dateData.find(d => d.period === value);
                   return dataPoint?.label || "";
@@ -291,7 +290,7 @@ export default function SelectedHabitGraph({ habit }: { habit: Habit }) {
             }}
             sx={{
               color: "text.secondary",
-              touchAction: "pan-y",
+              touchAction: "pan-y pinch-zoom",
               "& .MuiChartsReferenceLine-root": {
                 strokeDasharray: "5 5",
                 strokeWidth: 2,
@@ -313,6 +312,13 @@ export default function SelectedHabitGraph({ habit }: { habit: Habit }) {
               </text>
             )}
           </BarChart>
+        ) : (
+          <Box sx={{ height: 220, display: "grid", placeItems: "center", px: 2 }}>
+            <Typography variant="body2" color="text.secondary" sx={{ textAlign: "center" }}>
+              No registrations in this period.
+            </Typography>
+          </Box>
+        )}
       </Box>
 
       {stats && (
