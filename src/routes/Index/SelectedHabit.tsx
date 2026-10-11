@@ -9,7 +9,7 @@ import HabitNotificationIndicator from "../../components/HabitNotificationIndica
 import { iconMap } from "../../constants/iconMap";
 import { fetchHabitById } from "../../services/habitsPersistance";
 import { Habit } from "../../types/Habit";
-import { alphaOrFallback } from "../../utils/color";
+import { alphaOrFallback, readableHabitColor } from "../../utils/color";
 import { toFriendlyFrequency } from "../../utils/helpers";
 import { ambientPageSx, contentLayerSx, glassPanelSx } from "../../styles/designLanguage";
 import SelectedHabitGraph from "./SelectedHabitGraph";
@@ -76,7 +76,7 @@ export default function SelectedHabit() {
                 <Typography
                   variant="h5"
                   sx={{
-                    color: "text.primary",
+                    color: (theme) => readableHabitColor(habit.color, theme.palette.background.paper, theme.palette.text.primary),
                     fontWeight: 700,
                     lineHeight: 1.2,
                     textAlign: "center",

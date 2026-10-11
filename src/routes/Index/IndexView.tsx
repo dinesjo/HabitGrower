@@ -1,6 +1,7 @@
 import { Add, Check, Checklist } from "@mui/icons-material";
 import {
   Avatar,
+  AvatarGroup,
   Backdrop,
   Badge,
   Box,
@@ -32,6 +33,7 @@ import { FrequencyUnit } from "../../types/FrequencyUnit";
 import { Habit } from "../../types/Habit";
 import { getProgress, getProgressBuffer, showSnackBar, toFriendlyFrequency } from "../../utils/helpers";
 import { ambientPageSx, contentLayerSx, glassPanelSx } from "../../styles/designLanguage";
+import { readableHabitColor } from "../../utils/color";
 
 async function loader() {
   return {
@@ -233,9 +235,9 @@ export default function IndexView() {
               </Fade>
             )}
             <Typography variant="body2" color="text.secondary" sx={{ px: 1, pt: 2, pb: 1 }}>
-              Select habits, then tap Register to save your check-ins.
+              Select habits, then tap Register to save.
             </Typography>
-            <List disablePadding sx={{ px: 1, pt: 1 }}>
+            <List disablePadding sx={{ px: 1, pt: 1, pb: 10 }}>
               {sortedHabits.map((habit) => {
                 const isChecked = checkedHabitIds.includes(habit.id);
                 const registeredProgress = getProgress(habit, false, userWeekStartsAtMonday);
@@ -252,19 +254,20 @@ export default function IndexView() {
                       sx={{
                         ...glassPanelSx,
                         borderRadius: 3,
+                        borderColor: (theme) =>
+                          alpha(theme.palette.primary.main, isChecked ? 0.7 : theme.palette.mode === "dark" ? 0.25 : 0.14),
                         overflow: "visible",
                         boxShadow: (theme) =>
                           theme.palette.mode === "dark"
                             ? "0 12px 24px rgba(0,0,0,0.3)"
                             : "0 10px 18px rgba(24, 54, 25, 0.12)",
-                        transition: "box-shadow 0.2s ease-in-out, transform 0.2s ease-in-out",
+                        transition: "box-shadow 0.2s ease-in-out, border-color 0.2s ease-in-out",
                         "@media (hover: hover) and (pointer: fine)": {
                           "&:hover": {
                             boxShadow: (theme) =>
                               theme.palette.mode === "dark"
                                 ? "0 6px 24px rgba(0,0,0,0.35)"
                                 : "0 6px 20px rgba(0,0,0,0.08)",
-                            transform: "translateY(-2px)",
                           },
                         },
                         ...(registeredProgress === 100
@@ -286,7 +289,7 @@ export default function IndexView() {
                       <ListItem
                         disablePadding
                         secondaryAction={
-                          <>
+                          <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", width: 48 }}>
                             {isChecked && <input type="hidden" name="habitIds" value={habit.id} />}
                             <Checkbox
                               inputProps={{ "aria-label": `Select ${habit.name} for registration` }}
@@ -304,21 +307,31 @@ export default function IndexView() {
                                 },
                                 "@media (hover: hover) and (pointer: fine)": {
                                   "&:hover": {
-                                    backgroundColor: `${habit.color}15`,
-                                    transform: "scale(1.1)",
+                                    backgroundColor: (theme) => alpha(theme.palette.primary.main, 0.08),
                                   },
                                 },
                                 "&:active": {
-                                  transform: "scale(0.9)",
-                                  backgroundColor: `${habit.color}25`,
+                                  backgroundColor: (theme) => alpha(theme.palette.primary.main, 0.14),
                                   transition: "all 0.1s ease-out",
                                 },
-                                padding: 2,
-                                borderRadius: 2,
-                                transition: "all 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
+                                "&.Mui-focusVisible": {
+                                  outline: "2px solid",
+                                  outlineColor: "primary.main",
+                                  outlineOffset: 2,
+                                },
+                                padding: 1,
+                                borderRadius: "50%",
+                                transition: "color 0.2s ease, background-color 0.2s ease",
                               }}
                             />
-                          </>
+                            <Typography
+                              aria-hidden="true"
+                              variant="caption"
+                              sx={{ height: 16, lineHeight: "16px", fontSize: "0.65rem", fontWeight: 600, color: "primary.main", visibility: isChecked ? "visible" : "hidden" }}
+                            >
+                              Selected
+                            </Typography>
+                          </Box>
                         }
                         sx={{ borderRadius: "inherit", ".MuiListItemButton-root": { borderRadius: "inherit" } }}
                       >
@@ -371,9 +384,10 @@ export default function IndexView() {
                                   }}
                                 />
                                 <Badge
-                                  badgeContent={registeredProgress === 100 ? "Done!" : null}
+                                  badgeContent={registeredProgress === 100 ? <Check sx={{ fontSize: 12 }} /> : null}
                                   color="success"
-                                  anchorOrigin={{ vertical: "top", horizontal: "right" }}
+                                  anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+                                  sx={{ "& .MuiBadge-badge": { minWidth: 18, height: 18, p: 0, border: "2px solid", borderColor: "background.paper" } }}
                                 >
                                   <Avatar
                                     sx={{
@@ -394,7 +408,7 @@ export default function IndexView() {
                                   <Typography
                                     lineHeight={1.25}
                                     sx={{
-                                      color: "text.primary",
+                                      color: (theme) => readableHabitColor(habit.color, theme.palette.background.paper, theme.palette.text.primary),
                                       fontWeight: 500,
                                       fontSize: "1.1rem",
                                     }}
@@ -405,16 +419,9 @@ export default function IndexView() {
                                 </Box>
                               }
                               secondary={
-                                <>
-                                  <Typography component="span" display="block" variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
-                                    {toFriendlyFrequency(habit)}
-                                  </Typography>
-                                  {isChecked && (
-                                    <Typography component="span" display="block" variant="caption" color="text.primary" sx={{ mt: 0.5, fontWeight: 600 }}>
-                                      Selected · not saved yet
-                                    </Typography>
-                                  )}
-                                </>
+                                <Typography component="span" display="block" variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+                                  {toFriendlyFrequency(habit)}
+                                </Typography>
                               }
                             />
                           </Box>
@@ -473,14 +480,25 @@ export default function IndexView() {
                   variant="extended"
                   color="primary"
                   type="submit"
+                  aria-label={`Register ${checkedHabitIds.length} ${checkedHabitIds.length === 1 ? "habit" : "habits"}`}
                   disabled={!checkedHabitIds.length || navigation.state === "submitting"}
                   sx={{
-                    borderRadius: 3,
-                    px: 3,
-                    minHeight: 52,
-                    maxWidth: "calc(100% - 32px)",
+                    borderRadius: 999,
+                    px: 2,
+                    height: 58,
+                    width: "calc(100% - 48px)",
+                    maxWidth: 320,
+                    gap: 1,
+                    color: "#f7fbf7",
+                    background: "linear-gradient(125deg, #285624 0%, #396f2d 55%, #4b7b2f 100%)",
+                    border: "1px solid rgba(255,255,255,0.2)",
+                    boxShadow: (theme) => theme.palette.mode === "dark"
+                      ? "0 8px 28px rgba(0,0,0,0.45), 0 0 24px rgba(109,172,68,0.18), inset 0 1px 0 rgba(255,255,255,0.15)"
+                      : "0 8px 24px rgba(39,87,32,0.3), inset 0 1px 0 rgba(255,255,255,0.2)",
                     fontSize: "1rem",
-                    fontWeight: 600,
+                    fontWeight: 700,
+                    "&:hover": { background: "linear-gradient(125deg, #2d6028 0%, #3c742e 55%, #4b7b2f 100%)" },
+                    "&.Mui-disabled": { background: "none", borderColor: "transparent" },
                   }}
                 >
                   {navigation.state === "submitting" ? (
@@ -490,8 +508,30 @@ export default function IndexView() {
                     </>
                   ) : (
                     <>
-                      <Check sx={{ mr: 1 }} />
-                      Register {checkedHabitIds.length} {checkedHabitIds.length === 1 ? "habit" : "habits"}
+                      <Check sx={{ fontSize: 20 }} />
+                      <Box component="span" sx={{ display: "flex", alignItems: "center", gap: 1, flex: 1 }}>
+                        Register
+                        <Box component="span" sx={{ borderRadius: 999, bgcolor: "rgba(0,0,0,0.18)", minWidth: 24, px: 0.5, lineHeight: "24px", fontSize: "0.8rem", fontVariantNumeric: "tabular-nums" }}>
+                          {checkedHabitIds.length}
+                        </Box>
+                      </Box>
+                      <AvatarGroup
+                        aria-hidden="true"
+                        max={4}
+                        sx={{
+                          minWidth: 84,
+                          justifyContent: "flex-start",
+                          "& .MuiAvatar-root": { width: 26, height: 26, fontSize: "0.75rem", border: "2px solid #386c2c", color: "#142019" },
+                          "& .MuiSvgIcon-root": { fontSize: 16 },
+                          "@keyframes habitEnter": { from: { opacity: 0, transform: "translateY(4px) scale(0.85)" }, to: { opacity: 1, transform: "none" } },
+                          "@media (prefers-reduced-motion: reduce)": { "& .MuiAvatar-root": { animation: "none" } },
+                        }}
+                      >
+                        {checkedHabitIds.map((id) => {
+                          const habit = habits.find((habit) => habit.id === id);
+                          return habit ? <Avatar key={id} sx={{ bgcolor: habit.color, animation: "habitEnter 200ms ease-out" }}>{iconMap[habit.icon]}</Avatar> : null;
+                        })}
+                      </AvatarGroup>
                     </>
                   )}
                 </Fab>

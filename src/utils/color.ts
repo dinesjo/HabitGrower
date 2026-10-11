@@ -1,4 +1,4 @@
-import { alpha } from "@mui/material/styles";
+import { alpha, darken, getContrastRatio, getLuminance, lighten } from "@mui/material/styles";
 
 const MUI_ALPHA_SAFE_PATTERN = /^(#([0-9a-f]{3,8})|rgba?\(|hsla?\(|color\()/i;
 
@@ -32,4 +32,14 @@ export function alphaOrFallback(color: string | undefined, fallback: string, opa
   }
 
   return alpha(fallback, opacity);
+}
+
+export function readableHabitColor(color: string | undefined, background: string, fallback: string): string {
+  const solidColor = alphaOrFallback(color, fallback, 1);
+  const adjust = getLuminance(background) < 0.5 ? lighten : darken;
+  for (let amount = 0; amount <= 1; amount += 0.1) {
+    const candidate = adjust(solidColor, amount);
+    if (getContrastRatio(candidate, background) >= 5) return candidate;
+  }
+  return fallback;
 }

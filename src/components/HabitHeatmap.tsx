@@ -91,7 +91,7 @@ export default function HabitHeatmap({ habit, months = 3 }: HabitHeatmapProps) {
   const dayLabels = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
   return (
-    <Paper elevation={0} sx={{ ...glassPanelSx, p: 3, mb: 2, borderRadius: 3 }}>
+    <Paper elevation={0} sx={{ ...glassPanelSx, p: { xs: 2, sm: 3 }, mb: 2, borderRadius: 3 }}>
       <Box sx={{ ...sectionLabelSx, mb: 2 }}>
         <Typography variant="h6" sx={{ color: "text.primary" }}>
           Activity Heatmap
@@ -100,7 +100,7 @@ export default function HabitHeatmap({ habit, months = 3 }: HabitHeatmapProps) {
 
       <Box sx={{ display: "flex", gap: 1, overflowX: "auto", pb: 1 }}>
         {/* Day labels */}
-        <Box sx={{ display: "flex", flexDirection: "column", gap: "2px", pt: "20px", flexShrink: 0 }}>
+        <Box sx={{ display: "flex", flexDirection: "column", gap: "2px", pt: "14px", flexShrink: 0 }}>
           {dayLabels.map((day) => (
             <Typography
               key={day}
@@ -122,7 +122,7 @@ export default function HabitHeatmap({ habit, months = 3 }: HabitHeatmapProps) {
         {/* Heatmap grid */}
         <Box sx={{ display: "flex", gap: "2px", flexWrap: "nowrap", flex: 1, minWidth: 0 }}>
           {weekGroups.map((week, weekIdx) => (
-            <Box key={weekIdx} sx={{ display: "flex", flexDirection: "column", gap: "2px", flex: 1 }}>
+            <Box key={weekIdx} sx={{ display: "flex", flexDirection: "column", gap: "2px", flex: 1, minWidth: 12 }}>
               {/* Month label above first week of each month */}
               {weekIdx === 0 || dayjs(week[0]?.date).date() <= 7 ? (
                 <Typography
@@ -131,7 +131,8 @@ export default function HabitHeatmap({ habit, months = 3 }: HabitHeatmapProps) {
                     fontSize: "0.65rem",
                     height: 12,
                     color: "text.secondary",
-                    textAlign: "center",
+                    textAlign: weekIdx === maxWeeks - 1 ? "right" : "left",
+                    whiteSpace: "nowrap",
                     lineHeight: 1,
                   }}
                 >
