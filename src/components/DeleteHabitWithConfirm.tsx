@@ -30,6 +30,7 @@ export default function DeleteHabitWithConfirm({ habit, id }: { habit: Habit; id
         open={deleteDialogOpen}
         onClose={handleClose}
         aria-labelledby={"delete-confirm-title"}
+        aria-describedby="delete-confirm-description"
         TransitionComponent={Transition}
         keepMounted
         fullWidth
@@ -108,19 +109,19 @@ export default function DeleteHabitWithConfirm({ habit, id }: { habit: Habit; id
               <WarningAmber sx={{ fontSize: 32, color: "error.contrastText" }} />
             </Box>
             <DialogTitle id={"delete-confirm-title"} sx={{ textAlign: "center", pb: 1, pt: 0 }}>
-              <Typography variant="h6" sx={{ fontWeight: 700 }}>
+              <Typography component="span" variant="h6" sx={{ fontWeight: 700 }}>
                 Delete Habit?
               </Typography>
             </DialogTitle>
           </Box>
 
           <DialogContent sx={{ px: 3, pb: 2 }}>
-            <DialogContentText sx={{ textAlign: "center", fontSize: "1rem" }}>
-              Are you sure you want to permanently delete{" "}
-              <Typography component="span" sx={{ fontWeight: 600, color: habit.color || "primary.main" }}>
+            <DialogContentText id="delete-confirm-description" sx={{ textAlign: "center", fontSize: "1rem" }}>
+              Delete{" "}
+              <Typography component="span" sx={{ fontWeight: 600, color: "text.primary" }}>
                 "{habit.name}"
               </Typography>
-              ? This action cannot be undone.
+              {" "}and its history? You can restore it using Undo in the confirmation message after deleting.
             </DialogContentText>
           </DialogContent>
 
@@ -143,7 +144,7 @@ export default function DeleteHabitWithConfirm({ habit, id }: { habit: Habit; id
                 fontSize: "1rem",
               }}
             >
-              Delete Permanently
+              Delete habit
             </Button>
             <Button
               onClick={handleClose}

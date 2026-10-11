@@ -3,14 +3,21 @@ import { alpha, createTheme } from "@mui/material/styles";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { useAtom } from "jotai";
-import { DevTools } from "jotai-devtools";
-import { useMemo } from "react";
+import { lazy, Suspense, useMemo } from "react";
 import { RouterProvider } from "react-router-dom";
 import { router } from "../main";
 import { themeAtom } from "../store";
 
 const bodyFont = '"Manrope", "Avenir Next", "Segoe UI", sans-serif';
 const displayFont = '"Fraunces", "Iowan Old Style", "Georgia", serif';
+
+const DevTools = import.meta.env.DEV && import.meta.env.VITE_SHOW_DEVTOOLS === "true"
+  ? lazy(async () => {
+      const { DevTools } = await import("jotai-devtools");
+      await import("jotai-devtools/styles.css");
+      return { default: DevTools };
+    })
+  : null;
 
 export default function Main() {
   const [themeAtomValue] = useAtom<PaletteMode>(themeAtom);
@@ -24,7 +31,7 @@ export default function Main() {
             main: themeAtomValue === "dark" ? "#9ccf6b" : "#3f7f2d",
             light: themeAtomValue === "dark" ? "#c0e894" : "#5fa746",
             dark: themeAtomValue === "dark" ? "#78aa4f" : "#2b591f",
-            contrastText: "#f7fbf7",
+            contrastText: themeAtomValue === "dark" ? "#0d1511" : "#ffffff",
           },
           secondary: {
             main: themeAtomValue === "dark" ? "#f0af4e" : "#d98e2f",
@@ -131,9 +138,6 @@ export default function Main() {
                       : "0 10px 20px rgba(35, 70, 33, 0.16)",
                 },
               }),
-              containedPrimary: {
-                background: "linear-gradient(125deg, #3f7f2d 0%, #5ca942 55%, #80c25c 100%)",
-              },
             },
           },
           MuiFab: {
@@ -274,7 +278,11 @@ export default function Main() {
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
       <ThemeProvider theme={theme}>
-        <DevTools />
+        {DevTools && (
+          <Suspense fallback={null}>
+            <DevTools />
+          </Suspense>
+        )}
         <CssBaseline />
         <RouterProvider router={router} />
       </ThemeProvider>

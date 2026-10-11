@@ -172,7 +172,7 @@ export default function SelectedHabitList({ habit }: { habit: Habit }) {
               <EventBusy sx={{ fontSize: 32, color: "warning.contrastText" }} />
             </Box>
             <DialogTitle sx={{ textAlign: "center", pb: 1, pt: 0 }}>
-              <Typography variant="h6" sx={{ fontWeight: 700 }}>
+              <Typography component="span" variant="h6" sx={{ fontWeight: 700 }}>
                 Unregister Entry?
               </Typography>
             </DialogTitle>

@@ -290,7 +290,7 @@ function DarkModeToggle() {
         <DarkModeOutlined />
       </ListItemIcon>
       <ListItemText primary="Dark mode" secondary="Easier on the eyes" />
-      <Switch checked={theme === "dark"} onChange={() => setTheme(theme === "light" ? "dark" : "light")} />
+      <Switch inputProps={{ "aria-label": "Dark mode" }} checked={theme === "dark"} onChange={() => setTheme(theme === "light" ? "dark" : "light")} />
     </ListItem>
   );
 }
@@ -334,7 +334,7 @@ function WeekStartPicker() {
         <TodayOutlined />
       </ListItemIcon>
       <ListItemText primary="Start week on Monday" />
-      <Switch checked={weekStartsAtMonday || false} onChange={() => setWeekStartsAtMonday(!weekStartsAtMonday)} />
+      <Switch inputProps={{ "aria-label": "Start week on Monday" }} checked={weekStartsAtMonday || false} onChange={() => setWeekStartsAtMonday(!weekStartsAtMonday)} />
     </ListItem>
   );
 }

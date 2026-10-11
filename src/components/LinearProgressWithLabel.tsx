@@ -31,20 +31,25 @@ export default function LinearProgressWithLabel({ ...props }) {
           </Box>
         }
       >
-        <Box sx={{ minWidth: 50, mr: 1 }}>
+        <Box sx={{ minWidth: 60, flexShrink: 0, mr: 1 }}>
           <Chip
-            sx={{ padding: 0, width: "100%", height: "100%" }}
+            sx={{
+              width: "100%",
+              color: "text.primary",
+              fontVariantNumeric: "tabular-nums",
+              "& .MuiChip-label": { px: 1, overflow: "visible", textOverflow: "clip" },
+            }}
             variant="outlined"
             label={`${progressValue}%`}
             size="small"
             color={progressValue === 100 ? "default" : chipColor}
-            disabled={progressValue === 100}
           />
         </Box>
       </Tooltip>
-      <Tooltip title="Progress make to goal" arrow>
-        <Box sx={{ width: "100%" }}>
+      <Tooltip title="Progress toward your goal" arrow>
+        <Box sx={{ flex: 1, minWidth: 0 }}>
           <LinearProgress
+            aria-label="Progress toward your goal"
             variant="determinate"
             {...props}
             sx={{

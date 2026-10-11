@@ -19,9 +19,7 @@ import {
 import { checkedHabitIdsAtom, store, userDayStartsAtAtom, userWeekStartsAtMondayAtom } from "./store";
 import { Habit } from "./types/Habit";
 import { requireAuth } from "./utils/requireAuth";
-// Note that this may get included in your production builds. Please import it conditionally if you want to avoid that
 import { Button } from "@mui/material";
-import "jotai-devtools/styles.css";
 import Main from "./components/Main";
 import { showSnackBar } from "./utils/helpers";
 import { isLocalMode } from "./data/mode";

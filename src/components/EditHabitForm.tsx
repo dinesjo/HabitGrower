@@ -172,8 +172,9 @@ export default function EditHabitForm() {
               <Grid2 container size={12} spacing={2} display="flex" alignItems="start" sx={{ height: "100%" }}>
                 <Grid2 size={"auto"} sx={{ height: "inherit" }}>
                   <FormControl required fullWidth>
-                    <InputLabel>Icon</InputLabel>
+                    <InputLabel id="habit-icon-label">Icon</InputLabel>
                     <Select
+                      labelId="habit-icon-label"
                       autoWidth
                       name="icon"
                       label="Icon"
@@ -215,6 +216,7 @@ export default function EditHabitForm() {
                         <MenuItem
                           key={icon}
                           value={icon}
+                          aria-label={toFriendlyString(icon)}
                           sx={{
                             display: "flex",
                             justifyContent: "center",
@@ -237,8 +239,9 @@ export default function EditHabitForm() {
                 </Grid2>
                 <Grid2 size="grow">
                   <FormControl fullWidth>
-                    <InputLabel>Color</InputLabel>
+                    <InputLabel id="habit-color-label">Color</InputLabel>
                     <Select
+                      labelId="habit-color-label"
                       name="color"
                       label="Color"
                       defaultValue={habit.color || ""}
@@ -257,7 +260,7 @@ export default function EditHabitForm() {
                                 }}
                               />
                             )}
-                            <Typography sx={{ color: value || "text.primary" }}>
+                            <Typography color="text.primary">
                               {value ? toFriendlyString(value) : "None"}
                             </Typography>
                           </Box>
@@ -365,6 +368,7 @@ export default function EditHabitForm() {
                       secondary="Get notified so you never miss this habit again!"
                     />
                     <Switch
+                      inputProps={{ "aria-label": "Daily notifications" }}
                       disabled={notificationPermission !== "granted"}
                       name="notificationEnabled"
                       defaultChecked={habit.notificationEnabled}

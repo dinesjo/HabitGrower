@@ -162,13 +162,13 @@ export default function Root() {
                 bottom: fabBottom,
                 right: 18,
                 zIndex: 1000,
-                background: "linear-gradient(132deg, #3f7f2d 0%, #5ca942 50%, #87c960 100%)",
+                bgcolor: "primary.main",
                 boxShadow: (theme) =>
                   theme.palette.mode === "dark"
                     ? "0 14px 28px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.08)"
                     : "0 14px 26px rgba(33, 76, 30, 0.26), 0 0 0 1px rgba(255,255,255,0.7)",
                 "&:hover": {
-                  background: "linear-gradient(132deg, #4d9437 0%, #67b24a 50%, #99d373 100%)",
+                  bgcolor: "primary.dark",
                 },
                 "&:active": {
                   transform: "scale(0.92)",
@@ -184,37 +184,37 @@ export default function Root() {
       )}
 
       {/* Snackbar */}
-      <Slide direction="up" in={snackbarOpen}>
-        <Snackbar
-          open={snackbarOpen}
-          autoHideDuration={snackbarAction ? null : 4000}
+      <Snackbar
+        open={snackbarOpen}
+        slots={{ transition: Slide }}
+        slotProps={{ transition: { direction: "up" } }}
+        autoHideDuration={snackbarAction ? null : 4000}
+        onClose={() => setSnackbarMessage("")}
+        sx={{
+          bottom: isSignInPage ? `calc(16px + ${safeBottom})` : `calc(92px + ${safeBottom})`,
+          "& .MuiSnackbarContent-root": {
+            borderRadius: 2,
+            minWidth: "280px",
+          },
+        }}
+      >
+        <Alert
           onClose={() => setSnackbarMessage("")}
+          severity={snackbarSeverity}
           sx={{
-            bottom: isSignInPage ? `calc(16px + ${safeBottom})` : `calc(92px + ${safeBottom})`,
-            "& .MuiSnackbarContent-root": {
-              borderRadius: 2,
-              minWidth: "280px",
+            width: "100%",
+            borderRadius: 2,
+            "& .MuiAlert-icon": {
+              fontSize: "1.2rem",
             },
           }}
+          action={snackbarAction}
+          elevation={6}
+          variant="filled"
         >
-          <Alert
-            onClose={() => setSnackbarMessage("")}
-            severity={snackbarSeverity}
-            sx={{
-              width: "100%",
-              borderRadius: 2,
-              "& .MuiAlert-icon": {
-                fontSize: "1.2rem",
-              },
-            }}
-            action={snackbarAction}
-            elevation={6}
-            variant="filled"
-          >
-            {snackbarMessage}
-          </Alert>
-        </Snackbar>
-      </Slide>
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
 
       {/* ── Floating Pill Navigation ── */}
       {!isSignInPage && (

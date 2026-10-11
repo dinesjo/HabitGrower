@@ -76,7 +76,7 @@ export default function SelectedHabit() {
                 <Typography
                   variant="h5"
                   sx={{
-                    color: habit.color || "text.primary",
+                    color: "text.primary",
                     fontWeight: 700,
                     lineHeight: 1.2,
                     textAlign: "center",
@@ -167,7 +167,7 @@ export default function SelectedHabit() {
                   >
                     Goal
                   </Typography>
-                  <Typography variant="body1" sx={{ color: habit.color || "primary.main", fontWeight: 600 }}>
+                  <Typography variant="body1" sx={{ color: "text.primary", fontWeight: 600 }}>
                     {toFriendlyFrequency(habit)}
                   </Typography>
                 </Box>
