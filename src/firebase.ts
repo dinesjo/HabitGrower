@@ -4,9 +4,7 @@ import { User, getAuth, onAuthStateChanged } from "firebase/auth";
 import firebase from "firebase/compat/app";
 import { getDatabase } from "firebase/database";
 import { getMessaging } from "firebase/messaging";
-import { redirect } from "react-router-dom";
 import { fetchFcmToken } from "./services/fetchFcmToken";
-import { showSnackBar } from "./utils/helpers";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDMfCeJUzcBqHpfdfDbi_KQ4KIzmQuwOMs",
@@ -39,7 +37,7 @@ try {
 
 export const messaging = messagingInstance;
 
-if (messaging && Notification.permission === "granted") {
+if (messaging && typeof Notification !== "undefined" && Notification.permission === "granted") {
   fetchFcmToken();
 }
 
@@ -65,10 +63,4 @@ export async function getUser() {
       reject
     );
   });
-}
-
-export async function signOut() {
-  await auth.signOut();
-  showSnackBar("Signed out successfully!", "success");
-  return redirect("/profile/signin");
 }

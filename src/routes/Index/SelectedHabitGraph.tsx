@@ -215,7 +215,7 @@ export default function SelectedHabitGraph({ habit }: { habit: Habit }) {
     if (!habit.dates) return null;
 
     // Sum up total registrations in the period (values can be numbers for multiple registrations)
-    const totalRegistrationsInPeriod = Object.values(filteredDates).reduce(
+    const totalRegistrationsInPeriod = Object.values(filteredDates).reduce<number>(
       (sum, val) => sum + Number(val || 0),
       0
     );

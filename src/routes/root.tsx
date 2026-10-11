@@ -13,10 +13,10 @@ import {
   Zoom,
 } from "@mui/material";
 import { alpha } from "@mui/material/styles";
-import { getAuth } from "firebase/auth";
+import { useUser } from "../hooks/useUser";
+import { isLocalMode } from "../data/mode";
 import { useAtom } from "jotai";
 import { useEffect, useState } from "react";
-import { useAuthState } from "react-firebase-hooks/auth";
 import { Form, Link, Outlet, useLocation, useNavigation } from "react-router-dom";
 import { snackbarActionAtom, snackbarMessageAtom, snackbarOpenAtom, snackbarSeverityAtom, userWeekStartsAtMondayAtom } from "../store";
 import { fetchAllHabits } from "../services/habitsPersistance";
@@ -31,7 +31,7 @@ export default function Root() {
   const [showLoading, setShowLoading] = useState(false);
 
   // User signed in using hook
-  const [user, userLoading] = useAuthState(getAuth());
+  const [user, userLoading] = useUser();
 
   // Snackbar
   const [snackbarOpen] = useAtom(snackbarOpenAtom);
@@ -129,6 +129,12 @@ export default function Root() {
             },
           }}
         />
+      )}
+
+      {isLocalMode && (
+        <Alert severity="info" icon={false} sx={{ borderRadius: 0 }}>
+          Local demo · Sample data stays in this browser. Reset it from Profile.
+        </Alert>
       )}
 
       <Box

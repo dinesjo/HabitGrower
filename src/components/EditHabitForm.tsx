@@ -33,6 +33,7 @@ import { Habit } from "../types/Habit";
 import { toFriendlyString } from "../utils/helpers";
 import { ambientPageSx, contentLayerSx, glassPanelSx, sectionLabelSx } from "../styles/designLanguage";
 import BackButton from "./BackButton";
+import { isLocalMode } from "../data/mode";
 import DeleteHabitWithConfirm from "./DeleteHabitWithConfirm";
 
 dayjs.extend(utc);
@@ -42,9 +43,9 @@ async function loader({ params }: LoaderFunctionArgs<{ id: string }>) {
   if (!id) {
     return null;
   }
-  return {
-    habit: await fetchHabitById(id),
-  };
+  const habit = await fetchHabitById(id);
+  if (!habit) throw new Response("Habit not found", { status: 404, statusText: "Habit not found" });
+  return { habit };
 }
 
 EditHabitForm.loader = loader;
@@ -526,6 +527,7 @@ function NotificationPreview({ habit }: { habit: Habit }) {
 }
 
 async function sendTestNotification(habit: Habit) {
+  if (isLocalMode) return;
   if (!("Notification" in window)) {
     alert("This browser does not support notifications");
     return;
@@ -570,6 +572,10 @@ async function sendTestNotification(habit: Habit) {
 
 function NotificationsPermissionAlert() {
   const [permission, setPermission] = useAtom(notificationPermissionAtom);
+
+  if (isLocalMode) {
+    return <Grid2 size={12}><Alert severity="info">Push notifications are disabled in local mode.</Alert></Grid2>;
+  }
 
   if (permission === "granted") {
     return null;
