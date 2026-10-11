@@ -234,9 +234,6 @@ export default function IndexView() {
                 </Box>
               </Fade>
             )}
-            <Typography variant="body2" color="text.secondary" sx={{ px: 1, pt: 2, pb: 1 }}>
-              Select habits, then tap Register to save.
-            </Typography>
             <List disablePadding sx={{ px: 1, pt: 1, pb: 10 }}>
               {sortedHabits.map((habit) => {
                 const isChecked = checkedHabitIds.includes(habit.id);
@@ -289,7 +286,7 @@ export default function IndexView() {
                       <ListItem
                         disablePadding
                         secondaryAction={
-                          <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", width: 48 }}>
+                          <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", width: 48 }}>
                             {isChecked && <input type="hidden" name="habitIds" value={habit.id} />}
                             <Checkbox
                               inputProps={{ "aria-label": `Select ${habit.name} for registration` }}
@@ -324,13 +321,6 @@ export default function IndexView() {
                                 transition: "color 0.2s ease, background-color 0.2s ease",
                               }}
                             />
-                            <Typography
-                              aria-hidden="true"
-                              variant="caption"
-                              sx={{ height: 16, lineHeight: "16px", fontSize: "0.65rem", fontWeight: 600, color: "primary.main", visibility: isChecked ? "visible" : "hidden" }}
-                            >
-                              Selected
-                            </Typography>
                           </Box>
                         }
                         sx={{ borderRadius: "inherit", ".MuiListItemButton-root": { borderRadius: "inherit" } }}
