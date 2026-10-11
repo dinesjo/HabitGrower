@@ -7,9 +7,11 @@ import { lazy, Suspense, useMemo } from "react";
 import { RouterProvider } from "react-router-dom";
 import { router } from "../main";
 import { themeAtom } from "../store";
+import "@fontsource-variable/manrope";
+import "@fontsource-variable/fraunces/opsz.css";
 
-const bodyFont = '"Manrope", "Avenir Next", "Segoe UI", sans-serif';
-const displayFont = '"Fraunces", "Iowan Old Style", "Georgia", serif';
+const bodyFont = '"Manrope Variable", "Avenir Next", "Segoe UI", sans-serif';
+const displayFont = '"Fraunces Variable", "Iowan Old Style", "Georgia", serif';
 
 const DevTools = import.meta.env.DEV && import.meta.env.VITE_SHOW_DEVTOOLS === "true"
   ? lazy(async () => {
@@ -48,6 +50,10 @@ export default function Main() {
             default: themeAtomValue === "dark" ? "#0d1511" : "#f6faf5",
             paper: themeAtomValue === "dark" ? "#142019" : "#ffffff",
           },
+          text: {
+            primary: themeAtomValue === "dark" ? "#eaf4e7" : "#17331e",
+            secondary: themeAtomValue === "dark" ? "#aebbad" : "#586858",
+          },
           divider: themeAtomValue === "dark" ? alpha("#9ccf6b", 0.14) : alpha("#2f6c2a", 0.12),
         },
         shape: {
@@ -82,6 +88,10 @@ export default function Main() {
               ":root": {
                 "--hg-radius": "18px",
                 "--hg-radius-lg": "24px",
+                "--hg-control-radius": "12px",
+              },
+              html: {
+                scrollPaddingBlock: "24px 112px",
               },
               body: {
                 minHeight: "100vh",
@@ -108,6 +118,14 @@ export default function Main() {
               "::selection": {
                 backgroundColor: themeAtomValue === "dark" ? alpha("#9ccf6b", 0.35) : alpha("#5fa746", 0.28),
               },
+              "@media (prefers-reduced-motion: reduce)": {
+                "*, *::before, *::after": {
+                  animationDuration: "0.01ms !important",
+                  animationIterationCount: "1 !important",
+                  transitionDuration: "0.01ms !important",
+                  scrollBehavior: "auto !important",
+                },
+              },
             },
           },
           MuiPaper: {
@@ -121,23 +139,19 @@ export default function Main() {
           MuiCard: {
             styleOverrides: {
               root: {
-                borderRadius: 22,
+                borderRadius: "var(--hg-radius)",
               },
             },
           },
           MuiButton: {
             styleOverrides: {
-              root: ({ theme }) => ({
-                borderRadius: 14,
+              root: {
+                borderRadius: "var(--hg-control-radius)",
+                minHeight: 44,
                 paddingInline: 16,
                 boxShadow: "none",
-                "&:hover": {
-                  boxShadow:
-                    theme.palette.mode === "dark"
-                      ? "0 10px 24px rgba(0,0,0,0.28)"
-                      : "0 10px 20px rgba(35, 70, 33, 0.16)",
-                },
-              }),
+                "&:hover": { boxShadow: "none" },
+              },
             },
           },
           MuiFab: {
@@ -154,12 +168,13 @@ export default function Main() {
           MuiIconButton: {
             styleOverrides: {
               root: ({ theme }) => ({
-                borderRadius: 12,
-                transition: "all 0.2s ease",
+                borderRadius: "var(--hg-control-radius)",
+                minWidth: 44,
+                minHeight: 44,
+                transition: "background-color 0.15s ease",
                 "@media (hover: hover) and (pointer: fine)": {
                   "&:hover": {
                     backgroundColor: alpha(theme.palette.primary.main, 0.12),
-                    transform: "translateY(-1px)",
                   },
                 },
               }),
@@ -168,7 +183,7 @@ export default function Main() {
           MuiListItemButton: {
             styleOverrides: {
               root: {
-                borderRadius: 14,
+                borderRadius: "var(--hg-control-radius)",
               },
             },
           },
@@ -188,9 +203,8 @@ export default function Main() {
           MuiDialog: {
             styleOverrides: {
               paper: ({ theme }) => ({
-                borderRadius: 24,
-                backdropFilter: "blur(12px)",
-                backgroundColor: alpha(theme.palette.background.paper, theme.palette.mode === "dark" ? 0.94 : 0.97),
+                borderRadius: "var(--hg-radius-lg)",
+                backgroundColor: theme.palette.background.paper,
                 boxShadow:
                   theme.palette.mode === "dark"
                     ? "0 28px 44px rgba(0,0,0,0.45)"
@@ -202,7 +216,7 @@ export default function Main() {
             styleOverrides: {
               root: ({ theme }) => ({
                 "& .MuiOutlinedInput-root": {
-                  borderRadius: 14,
+                  borderRadius: "var(--hg-control-radius)",
                   backgroundColor: alpha(theme.palette.background.paper, theme.palette.mode === "dark" ? 0.48 : 0.72),
                 },
               }),
@@ -212,7 +226,7 @@ export default function Main() {
             styleOverrides: {
               root: ({ theme }) => ({
                 "& .MuiOutlinedInput-root": {
-                  borderRadius: 14,
+                  borderRadius: "var(--hg-control-radius)",
                   backgroundColor: alpha(theme.palette.background.paper, theme.palette.mode === "dark" ? 0.48 : 0.72),
                 },
               }),

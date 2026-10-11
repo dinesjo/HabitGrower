@@ -14,6 +14,7 @@ export default function LinearProgressWithLabel({ ...props }) {
   return (
     <Box sx={{ display: "flex", alignItems: "center" }}>
       <Tooltip
+        disableTouchListener
         title={
           <Box>
             <Typography variant="body2" sx={{ color: "success.main" }}>
@@ -46,7 +47,7 @@ export default function LinearProgressWithLabel({ ...props }) {
           />
         </Box>
       </Tooltip>
-      <Tooltip title="Progress toward your goal" arrow>
+      <Tooltip title="Progress toward your goal" arrow disableTouchListener>
         <Box sx={{ flex: 1, minWidth: 0 }}>
           <LinearProgress
             aria-label="Progress toward your goal"

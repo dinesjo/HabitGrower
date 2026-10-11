@@ -4,20 +4,19 @@ import {
   Avatar,
   Badge,
   Box,
+  Button,
   CircularProgress,
-  Fab,
   LinearProgress,
   Slide,
   Snackbar,
   Typography,
-  Zoom,
 } from "@mui/material";
 import { alpha } from "@mui/material/styles";
 import { useUser } from "../hooks/useUser";
 import { isLocalMode } from "../data/mode";
 import { useAtom } from "jotai";
 import { useEffect, useState } from "react";
-import { Form, Link, Outlet, useLocation, useNavigation } from "react-router-dom";
+import { Form, Link, Outlet, ScrollRestoration, useLocation, useNavigation } from "react-router-dom";
 import { snackbarActionAtom, snackbarMessageAtom, snackbarOpenAtom, snackbarSeverityAtom, userWeekStartsAtMondayAtom } from "../store";
 import { fetchAllHabits } from "../services/habitsPersistance";
 import { getProgress } from "../utils/helpers";
@@ -45,10 +44,10 @@ export default function Root() {
 
   // Hide nav on sign-in page for immersive experience
   const isSignInPage = location.pathname === "/profile/signin";
+  const isEditingHabit = location.pathname.endsWith("/edit");
   const safeBottom = "env(safe-area-inset-bottom, 0px)";
   const navBottom = `calc(12px + ${safeBottom})`;
-  const fabBottom = `calc(18px + ${safeBottom})`;
-  const outletBottomPadding = isSignInPage ? 0 : `calc(78px + ${safeBottom})`;
+  const outletBottomPadding = isSignInPage ? 0 : `calc(96px + ${safeBottom})`;
 
   useEffect(() => {
     let timeoutId: NodeJS.Timeout;
@@ -132,9 +131,11 @@ export default function Root() {
       )}
 
       {isLocalMode && (
-        <Alert severity="info" icon={false} sx={{ borderRadius: 0 }}>
-          Local demo · Sample data stays in this browser. Reset it from Profile.
-        </Alert>
+        <Box sx={{ px: 2, py: 1, bgcolor: "background.paper", borderBottom: 1, borderColor: "divider" }}>
+          <Typography sx={{ fontSize: "0.8125rem", lineHeight: 1.5, color: "text.secondary" }}>
+            Local demo · Saved in this browser
+          </Typography>
+        </Box>
       )}
 
       <Box
@@ -148,40 +149,7 @@ export default function Root() {
       >
         <Outlet />
       </Box>
-
-      {/* Floating Action Button */}
-      {user && !isSignInPage && (
-        <Zoom in={true} timeout={300}>
-          <Form action="/new-habit" method="post">
-            <Fab
-              type="submit"
-              color="primary"
-              size="large"
-              sx={{
-                position: "fixed",
-                bottom: fabBottom,
-                right: 18,
-                zIndex: 1000,
-                bgcolor: "primary.main",
-                boxShadow: (theme) =>
-                  theme.palette.mode === "dark"
-                    ? "0 14px 28px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.08)"
-                    : "0 14px 26px rgba(33, 76, 30, 0.26), 0 0 0 1px rgba(255,255,255,0.7)",
-                "&:hover": {
-                  bgcolor: "primary.dark",
-                },
-                "&:active": {
-                  transform: "scale(0.92)",
-                },
-                transition: "transform 0.15s ease, box-shadow 0.2s ease",
-              }}
-              aria-label="Add new habit"
-            >
-              <Add />
-            </Fab>
-          </Form>
-        </Zoom>
-      )}
+      <ScrollRestoration />
 
       {/* Snackbar */}
       <Snackbar
@@ -216,30 +184,32 @@ export default function Root() {
         </Alert>
       </Snackbar>
 
-      {/* ── Floating Pill Navigation ── */}
-      {!isSignInPage && (
+      {/* Primary actions share one thumb-reachable surface. */}
+      {!isSignInPage && !isEditingHabit && (
         <Box
+          component="nav"
+          aria-label="Main navigation"
           sx={{
             position: "fixed",
             bottom: navBottom,
             left: "50%",
             transform: "translateX(-50%)",
             zIndex: 1001,
-            display: "flex",
+            display: "grid",
+            gridTemplateColumns: user ? "repeat(3, minmax(0, 1fr))" : "repeat(2, minmax(0, 1fr))",
             alignItems: "center",
             gap: 0.75,
-            p: 0.8,
-            borderRadius: "999px",
-            backdropFilter: "blur(24px) saturate(130%)",
-            bgcolor: (theme) =>
-              theme.palette.mode === "dark" ? "rgba(18, 26, 21, 0.88)" : "rgba(255, 255, 255, 0.9)",
+            p: 0.75,
+            width: "calc(100% - 32px)",
+            maxWidth: 360,
+            borderRadius: "var(--hg-radius)",
+            bgcolor: "background.paper",
             border: 1,
-            borderColor: (theme) =>
-              theme.palette.mode === "dark" ? alpha(theme.palette.primary.main, 0.22) : alpha(theme.palette.primary.main, 0.14),
+            borderColor: "divider",
             boxShadow: (theme) =>
               theme.palette.mode === "dark"
-                ? "0 12px 28px rgba(0,0,0,0.48), 0 0 0 1px rgba(255,255,255,0.05)"
-                : "0 12px 24px rgba(23, 45, 22, 0.16), 0 0 0 1px rgba(255,255,255,0.75)",
+                ? "0 4px 16px rgba(0,0,0,0.2)"
+                : "0 4px 16px rgba(23,45,22,0.08)",
           }}
         >
           {pages.map((page) => {
@@ -253,15 +223,19 @@ export default function Root() {
                 key={page.path}
                 component={Link}
                 to={page.path}
+                aria-label={page.text}
+                aria-current={active ? "page" : undefined}
                 sx={{
                   textDecoration: "none",
                   display: "flex",
                   flexDirection: "column",
                   alignItems: "center",
                   justifyContent: "center",
-                  px: 3,
-                  py: 0.9,
-                  borderRadius: "999px",
+                  minWidth: 0,
+                  minHeight: 52,
+                  px: 1,
+                  py: 0.75,
+                  borderRadius: "var(--hg-control-radius)",
                   bgcolor: active
                     ? (theme) =>
                         theme.palette.mode === "dark"
@@ -269,13 +243,14 @@ export default function Root() {
                           : alpha(theme.palette.primary.main, 0.13)
                     : "transparent",
                   color: active ? "primary.main" : "text.secondary",
-                  transition: "all 0.25s cubic-bezier(0.4, 0, 0.2, 1)",
+                  transition: "background-color 150ms ease, color 150ms ease",
                   cursor: "pointer",
-                  minWidth: 72,
                   userSelect: "none",
                   WebkitTapHighlightColor: "transparent",
-                  "&:active": {
-                    transform: "scale(0.92)",
+                  "&:focus-visible": {
+                    outline: "2px solid",
+                    outlineColor: "primary.main",
+                    outlineOffset: 2,
                   },
                   "@media (hover: hover) and (pointer: fine)": {
                     "&:hover": {
@@ -290,13 +265,10 @@ export default function Root() {
                   "& .MuiSvgIcon-root": {
                     fontSize: "1.4rem",
                     color: "inherit",
-                    transition: "transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1)",
-                    ...(active && { transform: "scale(1.1)" }),
                   },
                   "& .MuiAvatar-root": {
                     width: 26,
                     height: 26,
-                    transition: "all 0.25s ease",
                     ...(active && {
                       outline: "2px solid",
                       outlineColor: "primary.main",
@@ -314,12 +286,11 @@ export default function Root() {
                 <Typography
                   variant="caption"
                   sx={{
-                    fontSize: "0.6rem",
-                    fontWeight: active ? 700 : 500,
+                    fontSize: "0.75rem",
+                    fontWeight: active ? 700 : 600,
                     mt: 0.25,
                     color: "inherit",
-                    letterSpacing: "0.03em",
-                    lineHeight: 1,
+                    lineHeight: 1.3,
                   }}
                 >
                   {page.text}
@@ -327,6 +298,21 @@ export default function Root() {
               </Box>
             );
           })}
+          {user && (
+            <Form action="/new-habit" method="post" style={{ minWidth: 0 }}>
+              <Button
+                type="submit"
+                variant="contained"
+                aria-label="Add new habit"
+                sx={{ width: "100%", minWidth: 0, minHeight: 52, px: 0.5, py: 0.75, flexDirection: "column", gap: 0.25 }}
+              >
+                <Add sx={{ fontSize: "1.4rem" }} />
+                <Typography component="span" sx={{ fontSize: "0.75rem", fontWeight: 700, lineHeight: 1.3 }}>
+                  New habit
+                </Typography>
+              </Button>
+            </Form>
+          )}
         </Box>
       )}
     </>

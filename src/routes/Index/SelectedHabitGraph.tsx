@@ -1,6 +1,4 @@
-import { Box, Container, Divider, Grid2, ToggleButton, ToggleButtonGroup, Typography, useTheme } from "@mui/material";
-import { useMediaQuery } from "@mui/material";
-import { InsertChartOutlined, TrendingUp, LocalFireDepartment, CalendarToday } from "@mui/icons-material";
+import { Box, Divider, ToggleButton, ToggleButtonGroup, Typography } from "@mui/material";
 import { BarChart } from "@mui/x-charts";
 import dayjs from "dayjs";
 import { useAtom } from "jotai";
@@ -120,9 +118,6 @@ export default function SelectedHabitGraph({ habit }: { habit: Habit }) {
   const [daysShown] = useAtom(daysShownAtom);
   const [graphFrequencyUnit] = useAtom(graphFrequencyUnitAtom);
   const [userWeekStartsAtMonday] = useAtom(userWeekStartsAtMondayAtom);
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-  const isTablet = useMediaQuery(theme.breakpoints.down('md'));
 
   // Memoize filtered dates to avoid recalculation on every render
   const filteredDates = useMemo(() => {
@@ -236,27 +231,15 @@ export default function SelectedHabitGraph({ habit }: { habit: Habit }) {
 
   if (!hasData) {
     return (
-      <Box sx={{ ...glassPanelSx, p: 3, mb: 2, borderRadius: 3 }}>
-        <SectionTitle>Progress Chart</SectionTitle>
-        <Box sx={{ mb: 3, display: "flex", justifyContent: "center", px: { xs: 2, sm: 2 } }}>
-          <GraphControls />
-        </Box>
-        <Box
-          sx={{
-            p: 4,
-            textAlign: "center",
-            bgcolor: "action.hover",
-            borderRadius: 2,
-            border: "1px dashed",
-            borderColor: "divider",
-          }}
-        >
-          <InsertChartOutlined sx={{ fontSize: 48, color: "text.disabled", mb: 1 }} />
-          <Typography variant="body1" color="text.secondary" gutterBottom>
-            No data yet
+      <Box sx={{ ...glassPanelSx, p: { xs: 2, sm: 3 }, mb: 2 }}>
+        <SectionTitle>Progress</SectionTitle>
+        <GraphControls />
+        <Box sx={{ py: 4, textAlign: "center" }}>
+          <Typography variant="body1" sx={{ fontWeight: 600, mb: 1 }}>
+            Your progress starts here
           </Typography>
-          <Typography variant="body2" color="text.disabled">
-            Register this habit to see your progress chart
+          <Typography variant="body2" color="text.secondary">
+            Register this habit to see your progress over time.
           </Typography>
         </Box>
       </Box>
@@ -272,32 +255,14 @@ export default function SelectedHabitGraph({ habit }: { habit: Habit }) {
     : null;
 
   return (
-    <Box sx={{ ...glassPanelSx, p: 3, mb: 2, borderRadius: 3 }}>
-      <SectionTitle>Progress Chart</SectionTitle>
-      <Box sx={{ mb: 3, display: "flex", justifyContent: "center", px: { xs: 2, sm: 2 } }}>
-        <GraphControls />
-      </Box>
-      <Container
-        disableGutters
-        sx={{
-          display: "flex",
-          justifyContent: "center",
-          width: "100%",
-          maxWidth: "100%",
-        }}
-      >
-        <Box
-          sx={{
-            width: "100%",
-            maxWidth: { xs: 320, sm: 400, md: 500 },
-            display: "flex",
-            justifyContent: "center",
-          }}
-        >
+    <Box sx={{ ...glassPanelSx, p: { xs: 2, sm: 3 }, mb: 2 }}>
+      <SectionTitle>Progress</SectionTitle>
+      <GraphControls />
+      <Box sx={{ width: "100%", minWidth: 0, mt: 2, touchAction: "pan-y" }}>
           <BarChart
             dataset={dateData}
-            width={isMobile ? 320 : isTablet ? 400 : 500}
             height={220}
+            skipAnimation
             margin={{ top: 20, right: 10, bottom: 40, left: 30 }}
             xAxis={[
               {
@@ -325,6 +290,8 @@ export default function SelectedHabitGraph({ habit }: { habit: Habit }) {
               legend: { hidden: true },
             }}
             sx={{
+              color: "text.secondary",
+              touchAction: "pan-y",
               "& .MuiChartsReferenceLine-root": {
                 strokeDasharray: "5 5",
                 strokeWidth: 2,
@@ -333,11 +300,11 @@ export default function SelectedHabitGraph({ habit }: { habit: Habit }) {
           >
             {targetValue && (
               <text
-                x={isMobile ? 160 : isTablet ? 200 : 250}
+                x="50%"
                 y={15}
                 textAnchor="middle"
                 style={{
-                  fill: habit.color || "#90c65b",
+                  fill: "currentColor",
                   fontSize: "0.75rem",
                   fontWeight: 600,
                 }}
@@ -346,102 +313,27 @@ export default function SelectedHabitGraph({ habit }: { habit: Habit }) {
               </text>
             )}
           </BarChart>
-        </Box>
-      </Container>
+      </Box>
 
-      {/* Stats */}
       {stats && (
         <>
-          <Divider sx={{ my: 3, opacity: 0.4 }} />
-
-          <Grid2 container spacing={1.5}>
-            <Grid2 size={{ xs: 4, sm: 4 }}>
-              <Box
-                sx={{
-                  textAlign: "center",
-                  p: 1.5,
-                  borderRadius: 2.5,
-                  bgcolor: (t) =>
-                    t.palette.mode === "dark" ? "rgba(144, 198, 91, 0.06)" : "rgba(46, 125, 50, 0.04)",
-                  border: 1,
-                  borderColor: (t) =>
-                    t.palette.mode === "dark" ? "rgba(144, 198, 91, 0.08)" : "rgba(46, 125, 50, 0.06)",
-                }}
-              >
-                <TrendingUp sx={{ fontSize: 24, color: "primary.main", mb: 0.5 }} />
-                <Typography variant="h5" sx={{ fontWeight: 700, color: "text.primary", mb: 0.25, lineHeight: 1.2 }}>
-                  {stats.avgPerDay}
+          <Divider sx={{ my: 2 }} />
+          <Box component="dl" sx={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", m: 0 }}>
+            {[
+              { value: stats.avgPerDay, label: "Avg. per day" },
+              { value: stats.currentStreak, label: "Day streak" },
+              { value: stats.longestStreak, label: "Best streak" },
+            ].map(({ value, label }, index) => (
+              <Box key={label} sx={{ textAlign: "center", px: 0.5, borderLeft: index ? 1 : 0, borderColor: "divider" }}>
+                <Typography component="dd" variant="h5" sx={{ m: 0, mb: 0.75, fontFamily: "inherit", fontWeight: 700, fontVariantNumeric: "tabular-nums", lineHeight: 1.2 }}>
+                  {value}
                 </Typography>
-                <Typography variant="caption" color="text.secondary" sx={{ fontSize: "0.65rem" }}>
-                  Avg/Day
+                <Typography component="dt" variant="caption" color="text.secondary" sx={{ display: "block", fontSize: "0.75rem", lineHeight: 1.4 }}>
+                  {label}
                 </Typography>
               </Box>
-            </Grid2>
-
-            <Grid2 size={{ xs: 4, sm: 4 }}>
-              <Box
-                sx={{
-                  textAlign: "center",
-                  p: 1.5,
-                  borderRadius: 2.5,
-                  bgcolor: (t) =>
-                    stats.currentStreak > 0
-                      ? t.palette.mode === "dark"
-                        ? "rgba(144, 198, 91, 0.12)"
-                        : "rgba(46, 125, 50, 0.08)"
-                      : t.palette.mode === "dark"
-                        ? "rgba(144, 198, 91, 0.06)"
-                        : "rgba(46, 125, 50, 0.04)",
-                  border: 1,
-                  borderColor: (t) =>
-                    stats.currentStreak > 0
-                      ? t.palette.mode === "dark"
-                        ? "rgba(144, 198, 91, 0.2)"
-                        : "rgba(46, 125, 50, 0.12)"
-                      : t.palette.mode === "dark"
-                        ? "rgba(144, 198, 91, 0.08)"
-                        : "rgba(46, 125, 50, 0.06)",
-                }}
-              >
-                <LocalFireDepartment
-                  sx={{
-                    fontSize: 24,
-                    color: stats.currentStreak > 0 ? "error.main" : "text.disabled",
-                    mb: 0.5,
-                  }}
-                />
-                <Typography variant="h5" sx={{ fontWeight: 700, color: "text.primary", mb: 0.25, lineHeight: 1.2 }}>
-                  {stats.currentStreak}
-                </Typography>
-                <Typography variant="caption" color="text.secondary" sx={{ fontSize: "0.65rem" }}>
-                  Day Streak
-                </Typography>
-              </Box>
-            </Grid2>
-
-            <Grid2 size={{ xs: 4, sm: 4 }}>
-              <Box
-                sx={{
-                  textAlign: "center",
-                  p: 1.5,
-                  borderRadius: 2.5,
-                  bgcolor: (t) =>
-                    t.palette.mode === "dark" ? "rgba(144, 198, 91, 0.06)" : "rgba(46, 125, 50, 0.04)",
-                  border: 1,
-                  borderColor: (t) =>
-                    t.palette.mode === "dark" ? "rgba(144, 198, 91, 0.08)" : "rgba(46, 125, 50, 0.06)",
-                }}
-              >
-                <CalendarToday sx={{ fontSize: 24, color: "secondary.main", mb: 0.5 }} />
-                <Typography variant="h5" sx={{ fontWeight: 700, color: "text.primary", mb: 0.25, lineHeight: 1.2 }}>
-                  {stats.longestStreak}
-                </Typography>
-                <Typography variant="caption" color="text.secondary" sx={{ fontSize: "0.65rem" }}>
-                  Best Streak
-                </Typography>
-              </Box>
-            </Grid2>
-          </Grid2>
+            ))}
+          </Box>
         </>
       )}
     </Box>
@@ -451,112 +343,73 @@ export default function SelectedHabitGraph({ habit }: { habit: Habit }) {
 function SectionTitle({ children }: { children: React.ReactNode }) {
   return (
     <Box sx={{ ...sectionLabelSx, mb: 2 }}>
-      <Typography variant="h6" sx={{ color: "text.primary" }}>
+      <Typography component="h2" variant="h6" sx={{ color: "text.primary" }}>
         {children}
       </Typography>
     </Box>
   );
 }
 
+const controlGroupSx = {
+  width: "100%",
+  "& .MuiToggleButton-root": {
+    minWidth: 0,
+    minHeight: 44,
+    px: 0.5,
+    fontSize: "0.8125rem",
+    fontWeight: 600,
+    whiteSpace: "nowrap",
+    textTransform: "none",
+    borderColor: "divider",
+    borderRadius: "var(--hg-control-radius)",
+    color: "text.primary",
+    "&.Mui-selected": {
+      bgcolor: "primary.main",
+      color: "primary.contrastText",
+      borderColor: "primary.main",
+      "@media (hover: hover) and (pointer: fine)": { "&:hover": { bgcolor: "primary.dark" } },
+    },
+  },
+};
+
 function GraphControls() {
   const [daysShown, setDaysShown] = useAtom(daysShownAtom);
   const [graphFrequencyUnit, setGraphFrequencyUnit] = useAtom(graphFrequencyUnitAtom);
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, width: '100%', maxWidth: 400 }}>
+    <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
       <Box>
-        <Typography variant="overline" color="text.secondary" sx={{ mb: 1, fontSize: '0.67rem' }}>
-          TIME SPAN
+        <Typography variant="caption" color="text.secondary" sx={{ display: "block", mb: 0.75, fontWeight: 600 }}>
+          Time span
         </Typography>
         <ToggleButtonGroup
           color="primary"
           size="small"
           value={daysShown}
           exclusive
-          onChange={(_, v) => {
-            if (v) setDaysShown(v);
-          }}
+          onChange={(_, v) => { if (v) setDaysShown(v); }}
           aria-label="Time span"
           fullWidth
-          sx={{
-            "& .MuiToggleButton-root": {
-              py: 0.75,
-              px: 1.5,
-              fontSize: '0.8rem',
-              fontWeight: 500,
-              textTransform: 'none',
-              borderRadius: 2,
-              transition: 'all 0.2s ease-in-out',
-              border: '1px solid',
-              borderColor: 'divider',
-              color: 'text.primary',
-              bgcolor: 'background.paper',
-              "&.Mui-selected": {
-                bgcolor: 'primary.main',
-                color: 'primary.contrastText',
-                fontWeight: 600,
-                borderColor: 'primary.main',
-                "&:hover": {
-                  bgcolor: 'primary.dark',
-                },
-              },
-              "&:hover": {
-                bgcolor: 'action.hover',
-              },
-            },
-            gap: 0.5,
-          }}
+          sx={controlGroupSx}
         >
           {Object.entries(daysShownMap).map(([days, label]) => (
-            <ToggleButton key={days} value={Number(days)}>
-              {label}
-            </ToggleButton>
+            <ToggleButton key={days} value={Number(days)}>{label}</ToggleButton>
           ))}
         </ToggleButtonGroup>
       </Box>
-
       <Box>
-        <Typography variant="overline" color="text.secondary" sx={{ mb: 1, fontSize: '0.67rem' }}>
-          GROUP BY
+        <Typography variant="caption" color="text.secondary" sx={{ display: "block", mb: 0.75, fontWeight: 600 }}>
+          Group by
         </Typography>
         <ToggleButtonGroup
           color="primary"
           size="small"
           value={graphFrequencyUnit}
           exclusive
-          onChange={(_, v) => {
-            if (v) setGraphFrequencyUnit(v);
-          }}
+          onChange={(_, v) => { if (v) setGraphFrequencyUnit(v); }}
           aria-label="Frequency unit"
           fullWidth
-          sx={{
-            "& .MuiToggleButton-root": {
-              py: 0.75,
-              px: 1.5,
-              fontSize: '0.8rem',
-              fontWeight: 500,
-              textTransform: 'none',
-              borderRadius: 2,
-              transition: 'all 0.2s ease-in-out',
-              border: '1px solid',
-              borderColor: 'divider',
-              color: 'text.primary',
-              bgcolor: 'background.paper',
-              "&.Mui-selected": {
-                bgcolor: 'primary.main',
-                color: 'primary.contrastText',
-                fontWeight: 600,
-                borderColor: 'primary.main',
-                "&:hover": {
-                  bgcolor: 'primary.dark',
-                },
-              },
-              "&:hover": {
-                bgcolor: 'action.hover',
-              },
-            },
-            gap: 0.5,
-          }}
+          sx={controlGroupSx}
         >
           <ToggleButton value="day">Day</ToggleButton>
           <ToggleButton value="week">Week</ToggleButton>

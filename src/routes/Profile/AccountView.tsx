@@ -2,7 +2,6 @@ import {
   Check,
   DarkModeOutlined,
   DoNotDisturbOutlined,
-  HotelOutlined,
   LogoutOutlined,
   NotificationsActiveOutlined,
   NotificationsOffOutlined,
@@ -14,7 +13,6 @@ import {
   Button,
   Chip,
   Divider,
-  Fade,
   LinearProgress,
   List,
   ListItem,
@@ -22,10 +20,8 @@ import {
   ListItemText,
   Stack,
   Switch,
-  Tooltip,
   Typography,
 } from "@mui/material";
-import { alpha } from "@mui/material/styles";
 import { TimePicker } from "@mui/x-date-pickers";
 import { Dayjs } from "dayjs";
 import type { AppUser } from "../../data/types";
@@ -35,7 +31,7 @@ import { ReactNode, Suspense } from "react";
 import { Form, redirect, useLoaderData, useNavigation } from "react-router-dom";
 import { getUser } from "../../services/auth";
 import { notificationPermissionAtom, themeAtom, userDayStartsAtAtom, userWeekStartsAtMondayAtom } from "../../store";
-import { ambientPageSx, contentLayerSx, glassPanelSx, sectionLabelSx } from "../../styles/designLanguage";
+import { ambientPageSx, contentLayerSx, glassPanelSx, mobileTimePickerDialogSx, sectionLabelSx } from "../../styles/designLanguage";
 
 async function loader() {
   const user = await getUser();
@@ -56,147 +52,32 @@ export default function AccountView() {
     <Box
       sx={{ ...ambientPageSx, display: "flex", flexDirection: "column", minHeight: ["100vh", "100dvh"] }}
     >
-      {/* ── Profile Header ── */}
-      <Fade in timeout={500}>
-        <Box
-          sx={{
-            position: "relative",
-            overflow: "hidden",
-            background: (theme) =>
-              theme.palette.mode === "dark"
-                ? "linear-gradient(160deg, rgba(14, 38, 23, 0.86) 0%, rgba(16, 49, 28, 0.8) 40%, rgba(17, 58, 33, 0.76) 70%, rgba(12, 31, 19, 0.82) 100%)"
-                : "linear-gradient(160deg, rgba(233, 245, 229, 0.86) 0%, rgba(207, 233, 200, 0.76) 40%, rgba(183, 222, 173, 0.66) 70%, rgba(226, 242, 223, 0.84) 100%)",
-            borderBottom: 1,
-            borderColor: (theme) => alpha(theme.palette.primary.main, theme.palette.mode === "dark" ? 0.28 : 0.12),
-            pt: 5,
-            pb: 5,
-            px: 2,
-          }}
-        >
-          {/* Dot-grid texture overlay */}
-          <Box
-            sx={{
-              position: "absolute",
-              inset: 0,
-              backgroundImage: (theme) =>
-                theme.palette.mode === "dark"
-                  ? "radial-gradient(rgba(144, 198, 91, 0.07) 1px, transparent 1px)"
-                  : "radial-gradient(rgba(27, 94, 32, 0.045) 1px, transparent 1px)",
-              backgroundSize: "24px 24px",
-              pointerEvents: "none",
-            }}
-          />
-
-          {/* Decorative radial shapes */}
-          <Box
-            sx={{
-              position: "absolute",
-              top: -60,
-              right: -40,
-              width: 200,
-              height: 200,
-              borderRadius: "50%",
-              background: (theme) =>
-                theme.palette.mode === "dark"
-                  ? "radial-gradient(circle, rgba(144, 198, 91, 0.12) 0%, transparent 70%)"
-                  : "radial-gradient(circle, rgba(46, 125, 50, 0.08) 0%, transparent 70%)",
-              pointerEvents: "none",
-            }}
-          />
-          <Box
-            sx={{
-              position: "absolute",
-              bottom: -30,
-              left: -20,
-              width: 120,
-              height: 120,
-              borderRadius: "50%",
-              background: (theme) =>
-                theme.palette.mode === "dark"
-                  ? "radial-gradient(circle, rgba(144, 198, 91, 0.08) 0%, transparent 70%)"
-                  : "radial-gradient(circle, rgba(46, 125, 50, 0.06) 0%, transparent 70%)",
-              pointerEvents: "none",
-            }}
-          />
-          <Box
-            sx={{
-              position: "absolute",
-              top: 20,
-              left: "30%",
-              width: 80,
-              height: 80,
-              borderRadius: "50%",
-              background: (theme) =>
-                theme.palette.mode === "dark"
-                  ? "radial-gradient(circle, rgba(144, 198, 91, 0.06) 0%, transparent 70%)"
-                  : "radial-gradient(circle, rgba(46, 125, 50, 0.04) 0%, transparent 70%)",
-              pointerEvents: "none",
-            }}
-          />
-
-          {/* Avatar & identity */}
-          <Stack alignItems="center" spacing={1.5} sx={contentLayerSx}>
-            <Box
-              sx={{
-                p: "3px",
-                borderRadius: "50%",
-                background: (theme) =>
-                  `linear-gradient(135deg, ${theme.palette.primary.light}, ${theme.palette.primary.dark})`,
-                boxShadow: (theme) =>
-                  theme.palette.mode === "dark"
-                    ? "0 4px 28px rgba(144, 198, 91, 0.25)"
-                    : "0 4px 28px rgba(46, 125, 50, 0.18)",
-              }}
-            >
-              <Avatar
-                alt="Profile Picture"
-                src={photoURL || undefined}
-                sx={{
-                  width: 88,
-                  height: 88,
-                  border: "3px solid",
-                  borderColor: "background.default",
-                  fontSize: "2.2rem",
-                  fontWeight: 700,
-                  bgcolor: "primary.dark",
-                  color: "#fff",
-                }}
-              >
-                {displayName?.charAt(0)?.toUpperCase() || "?"}
-              </Avatar>
-            </Box>
-
-            <Box textAlign="center">
-              <Typography
-                variant="h5"
-                sx={{
-                  color: (theme) => (theme.palette.mode === "dark" ? "#e8f5e9" : "#1b5e20"),
-                  fontWeight: 700,
-                  letterSpacing: "-0.02em",
-                }}
-              >
-                {displayName || "Welcome!"}
-              </Typography>
-              <Typography
-                variant="body2"
-                sx={{
-                  color: (theme) =>
-                    theme.palette.mode === "dark" ? "rgba(232, 245, 233, 0.55)" : "rgba(27, 94, 32, 0.6)",
-                  mt: 0.5,
-                  fontWeight: 500,
-                }}
-              >
-                {isLocalMode ? "Sample habits saved only in this browser" : email || "Unknown Email"}
-              </Typography>
-            </Box>
-          </Stack>
-        </Box>
-      </Fade>
+      <Box sx={{ ...contentLayerSx, px: 2, pt: 3, pb: 1, mx: "auto", maxWidth: 600, width: "100%" }}>
+        <Typography component="h1" variant="h4" sx={{ fontSize: "2rem", mb: 2.5 }}>
+          Profile
+        </Typography>
+        <Stack direction="row" alignItems="center" spacing={2}>
+          <Avatar
+            alt={displayName || "Profile picture"}
+            src={photoURL || undefined}
+            sx={{ width: 56, height: 56, fontWeight: 700, bgcolor: "primary.dark", color: "#fff" }}
+          >
+            {displayName?.charAt(0)?.toUpperCase() || "?"}
+          </Avatar>
+          <Box sx={{ minWidth: 0 }}>
+            <Typography variant="subtitle1" sx={{ fontSize: "1.125rem", fontWeight: 700, overflowWrap: "anywhere" }}>
+              {displayName || "Welcome!"}
+            </Typography>
+            <Typography variant="body2" color="text.secondary" sx={{ mt: 0.25, lineHeight: 1.5, overflowWrap: "anywhere" }}>
+              {isLocalMode ? "Sample habits saved in this browser" : email || ""}
+            </Typography>
+          </Box>
+        </Stack>
+      </Box>
 
       {/* ── Settings ── */}
-      <Box sx={{ ...contentLayerSx, flex: 1, px: 2, pt: 0.5, pb: 2, mx: "auto", maxWidth: 560, width: "100%" }}>
+      <Box sx={{ ...contentLayerSx, flex: 1, px: 2, pt: 0.5, pb: 2, mx: "auto", maxWidth: 600, width: "100%" }}>
         {/* Preferences */}
-        <Fade in timeout={700}>
           <Box>
             <SectionLabel>Preferences</SectionLabel>
             <SettingsCard>
@@ -211,10 +92,8 @@ export default function AccountView() {
               </List>
             </SettingsCard>
           </Box>
-        </Fade>
 
         {/* Schedule */}
-        <Fade in timeout={900}>
           <Box>
             <SectionLabel>Schedule</SectionLabel>
             <SettingsCard>
@@ -225,11 +104,9 @@ export default function AccountView() {
               </List>
             </SettingsCard>
           </Box>
-        </Fade>
       </Box>
 
       {/* ── Sign Out ── */}
-      <Fade in timeout={1100}>
         <Box sx={{ px: 2, py: 3, mt: "auto" }}>
           {isLocalMode && <Typography variant="body2" textAlign="center" color="text.secondary" sx={{ mb: 1.5 }}>Restores sample habits and the default schedule.</Typography>}
           <Form method="post" action={isLocalMode ? "reset-demo" : "signout"} style={{ display: "flex", justifyContent: "center" }}>
@@ -244,7 +121,7 @@ export default function AccountView() {
               sx={{
                 maxWidth: 320,
                 py: 1.5,
-                borderRadius: 3,
+                borderRadius: "var(--hg-control-radius)",
                 fontWeight: 600,
                 borderWidth: 1.5,
                 "&:hover": { borderWidth: 1.5 },
@@ -254,7 +131,6 @@ export default function AccountView() {
             </Button>
           </Form>
         </Box>
-      </Fade>
     </Box>
   );
 }
@@ -264,7 +140,7 @@ export default function AccountView() {
 function SectionLabel({ children }: { children: ReactNode }) {
   return (
     <Stack direction="row" alignItems="center" spacing={1} sx={{ ...sectionLabelSx, mt: 3, px: 0.5 }}>
-      <Typography variant="overline" sx={{ color: "primary.main", fontSize: "0.7rem" }}>
+      <Typography component="h2" variant="h6" sx={{ color: "text.primary" }}>
         {children}
       </Typography>
     </Stack>
@@ -273,7 +149,7 @@ function SectionLabel({ children }: { children: ReactNode }) {
 
 function SettingsCard({ children }: { children: ReactNode }) {
   return (
-    <Box sx={{ ...glassPanelSx, borderRadius: 3, overflow: "hidden" }}>
+    <Box sx={{ ...glassPanelSx, overflow: "hidden" }}>
       {children}
     </Box>
   );
@@ -285,11 +161,11 @@ function DarkModeToggle() {
   const [theme, setTheme] = useAtom(themeAtom);
 
   return (
-    <ListItem>
-      <ListItemIcon sx={{ color: "primary.main", minWidth: 44 }}>
+    <ListItem component="label" sx={{ cursor: "pointer", minHeight: 72 }}>
+      <ListItemIcon sx={{ color: "primary.main", minWidth: 36 }}>
         <DarkModeOutlined />
       </ListItemIcon>
-      <ListItemText primary="Dark mode" secondary="Easier on the eyes" />
+      <ListItemText primary="Dark mode" />
       <Switch inputProps={{ "aria-label": "Dark mode" }} checked={theme === "dark"} onChange={() => setTheme(theme === "light" ? "dark" : "light")} />
     </ListItem>
   );
@@ -303,13 +179,11 @@ function NotificationsStatus() {
       <ListItemIcon sx={{ color: "primary.main", minWidth: 44 }}>
         {permission === "granted" ? <NotificationsActiveOutlined /> : <NotificationsOffOutlined />}
       </ListItemIcon>
-      <ListItemText primary="Notifications" secondary={isLocalMode ? "Push notifications are disabled in local mode" : undefined} />
+      <ListItemText primary="Notifications" secondary={isLocalMode ? "Disabled in the local demo" : permission === "denied" ? "Blocked by your browser. Enable them in browser settings." : undefined} />
       {!isLocalMode && (permission === "granted" ? (
-        <Chip label="Enabled" color="success" icon={<Check />} sx={{ fontWeight: "bold" }} />
+        <Chip label="Enabled" size="small" color="success" variant="outlined" icon={<Check />} />
       ) : permission === "denied" ? (
-        <Tooltip title="Enable notifications in your browser settings">
-          <Chip label="Denied" color="warning" icon={<DoNotDisturbOutlined />} sx={{ fontWeight: "bold" }} />
-        </Tooltip>
+        <Chip label="Blocked" size="small" color="warning" variant="outlined" icon={<DoNotDisturbOutlined />} />
       ) : (
         <Button
           color="primary"
@@ -329,12 +203,12 @@ function WeekStartPicker() {
   const [weekStartsAtMonday, setWeekStartsAtMonday] = useAtom(userWeekStartsAtMondayAtom);
 
   return (
-    <ListItem>
-      <ListItemIcon sx={{ color: "primary.main", minWidth: 44 }}>
+    <ListItem component="label" sx={{ cursor: "pointer", minHeight: 72 }}>
+      <ListItemIcon sx={{ color: "primary.main", minWidth: 36 }}>
         <TodayOutlined />
       </ListItemIcon>
-      <ListItemText primary="Start week on Monday" />
-      <Switch inputProps={{ "aria-label": "Start week on Monday" }} checked={weekStartsAtMonday || false} onChange={() => setWeekStartsAtMonday(!weekStartsAtMonday)} />
+      <ListItemText primary="Weeks start Monday" />
+      <Switch inputProps={{ "aria-label": "Weeks start Monday" }} checked={weekStartsAtMonday || false} onChange={() => setWeekStartsAtMonday(!weekStartsAtMonday)} />
     </ListItem>
   );
 }
@@ -343,11 +217,9 @@ function DayStartPicker() {
   const [dayStartsAt, setDayStartsAt] = useAtom(userDayStartsAtAtom);
 
   return (
-    <ListItem>
-      <ListItemIcon sx={{ color: "primary.main", minWidth: 44 }}>
-        <HotelOutlined />
-      </ListItemIcon>
+    <ListItem sx={{ py: 2.5 }}>
       <TimePicker
+        desktopModeMediaQuery="@media (min-width: 600px) and (pointer: fine)"
         value={dayStartsAt}
         onChange={(newDayStartsAt: Dayjs | null) => {
           if (newDayStartsAt) {
@@ -356,8 +228,8 @@ function DayStartPicker() {
         }}
         name="dayStartsAt"
         ampm={false}
-        label="I wake up around..."
-        slotProps={{ textField: { helperText: "Helps determine progress for daily habits" } }}
+        label="Wake-up time"
+        slotProps={{ textField: { helperText: "Used to calculate your daily habit progress." }, dialog: { sx: mobileTimePickerDialogSx } }}
         sx={{ width: "100%" }}
       />
     </ListItem>

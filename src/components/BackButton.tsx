@@ -7,13 +7,13 @@ export default function BackButton() {
   return (
     <Button
       startIcon={<ChevronLeft />}
-      aria-label="back"
-      variant="outlined"
+      aria-label="Back to habits"
+      variant="text"
       size="small"
       onClick={() => navigate("/")}
-      sx={{ borderRadius: 999, px: 1.5 }}
+      sx={{ px: 1.5, minHeight: 44 }}
     >
-      Back
+      Back to habits
     </Button>
   );
 }

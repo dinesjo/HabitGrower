@@ -119,7 +119,7 @@ export default function IndexView() {
   return (
     <Box sx={{ ...ambientPageSx, pb: 10 }}>
       {/* ── Header ── */}
-      <Fade in timeout={400}>
+      <Fade in timeout={160}>
         <Box
           sx={{
             position: "relative",
@@ -135,35 +135,6 @@ export default function IndexView() {
             pb: 2.5,
           }}
         >
-          {/* Dot-grid texture */}
-          <Box
-            sx={{
-              position: "absolute",
-              inset: 0,
-              backgroundImage: (theme) =>
-                theme.palette.mode === "dark"
-                  ? "radial-gradient(rgba(144, 198, 91, 0.07) 1px, transparent 1px)"
-                  : "radial-gradient(rgba(27, 94, 32, 0.045) 1px, transparent 1px)",
-              backgroundSize: "24px 24px",
-              pointerEvents: "none",
-            }}
-          />
-          {/* Decorative shape */}
-          <Box
-            sx={{
-              position: "absolute",
-              top: -30,
-              right: -20,
-              width: 140,
-              height: 140,
-              borderRadius: "50%",
-              background: (theme) =>
-                theme.palette.mode === "dark"
-                  ? "radial-gradient(circle, rgba(144, 198, 91, 0.12) 0%, transparent 70%)"
-                  : "radial-gradient(circle, rgba(46, 125, 50, 0.08) 0%, transparent 70%)",
-              pointerEvents: "none",
-            }}
-          />
           <Box sx={contentLayerSx}>
             <Typography
               variant="caption"
@@ -175,7 +146,7 @@ export default function IndexView() {
                 fontWeight: 600,
                 letterSpacing: "0.08em",
                 textTransform: "uppercase",
-                fontSize: "0.65rem",
+                fontSize: "0.75rem",
                 mb: 0.5,
               }}
             >
@@ -183,6 +154,7 @@ export default function IndexView() {
             </Typography>
             <Typography
               variant="h5"
+              component="h1"
               align="center"
               sx={{
                 fontWeight: 700,
@@ -210,11 +182,11 @@ export default function IndexView() {
       </Fade>
 
       {/* ── Content ── */}
-      <Box sx={{ ...contentLayerSx, pt: 1.5, px: 1, mx: "auto", maxWidth: 800 }}>
+      <Box sx={{ ...contentLayerSx, pt: 1.5, px: 1, mx: "auto", maxWidth: 600 }}>
         {sortedHabits.length > 0 ? (
-          <Form method="post">
+          <Form method="post" preventScrollReset>
             {allHabitsCompleted && (
-              <Fade in timeout={800}>
+              <Fade in timeout={160}>
                 <Box
                   sx={{
                     ...glassPanelSx,
@@ -251,23 +223,11 @@ export default function IndexView() {
                     <Box
                       sx={{
                         ...glassPanelSx,
-                        borderRadius: 3,
+                        borderRadius: "var(--hg-radius)",
                         borderColor: (theme) =>
                           alpha(theme.palette.primary.main, isChecked ? 0.7 : theme.palette.mode === "dark" ? 0.25 : 0.14),
                         overflow: "visible",
-                        boxShadow: (theme) =>
-                          theme.palette.mode === "dark"
-                            ? "0 12px 24px rgba(0,0,0,0.3)"
-                            : "0 10px 18px rgba(24, 54, 25, 0.12)",
-                        transition: "box-shadow 0.2s ease-in-out, border-color 0.2s ease-in-out",
-                        "@media (hover: hover) and (pointer: fine)": {
-                          "&:hover": {
-                            boxShadow: (theme) =>
-                              theme.palette.mode === "dark"
-                                ? "0 6px 24px rgba(0,0,0,0.35)"
-                                : "0 6px 20px rgba(0,0,0,0.08)",
-                          },
-                        },
+                        transition: "border-color 150ms ease",
                         ...(registeredProgress === 100
                           ? {
                               "& .MuiLinearProgress-root, & .MuiListItemText-root": {
@@ -279,8 +239,7 @@ export default function IndexView() {
                                   : alpha(theme.palette.background.default, 0.95),
                             }
                           : {
-                              bgcolor: (theme) =>
-                                alpha(theme.palette.background.paper, theme.palette.mode === "dark" ? 0.8 : 0.88),
+                              bgcolor: "background.paper",
                             }),
                       }}
                     >
@@ -334,7 +293,7 @@ export default function IndexView() {
                             display: "flex",
                             flexDirection: "column",
                             alignItems: "start",
-                            borderRadius: 3,
+                            borderRadius: "inherit",
                             position: "relative",
                             overflow: "visible",
                             "@media (hover: hover) and (pointer: fine)": {
@@ -397,11 +356,12 @@ export default function IndexView() {
                               primary={
                                 <Box sx={{ display: "flex", alignItems: "center", pr: 2 }}>
                                   <Typography
-                                    lineHeight={1.25}
+                                    lineHeight={1.35}
                                     sx={{
                                       color: (theme) => readableHabitColor(habit.color, theme.palette.background.paper, theme.palette.text.primary),
-                                      fontWeight: 500,
-                                      fontSize: "1.1rem",
+                                      fontWeight: 600,
+                                      fontSize: "1.0625rem",
+                                      overflowWrap: "anywhere",
                                     }}
                                   >
                                     {habit.name}
@@ -464,6 +424,7 @@ export default function IndexView() {
                 },
                 left: 0,
                 zIndex: 1000,
+                pointerEvents: "none",
               }}
             >
               <Grow in={checkedHabitIds.length > 0} timeout={300}>
@@ -475,6 +436,7 @@ export default function IndexView() {
                   disabled={!checkedHabitIds.length || navigation.state === "submitting"}
                   sx={{
                     borderRadius: 999,
+                    pointerEvents: "auto",
                     px: 2,
                     height: 58,
                     width: "calc(100% - 48px)",
@@ -484,11 +446,13 @@ export default function IndexView() {
                     background: "linear-gradient(125deg, #285624 0%, #396f2d 55%, #4b7b2f 100%)",
                     border: "1px solid rgba(255,255,255,0.2)",
                     boxShadow: (theme) => theme.palette.mode === "dark"
-                      ? "0 8px 28px rgba(0,0,0,0.45), 0 0 24px rgba(109,172,68,0.18), inset 0 1px 0 rgba(255,255,255,0.15)"
-                      : "0 8px 24px rgba(39,87,32,0.3), inset 0 1px 0 rgba(255,255,255,0.2)",
+                      ? "0 4px 16px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.12)"
+                      : "0 4px 16px rgba(39,87,32,0.18), inset 0 1px 0 rgba(255,255,255,0.16)",
                     fontSize: "1rem",
                     fontWeight: 700,
-                    "&:hover": { background: "linear-gradient(125deg, #2d6028 0%, #3c742e 55%, #4b7b2f 100%)" },
+                    "@media (hover: hover) and (pointer: fine)": {
+                      "&:hover": { background: "linear-gradient(125deg, #2d6028 0%, #3c742e 55%, #4b7b2f 100%)" },
+                    },
                     "&.Mui-disabled": { background: "none", borderColor: "transparent" },
                   }}
                 >
@@ -530,7 +494,7 @@ export default function IndexView() {
             </Box>
           </Form>
         ) : (
-          <Fade in timeout={600}>
+          <Fade in timeout={160}>
             <Box
               sx={{
                 display: "flex",

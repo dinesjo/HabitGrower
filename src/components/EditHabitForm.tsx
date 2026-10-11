@@ -1,17 +1,11 @@
-import { ColorLens, EditNotificationsOutlined, EventRepeat, NotificationsOutlined, Save, Notifications } from "@mui/icons-material";
+import { ChevronLeft, Notifications } from "@mui/icons-material";
 import {
   Alert,
   Box,
   Button,
-  Chip,
   FormControl,
   Grid2,
-  Grow,
   InputLabel,
-  List,
-  ListItem,
-  ListItemIcon,
-  ListItemText,
   MenuItem,
   Select,
   Switch,
@@ -31,8 +25,7 @@ import { fetchHabitById } from "../services/habitsPersistance";
 import { notificationPermissionAtom } from "../store";
 import { Habit } from "../types/Habit";
 import { toFriendlyString } from "../utils/helpers";
-import { ambientPageSx, contentLayerSx, glassPanelSx, sectionLabelSx } from "../styles/designLanguage";
-import BackButton from "./BackButton";
+import { ambientPageSx, contentLayerSx, glassPanelSx, mobileTimePickerDialogSx } from "../styles/designLanguage";
 import { isLocalMode } from "../data/mode";
 import DeleteHabitWithConfirm from "./DeleteHabitWithConfirm";
 
@@ -78,368 +71,128 @@ export default function EditHabitForm() {
   };
 
   return (
-    <Box
-      sx={{
-        ...ambientPageSx,
-        minHeight: ["100vh", "100dvh"],
-      }}
-    >
+    <Box sx={{ ...ambientPageSx, minHeight: ["100vh", "100dvh"] }}>
       <Form autoComplete="off" method="post">
-        {/* Header */}
-        <Grow in={true} timeout={400}>
-          <Box
-            sx={{
-              ...contentLayerSx,
-              display: "flex",
-              flexDirection: "column",
-              p: 2,
-              borderBottom: 1,
-              borderColor: (theme) => alpha(theme.palette.primary.main, theme.palette.mode === "dark" ? 0.24 : 0.12),
-              background: (theme) =>
-                theme.palette.mode === "dark"
-                  ? "linear-gradient(180deg, rgba(14, 35, 22, 0.8) 0%, rgba(14, 35, 22, 0.24) 100%)"
-                  : "linear-gradient(180deg, rgba(227, 242, 223, 0.75) 0%, rgba(227, 242, 223, 0.24) 100%)",
-            }}
-          >
-            <Box sx={{ display: "flex", alignItems: "center", gap: 2, width: "100%" }}>
-              <BackButton />
-              <Typography variant="h6" sx={{ fontWeight: 600, flexGrow: 1 }}>
-                Edit Habit:{" "}
-                <Box component="span" sx={{ color: "primary.main", fontWeight: 700 }}>
-                  {habit.name}
-                </Box>
-              </Typography>
-            </Box>
-            <Box sx={{ display: "flex", gap: 1, mt: 1.5, flexWrap: "wrap", justifyContent: "center", width: "100%" }}>
-              <Button
-                loading={navigation.state === "submitting"}
-                loadingPosition="start"
-                startIcon={<Save />}
-                variant="contained"
-                type="submit"
-                sx={{
-                  borderRadius: 999,
-                  px: 2.2,
-                }}
-              >
-                Save
-              </Button>
-              <Button
-                onClick={handleBack}
-                sx={{
-                  borderRadius: 999,
-                  px: 2.2,
-                }}
-              >
-                Cancel
-              </Button>
-              <DeleteHabitWithConfirm habit={habit} id={id!} />
-            </Box>
-          </Box>
-        </Grow>
+        <Box sx={{ ...contentLayerSx, px: 2, pt: 2, pb: 3, maxWidth: 600, mx: "auto" }}>
+          <Button startIcon={<ChevronLeft />} onClick={handleBack} sx={{ ml: -1, mb: 1, minHeight: 44 }}>
+            Back to habit
+          </Button>
+          <Typography component="h1" variant="h4" sx={{ fontSize: "2rem", mb: 0.5 }}>Edit habit</Typography>
+          <Typography color="text.secondary" sx={{ overflowWrap: "anywhere" }}>{habit.name}</Typography>
+        </Box>
 
-        {/* Content */}
-        <Grow in={true} timeout={600}>
-          <Box
-            sx={{
-              ...contentLayerSx,
-              pt: 2,
-              px: 2,
-              pb: 2,
-              mx: "auto",
-              maxWidth: 800,
-            }}
-          >
-            <Grid2 container spacing={2} sx={{ ...glassPanelSx, p: 2.5, borderRadius: 3, mb: 2 }}>
-              {/* Section tile */}
-              <Grid2 size={12}>
-                <Box sx={{ ...sectionLabelSx, mb: 2 }}>
-                  <Chip icon={<ColorLens />} label="Appearance" size="small" variant="outlined" />
-                </Box>
-              </Grid2>
-              <Grid2 size={{ xs: 12, sm: 6 }}>
-                <TextField required name="name" label="Habit Name" defaultValue={habit.name} fullWidth />
-              </Grid2>
-              <Grid2 size={{ xs: 12, sm: 6 }}>
-                <TextField
-                  name="description"
-                  label="Description"
-                  defaultValue={habit.description || ""}
-                  multiline
-                  fullWidth
-                />
-              </Grid2>
-              <Grid2 container size={12} spacing={2} display="flex" alignItems="start" sx={{ height: "100%" }}>
-                <Grid2 size={"auto"} sx={{ height: "inherit" }}>
-                  <FormControl required fullWidth>
-                    <InputLabel id="habit-icon-label">Icon</InputLabel>
-                    <Select
-                      labelId="habit-icon-label"
-                      autoWidth
-                      name="icon"
-                      label="Icon"
-                      defaultValue={habit.icon}
-                      renderValue={(icon) => {
-                        return (
-                          <Box
-                            sx={{
-                              height: "1em",
-                              display: "flex",
-                              alignItems: "center",
-                              gap: 1,
-                            }}
-                          >
-                            {iconMap[icon]}
-                          </Box>
-                        );
-                      }}
-                      MenuProps={{
-                        PaperProps: {
-                          sx: {
-                            maxHeight: 400,
-                            "& .MuiMenuItem-root": {
-                              transition: "all 0.2s ease-in-out",
-                              borderRadius: 1,
-                              mx: 0.5,
-                              "@media (hover: hover) and (pointer: fine)": {
-                                "&:hover": {
-                                  bgcolor: "action.hover",
-                                  transform: "scale(1.05)",
-                                },
-                              },
-                            },
-                          },
-                        },
-                      }}
-                    >
-                      {Object.keys(iconMap).map((icon) => (
-                        <MenuItem
-                          key={icon}
-                          value={icon}
-                          aria-label={toFriendlyString(icon)}
-                          sx={{
-                            display: "flex",
-                            justifyContent: "center",
-                            py: 1.5,
-                          }}
-                        >
-                          <Box
-                            sx={{
-                              fontSize: "1.5rem",
-                              display: "flex",
-                              alignItems: "center",
-                            }}
-                          >
-                            {iconMap[icon]}
-                          </Box>
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
-                </Grid2>
-                <Grid2 size="grow">
-                  <FormControl fullWidth>
-                    <InputLabel id="habit-color-label">Color</InputLabel>
-                    <Select
-                      labelId="habit-color-label"
-                      name="color"
-                      label="Color"
-                      defaultValue={habit.color || ""}
-                      renderValue={(value) => {
-                        return (
-                          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                            {value && (
-                              <Box
-                                sx={{
-                                  width: 16,
-                                  height: 16,
-                                  borderRadius: "50%",
-                                  bgcolor: value,
-                                  border: "2px solid",
-                                  borderColor: "divider",
-                                }}
-                              />
-                            )}
-                            <Typography color="text.primary">
-                              {value ? toFriendlyString(value) : "None"}
-                            </Typography>
-                          </Box>
-                        );
-                      }}
-                      MenuProps={{
-                        PaperProps: {
-                          sx: {
-                            "& .MuiMenuItem-root": {
-                              transition: "all 0.2s ease-in-out",
-                              borderRadius: 1,
-                              mx: 0.5,
-                              "@media (hover: hover) and (pointer: fine)": {
-                                "&:hover": {
-                                  bgcolor: "action.hover",
-                                  transform: "translateX(4px)",
-                                },
-                              },
-                            },
-                          },
-                        },
-                      }}
-                      fullWidth
-                    >
-                      <MenuItem value="">
-                        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                          <Box sx={{ width: 16, height: 16 }} />
-                          <Typography>None</Typography>
-                        </Box>
-                      </MenuItem>
-                      {colorChoices.map((color) => (
-                        <MenuItem key={color} value={color}>
-                          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                            <Box
-                              sx={{
-                                width: 16,
-                                height: 16,
-                                borderRadius: "50%",
-                                bgcolor: color,
-                                border: "2px solid",
-                                borderColor: "divider",
-                              }}
-                            />
-                            <Typography sx={{ color: color }}>{toFriendlyString(color)}</Typography>
-                          </Box>
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
-                </Grid2>
-              </Grid2>
-              {/* Section tile */}
-              <Grid2 size={12}>
-                <Box sx={{ ...sectionLabelSx, mb: 2 }}>
-                  <Chip icon={<EventRepeat />} label="How often?" size="small" variant="outlined" />
-                </Box>
-              </Grid2>
-              <Grid2 size={5}>
-                <TextField
-                  name="frequency"
-                  label="Frequency"
-                  placeholder="3"
-                  type="number"
-                  defaultValue={habit.frequency || ""}
-                  fullWidth
-                />
-              </Grid2>
-              <Grid2 size={7}>
-                <FormControl fullWidth>
-                  <InputLabel id="frequencyUnit">Every</InputLabel>
+        <Box sx={{ ...contentLayerSx, px: 2, maxWidth: 600, mx: "auto", pb: 3 }}>
+          <Box component="section" aria-labelledby="habit-details-heading" sx={{ ...glassPanelSx, p: { xs: 2, sm: 3 }, mb: 2.5 }}>
+            <Typography id="habit-details-heading" component="h2" variant="h6" sx={{ mb: 2.5 }}>Your habit</Typography>
+            <Box sx={{ display: "grid", gap: 2.5 }}>
+              <TextField required name="name" label="Habit name" defaultValue={habit.name} fullWidth />
+              <TextField name="description" label="Description" defaultValue={habit.description || ""} multiline minRows={2} fullWidth />
+              <Box sx={{ display: "grid", gridTemplateColumns: "96px minmax(0, 1fr)", gap: 1.5 }}>
+                <FormControl required fullWidth>
+                  <InputLabel id="habit-icon-label">Icon</InputLabel>
                   <Select
-                    name="frequencyUnit"
-                    label="Every"
-                    labelId="frequencyUnit"
-                    defaultValue={habit.frequencyUnit || ""}
-                    fullWidth
+                    labelId="habit-icon-label" name="icon" label="Icon" defaultValue={habit.icon}
+                    renderValue={(icon) => <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center" }}>{iconMap[icon]}</Box>}
+                    MenuProps={{
+                      PaperProps: { sx: { maxHeight: "min(400px, 65dvh)", width: 280, maxWidth: "calc(100vw - 32px)" } },
+                      MenuListProps: { sx: { display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 0.5, p: 1 } },
+                    }}
                   >
-                    <MenuItem value="">None</MenuItem>
-                    {
-                      // Loop through the FrequencyUnit type to create a list of options
-                      frequencyUnits.map((unit) => (
-                        <MenuItem key={unit} value={unit}>
-                          {toFriendlyString(unit)}
-                        </MenuItem>
-                      ))
-                    }
+                    {Object.keys(iconMap).map((icon) => (
+                      <MenuItem key={icon} value={icon} aria-label={toFriendlyString(icon)} sx={{ minHeight: 52, display: "flex", justifyContent: "center", borderRadius: "var(--hg-control-radius)", m: 0 }}>
+                        {iconMap[icon]}
+                      </MenuItem>
+                    ))}
                   </Select>
                 </FormControl>
-              </Grid2>
-              {/* Notifications section */}
-              <Grid2 size={12}>
-                <Box sx={{ ...sectionLabelSx, mb: 2 }}>
-                  <Chip icon={<EditNotificationsOutlined />} label="Notifications" size="small" variant="outlined" />
-                </Box>
-              </Grid2>
+                <FormControl fullWidth>
+                  <InputLabel id="habit-color-label">Color</InputLabel>
+                  <Select labelId="habit-color-label" name="color" label="Color" defaultValue={habit.color || ""}
+                    renderValue={(value) => (
+                      <Box sx={{ display: "flex", alignItems: "center", gap: 1, minWidth: 0 }}>
+                        <Box aria-hidden="true" sx={{ width: 18, height: 18, borderRadius: "50%", bgcolor: value || "transparent", border: "1px solid", borderColor: "divider", flexShrink: 0 }} />
+                        <Typography noWrap>{value ? toFriendlyString(value) : "None"}</Typography>
+                      </Box>
+                    )}
+                    MenuProps={{ PaperProps: { sx: { maxHeight: "min(400px, 65dvh)" } } }}
+                  >
+                    <MenuItem value="" sx={{ minHeight: 48 }}>None</MenuItem>
+                    {colorChoices.map((color) => (
+                      <MenuItem key={color} value={color} sx={{ minHeight: 48, gap: 1.5 }}>
+                        <Box aria-hidden="true" sx={{ width: 20, height: 20, borderRadius: "50%", bgcolor: color, flexShrink: 0 }} />
+                        {toFriendlyString(color)}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </Box>
+            </Box>
+          </Box>
+
+          <Box component="section" aria-labelledby="habit-goal-heading" sx={{ ...glassPanelSx, p: { xs: 2, sm: 3 }, mb: 2.5 }}>
+            <Typography id="habit-goal-heading" component="h2" variant="h6" sx={{ mb: 2.5 }}>Your goal</Typography>
+            <Box sx={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr) minmax(0, 1fr)", gap: 1.5 }}>
+              <TextField name="frequency" label="Times" placeholder="3" type="number" defaultValue={habit.frequency || ""} fullWidth />
+              <FormControl fullWidth>
+                <InputLabel id="frequencyUnit">Per</InputLabel>
+                <Select name="frequencyUnit" label="Per" labelId="frequencyUnit" defaultValue={habit.frequencyUnit || ""} fullWidth>
+                  <MenuItem value="">None</MenuItem>
+                  {frequencyUnits.map((unit) => <MenuItem key={unit} value={unit}>{toFriendlyString(unit)}</MenuItem>)}
+                </Select>
+              </FormControl>
+            </Box>
+          </Box>
+
+          <Box component="section" aria-labelledby="habit-reminders-heading" sx={{ ...glassPanelSx, p: { xs: 2, sm: 3 }, mb: 2.5 }}>
+            <Typography id="habit-reminders-heading" component="h2" variant="h6" sx={{ mb: 2 }}>Reminders</Typography>
+            <Grid2 container spacing={2.5}>
               <NotificationsPermissionAlert />
               <Grid2 size={12}>
-                <List disablePadding>
-                  <ListItem sx={{ py: 0 }}>
-                    <ListItemIcon>
-                      <NotificationsOutlined />
-                    </ListItemIcon>
-                    <ListItemText
-                      primary="Daily notifications"
-                      secondary="Get notified so you never miss this habit again!"
-                    />
-                    <Switch
-                      inputProps={{ "aria-label": "Daily notifications" }}
-                      disabled={notificationPermission !== "granted"}
-                      name="notificationEnabled"
-                      defaultChecked={habit.notificationEnabled}
-                      onChange={(e) => setNotificationsEnabled(e.target.checked)}
-                    />
-                  </ListItem>
-                </List>
+                <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 2 }}>
+                  <Box>
+                    <Typography sx={{ fontWeight: 600 }}>Daily reminder</Typography>
+                    <Typography variant="body2" color="text.secondary">A nudge when your habit is still waiting.</Typography>
+                  </Box>
+                  <Switch inputProps={{ "aria-label": "Daily notifications" }} disabled={notificationPermission !== "granted"} name="notificationEnabled" defaultChecked={habit.notificationEnabled} onChange={(e) => setNotificationsEnabled(e.target.checked)} />
+                </Box>
               </Grid2>
               <Grid2 size={12}>
                 <TimePicker
-                  value={
-                    notificationTime
-                      ? (() => {
-                          const [hours, minutes] = notificationTime.split(":");
-                          return dayjs.utc().set("hour", parseInt(hours)).set("minute", parseInt(minutes)).local();
-                        })()
-                      : null
-                  }
+                  desktopModeMediaQuery="@media (min-width: 600px) and (pointer: fine)"
+                  value={notificationTime ? (() => {
+                    const [hours, minutes] = notificationTime.split(":");
+                    return dayjs.utc().set("hour", parseInt(hours)).set("minute", parseInt(minutes)).local();
+                  })() : null}
                   onChange={(newTime: dayjs.Dayjs | null) => {
-                    /* Save the time as UTC instead of local time.
-                    The notificationTime is what is saved into Firebase. */
-                    if (newTime) {
-                      // Convert the selected local time to UTC
-                      const utcTime = newTime.utc().format("HH:mm");
-                      setNotificationTime(utcTime);
-                    } else {
-                      setNotificationTime(undefined);
-                    }
+                    if (newTime) setNotificationTime(newTime.utc().format("HH:mm"));
+                    else setNotificationTime(undefined);
                   }}
-                  ampm={false}
-                  label="Notification time"
-                  disabled={notificationPermission !== "granted" || !notificationsEnabled}
-                  slotProps={{
-                    textField: {
-                      helperText: `Get notified at this time every day if "${habit.name}" not completed by then`,
-                      fullWidth: true,
-                    },
-                  }}
+                  ampm={false} label="Reminder time" disabled={notificationPermission !== "granted" || !notificationsEnabled}
+                  slotProps={{ textField: { fullWidth: true }, dialog: { sx: mobileTimePickerDialogSx } }}
                 />
                 <input type="hidden" name="notificationTime" value={notificationTime || ""} />
               </Grid2>
-
-              {/* Notification Preview */}
               {notificationsEnabled && notificationTime && (
-                <Grid2 size={12}>
-                  <NotificationPreview habit={habit} />
-                </Grid2>
+                <Grid2 size={12}><NotificationPreview habit={habit} /></Grid2>
               )}
-
-              {/* Test Notification Button */}
               {notificationsEnabled && notificationTime && (
                 <Grid2 size={12}>
-                  <Button
-                    variant="outlined"
-                    startIcon={<Notifications />}
-                    fullWidth
-                    onClick={() => sendTestNotification(habit)}
-                    sx={{
-                      borderRadius: 2,
-                      textTransform: "none",
-                      py: 1.5,
-                      borderStyle: "dashed",
-                    }}
-                  >
-                    Send Test Notification
-                  </Button>
+                  <Button variant="outlined" startIcon={<Notifications />} fullWidth onClick={() => sendTestNotification(habit)} sx={{ minHeight: 48 }}>Send test notification</Button>
                 </Grid2>
               )}
             </Grid2>
           </Box>
-        </Grow>
+          <Box sx={{ pt: 0.5, "& .MuiButton-root": { minHeight: 44, borderRadius: "var(--hg-control-radius)" } }}>
+            <DeleteHabitWithConfirm habit={habit} id={id!} />
+          </Box>
+        </Box>
+
+        <Box sx={{ position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 1100, bgcolor: "background.paper", borderTop: "1px solid", borderColor: "divider", px: 2, pt: 1.5, pb: "calc(12px + env(safe-area-inset-bottom, 0px))" }}>
+          <Box sx={{ display: "flex", gap: 1.5, maxWidth: 568, mx: "auto" }}>
+            <Button variant="outlined" onClick={handleBack} sx={{ minHeight: 48, minWidth: 100 }}>Cancel</Button>
+            <Button loading={navigation.state === "submitting"} variant="contained" type="submit" sx={{ minHeight: 48, flex: 1 }}>Save changes</Button>
+          </Box>
+        </Box>
       </Form>
     </Box>
   );

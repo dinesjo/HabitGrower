@@ -91,10 +91,10 @@ export default function HabitHeatmap({ habit, months = 3 }: HabitHeatmapProps) {
   const dayLabels = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
   return (
-    <Paper elevation={0} sx={{ ...glassPanelSx, p: { xs: 2, sm: 3 }, mb: 2, borderRadius: 3 }}>
+    <Paper elevation={0} sx={{ ...glassPanelSx, p: { xs: 2, sm: 3 }, mb: 2 }}>
       <Box sx={{ ...sectionLabelSx, mb: 2 }}>
-        <Typography variant="h6" sx={{ color: "text.primary" }}>
-          Activity Heatmap
+        <Typography component="h2" variant="h6" sx={{ color: "text.primary" }}>
+          Activity
         </Typography>
       </Box>
 
@@ -166,6 +166,7 @@ export default function HabitHeatmap({ habit, months = 3 }: HabitHeatmapProps) {
                       </Box>
                     }
                     arrow
+                    disableTouchListener
                   >
                     <Box
                       sx={{
@@ -175,11 +176,9 @@ export default function HabitHeatmap({ habit, months = 3 }: HabitHeatmapProps) {
                         bgcolor: bgcolor,
                         opacity: opacity,
                         borderRadius: 0.5,
-                        cursor: "pointer",
-                        transition: "all 0.2s ease-in-out",
+                        transition: "opacity 150ms ease",
                         "@media (hover: hover) and (pointer: fine)": {
                           "&:hover": {
-                            transform: "scale(1.2)",
                             opacity: 1,
                             zIndex: 10,
                           },
