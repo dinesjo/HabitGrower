@@ -1,4 +1,4 @@
-import { Box, Typography } from "@mui/material";
+import { Box, Theme, Typography } from "@mui/material";
 import { ReactNode } from "react";
 import { ambientPageSx, contentLayerSx, glassPanelSx } from "../styles/designLanguage";
 
@@ -30,7 +30,18 @@ const authControlsSx = {
   "& .firebaseui-container": { bgcolor: "transparent", color: "text.primary", fontFamily: "inherit", boxShadow: "none", maxWidth: "none", minHeight: 0 },
   "& .firebaseui-card-content, & .firebaseui-card-footer": { px: 0 },
   "& .firebaseui-card-header": { px: 0, pt: 0, borderColor: "divider" },
-  "& .firebaseui-title, & .firebaseui-text, & .firebaseui-input": { color: "text.primary", fontFamily: "inherit" },
+  "& .firebaseui-title, & .firebaseui-subtitle, & .firebaseui-text, & .firebaseui-input, & .firebaseui-input-invalid": { color: "text.primary", fontFamily: "inherit" },
+  "& .firebaseui-input-floating-button": {
+    width: 44,
+    height: 44,
+    top: 10,
+    right: -8,
+    borderRadius: "var(--hg-control-radius)",
+    opacity: 0.7,
+    filter: (theme: Theme) => theme.palette.mode === "dark" ? "brightness(0) invert(1)" : "none",
+    "&:focus-visible": { outline: "2px solid currentColor" },
+  },
+  "& .firebaseui-input[type='password'], & .firebaseui-id-new-password": { pr: 5 },
   "& .firebaseui-label": { color: "text.secondary", fontFamily: "inherit" },
   "& .firebaseui-link": { color: "primary.main", fontFamily: "inherit" },
   "& .firebaseui-text-input-error": { color: "error.main" },
