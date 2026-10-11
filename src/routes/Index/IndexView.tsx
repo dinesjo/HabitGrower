@@ -238,6 +238,7 @@ export default function IndexView() {
               {sortedHabits.map((habit) => {
                 const isChecked = checkedHabitIds.includes(habit.id);
                 const registeredProgress = getProgress(habit, false, userWeekStartsAtMonday);
+                const previewProgress = getProgress(habit, isChecked, userWeekStartsAtMonday);
                 const progressBuffer = getProgressBuffer(habit, dayStartsAt, userWeekStartsAtMonday);
                 const isFirstCompletedHabit = habit.id === firstCompletedHabitId;
                 return (
@@ -326,7 +327,7 @@ export default function IndexView() {
                         sx={{ borderRadius: "inherit", ".MuiListItemButton-root": { borderRadius: "inherit" } }}
                       >
                         <ListItemButton
-                          aria-label={`View ${habit.name}, ${Math.round(registeredProgress)}% complete${isChecked ? ", selected, not saved yet" : ""}`}
+                          aria-label={`View ${habit.name}, ${Math.round(previewProgress)}% complete${isChecked ? ", selected, not saved yet" : ""}`}
                           sx={{
                             py: 1.5,
                             px: 2,
@@ -350,7 +351,7 @@ export default function IndexView() {
                               <Box aria-hidden="true" sx={{ position: "relative", display: "inline-flex", overflow: "visible" }}>
                                 <CircularProgress
                                   variant="determinate"
-                                  value={registeredProgress}
+                                  value={previewProgress}
                                   size={56}
                                   thickness={3}
                                   sx={{
@@ -374,7 +375,7 @@ export default function IndexView() {
                                   }}
                                 />
                                 <Badge
-                                  badgeContent={registeredProgress === 100 ? <Check sx={{ fontSize: 12 }} /> : null}
+                                  badgeContent={previewProgress === 100 ? <Check sx={{ fontSize: 12 }} /> : null}
                                   color="success"
                                   anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
                                   sx={{ "& .MuiBadge-badge": { minWidth: 18, height: 18, p: 0, border: "2px solid", borderColor: "background.paper" } }}
@@ -420,7 +421,7 @@ export default function IndexView() {
                               <LinearProgressWithLabel
                                 variant="buffer"
                                 valueBuffer={progressBuffer}
-                                value={registeredProgress}
+                                value={previewProgress}
                                 sx={{
                                   height: 6,
                                   borderRadius: 3,
