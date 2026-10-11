@@ -1,59 +1,27 @@
 import { PaletteMode } from "@mui/material";
 import dayjs, { Dayjs } from "dayjs";
-import { get, ref, set } from "firebase/database";
 import { atom, getDefaultStore } from "jotai";
 import { atomWithStorage } from "jotai/utils";
-import { database, getUser } from "./firebase";
+import { getBackend } from "./data/backend";
+import { isLocalMode } from "./data/mode";
 import { fetchFcmToken } from "./services/fetchFcmToken";
 
 export const store = getDefaultStore();
 export const themeAtom = atomWithStorage<PaletteMode>("theme", "dark");
 
 /* User config */
-const userAtom = atom(async () => await getUser());
 export const userDayStartsAtAtom = atomWithStorage<Dayjs | null>("", null, {
   getItem: async () => {
-    const userId = (await store.get(userAtom))?.uid;
-    if (!userId) return null;
-    return get(ref(database, "users/" + userId + "/dayStartsAt")).then((snapshot) => {
-      if (snapshot.exists()) {
-        return dayjs(snapshot.val());
-      }
-      return null;
-    });
+    const value = await (await getBackend()).readPreference("dayStartsAt");
+    return value ? dayjs(value) : null;
   },
-  setItem: async (_, dayStartsAt) => {
-    const userId = (await store.get(userAtom))?.uid;
-    if (!userId) return;
-    return set(ref(database, "users/" + userId + "/dayStartsAt"), dayStartsAt?.toISOString() || null);
-  },
-  removeItem: async () => {
-    const userId = (await store.get(userAtom))?.uid;
-    if (!userId) return;
-    return set(ref(database, "users/" + userId + "/dayStartsAt"), null);
-  },
+  setItem: async (_, value) => (await getBackend()).writePreference("dayStartsAt", value?.toISOString() || null),
+  removeItem: async () => (await getBackend()).writePreference("dayStartsAt", null),
 });
 export const userWeekStartsAtMondayAtom = atomWithStorage<boolean>("", false, {
-  getItem: async () => {
-    const userId = (await store.get(userAtom))?.uid;
-    if (!userId) return false;
-    return get(ref(database, "users/" + userId + "/weekStartsAtMonday")).then((snapshot) => {
-      if (snapshot.exists()) {
-        return snapshot.val();
-      }
-      return false;
-    });
-  },
-  setItem: async (_, weekStartsAtMonday) => {
-    const userId = (await store.get(userAtom))?.uid;
-    if (!userId) return;
-    return set(ref(database, "users/" + userId + "/weekStartsAtMonday"), weekStartsAtMonday);
-  },
-  removeItem: async () => {
-    const userId = (await store.get(userAtom))?.uid;
-    if (!userId) return;
-    return set(ref(database, "users/" + userId + "/weekStartsAtMonday"), null);
-  },
+  getItem: async () => (await getBackend()).readPreference("weekStartsAtMonday"),
+  setItem: async (_, value) => (await getBackend()).writePreference("weekStartsAtMonday", value),
+  removeItem: async () => (await getBackend()).writePreference("weekStartsAtMonday", false),
 });
 
 /* Snackbar */
@@ -85,7 +53,7 @@ export const checkedHabitIdsAtom = atom<string[]>([]);
 
 /* Notifications */
 // Safely get notification permission, fallback to 'default' if Notification API not available
-const initialNotificationPermission = (typeof Notification !== 'undefined' && Notification.permission) || 'default';
+const initialNotificationPermission = !isLocalMode && typeof Notification !== 'undefined' ? Notification.permission : 'default';
 const notificationPermissionPrimitiveAtom = atom<NotificationPermission>(initialNotificationPermission);
 export const notificationPermissionAtom = atom(
   (get) => get(notificationPermissionPrimitiveAtom),

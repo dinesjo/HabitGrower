@@ -28,11 +28,12 @@ import {
 import { alpha } from "@mui/material/styles";
 import { TimePicker } from "@mui/x-date-pickers";
 import { Dayjs } from "dayjs";
-import { User } from "firebase/auth";
+import type { AppUser } from "../../data/types";
+import { isLocalMode } from "../../data/mode";
 import { useAtom } from "jotai";
 import { ReactNode, Suspense } from "react";
 import { Form, redirect, useLoaderData, useNavigation } from "react-router-dom";
-import { getUser } from "../../firebase";
+import { getUser } from "../../services/auth";
 import { notificationPermissionAtom, themeAtom, userDayStartsAtAtom, userWeekStartsAtMondayAtom } from "../../store";
 import { ambientPageSx, contentLayerSx, glassPanelSx, sectionLabelSx } from "../../styles/designLanguage";
 
@@ -47,7 +48,7 @@ async function loader() {
 AccountView.loader = loader;
 
 export default function AccountView() {
-  const { user } = useLoaderData() as { user: User };
+  const { user } = useLoaderData() as { user: AppUser };
   const navigation = useNavigation();
   const { displayName, email, photoURL } = user!;
 
@@ -185,7 +186,7 @@ export default function AccountView() {
                   fontWeight: 500,
                 }}
               >
-                {email || "Unknown Email"}
+                {isLocalMode ? "Sample habits saved only in this browser" : email || "Unknown Email"}
               </Typography>
             </Box>
           </Stack>
@@ -230,11 +231,12 @@ export default function AccountView() {
       {/* ── Sign Out ── */}
       <Fade in timeout={1100}>
         <Box sx={{ px: 2, py: 3, mt: "auto" }}>
-          <Form method="post" action="signout" style={{ display: "flex", justifyContent: "center" }}>
+          {isLocalMode && <Typography variant="body2" textAlign="center" color="text.secondary" sx={{ mb: 1.5 }}>Restores sample habits and the default schedule.</Typography>}
+          <Form method="post" action={isLocalMode ? "reset-demo" : "signout"} style={{ display: "flex", justifyContent: "center" }}>
             <Button
-              startIcon={<LogoutOutlined />}
+              startIcon={isLocalMode ? undefined : <LogoutOutlined />}
               variant="outlined"
-              color="error"
+              color={isLocalMode ? "primary" : "error"}
               type="submit"
               loading={navigation.state === "submitting"}
               loadingPosition="start"
@@ -248,7 +250,7 @@ export default function AccountView() {
                 "&:hover": { borderWidth: 1.5 },
               }}
             >
-              Sign out
+              {isLocalMode ? "Reset demo data" : "Sign out"}
             </Button>
           </Form>
         </Box>
@@ -301,8 +303,8 @@ function NotificationsStatus() {
       <ListItemIcon sx={{ color: "primary.main", minWidth: 44 }}>
         {permission === "granted" ? <NotificationsActiveOutlined /> : <NotificationsOffOutlined />}
       </ListItemIcon>
-      <ListItemText primary="Notifications" />
-      {permission === "granted" ? (
+      <ListItemText primary="Notifications" secondary={isLocalMode ? "Push notifications are disabled in local mode" : undefined} />
+      {!isLocalMode && (permission === "granted" ? (
         <Chip label="Enabled" color="success" icon={<Check />} sx={{ fontWeight: "bold" }} />
       ) : permission === "denied" ? (
         <Tooltip title="Enable notifications in your browser settings">
@@ -318,7 +320,7 @@ function NotificationsStatus() {
         >
           Enable
         </Button>
-      )}
+      ))}
     </ListItem>
   );
 }

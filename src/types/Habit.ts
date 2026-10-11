@@ -8,7 +8,7 @@ export interface Habit {
   frequency?: number;
   frequencyUnit?: FrequencyUnit;
   color?: string;
-  dates?: Record<string, boolean>;
+  dates?: Record<string, boolean | number>;
   notificationTime?: string;
   notificationEnabled?: boolean;
 }

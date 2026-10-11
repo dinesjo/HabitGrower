@@ -3,8 +3,7 @@ import ReactDOM from "react-dom/client";
 import { createBrowserRouter, createRoutesFromElements, redirect, Route } from "react-router-dom";
 import EditHabitForm from "./components/EditHabitForm";
 import ErrorPage from "./components/ErrorPage";
-import "./firebase";
-import { signOut } from "./firebase";
+import { signOut } from "./services/auth";
 import IndexView from "./routes/Index/IndexView";
 import SelectedHabit from "./routes/Index/SelectedHabit";
 import AccountView from "./routes/Profile/AccountView";
@@ -17,7 +16,7 @@ import {
   unregisterHabitByDate,
   updateHabit,
 } from "./services/habitsPersistance";
-import { checkedHabitIdsAtom, store } from "./store";
+import { checkedHabitIdsAtom, store, userDayStartsAtAtom, userWeekStartsAtMondayAtom } from "./store";
 import { Habit } from "./types/Habit";
 import { requireAuth } from "./utils/requireAuth";
 // Note that this may get included in your production builds. Please import it conditionally if you want to avoid that
@@ -25,6 +24,8 @@ import { Button } from "@mui/material";
 import "jotai-devtools/styles.css";
 import Main from "./components/Main";
 import { showSnackBar } from "./utils/helpers";
+import { isLocalMode } from "./data/mode";
+import { getBackend } from "./data/backend";
 
 export const router = createBrowserRouter(
   createRoutesFromElements(
@@ -103,6 +104,14 @@ export const router = createBrowserRouter(
       </Route>
       <Route path="profile">
         <Route index element={<AccountView />} loader={AccountView.loader} />
+        {isLocalMode && <Route path="reset-demo" action={async () => {
+          await (await getBackend()).resetDemoData();
+          store.set(checkedHabitIdsAtom, []);
+          await store.set(userDayStartsAtAtom, null);
+          await store.set(userWeekStartsAtMondayAtom, false);
+          showSnackBar("Sample habits and schedule restored.", "success");
+          return redirect("/");
+        }} />}
         <Route path="signout" action={signOut} />
         <Route path="signin" element={<SignInView />} />
       </Route>

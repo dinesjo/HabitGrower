@@ -20,9 +20,9 @@ async function loader({ params }: LoaderFunctionArgs<{ id: string }>) {
   if (!id) {
     return null;
   }
-  return {
-    habit: await fetchHabitById(id),
-  };
+  const habit = await fetchHabitById(id);
+  if (!habit) throw new Response("Habit not found", { status: 404, statusText: "Habit not found" });
+  return { habit };
 }
 
 SelectedHabit.loader = loader;

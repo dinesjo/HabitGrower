@@ -1,5 +1,5 @@
 import { LoaderFunction, LoaderFunctionArgs, redirect } from "react-router-dom";
-import { getUser } from "../firebase";
+import { getUser } from "../services/auth";
 
 /**
  * A higher-order function that wraps a loader function and enforces authentication.
