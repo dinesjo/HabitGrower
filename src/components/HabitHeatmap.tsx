@@ -2,6 +2,7 @@ import { Box, Paper, Tooltip, Typography, useTheme } from "@mui/material";
 import dayjs from "dayjs";
 import { Habit } from "../types/Habit";
 import { glassPanelSx, sectionLabelSx } from "../styles/designLanguage";
+import { readableHabitColor } from "../utils/color";
 
 interface HabitHeatmapProps {
   habit: Habit;
@@ -73,10 +74,10 @@ export default function HabitHeatmap({ habit, months = 3 }: HabitHeatmapProps) {
   // Get color for intensity level
   const getIntensityColor = (level: number): { bgcolor: string; opacity: number } => {
     if (level === 0) {
-      return { bgcolor: theme.palette.action.hover, opacity: 0.3 };
+      return { bgcolor: theme.palette.divider, opacity: 1 };
     }
 
-    const baseColor = habit.color || theme.palette.primary.main;
+    const baseColor = readableHabitColor(habit.color, theme.palette.background.paper, theme.palette.primary.main, 3);
     // Use different opacity levels to create gradient effect
     const opacities = [0, 0.4, 0.6, 0.8, 1];
     return { bgcolor: baseColor, opacity: opacities[level] };
@@ -91,22 +92,22 @@ export default function HabitHeatmap({ habit, months = 3 }: HabitHeatmapProps) {
   const dayLabels = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
   return (
-    <Paper elevation={0} sx={{ ...glassPanelSx, p: 3, mb: 2, borderRadius: 3 }}>
+    <Paper elevation={0} sx={{ ...glassPanelSx, p: { xs: 2, sm: 3 }, mb: 2 }}>
       <Box sx={{ ...sectionLabelSx, mb: 2 }}>
-        <Typography variant="h6" sx={{ color: "text.primary" }}>
-          Activity Heatmap
+        <Typography component="h2" variant="h6" sx={{ color: "text.primary" }}>
+          Activity
         </Typography>
       </Box>
 
       <Box sx={{ display: "flex", gap: 1, overflowX: "auto", pb: 1 }}>
         {/* Day labels */}
-        <Box sx={{ display: "flex", flexDirection: "column", gap: "2px", pt: "20px", flexShrink: 0 }}>
+        <Box sx={{ display: "flex", flexDirection: "column", gap: "2px", pt: "14px", flexShrink: 0 }}>
           {dayLabels.map((day) => (
             <Typography
               key={day}
               variant="caption"
               sx={{
-                fontSize: "0.65rem",
+                fontSize: "0.75rem",
                 height: 12,
                 display: "flex",
                 alignItems: "center",
@@ -122,16 +123,17 @@ export default function HabitHeatmap({ habit, months = 3 }: HabitHeatmapProps) {
         {/* Heatmap grid */}
         <Box sx={{ display: "flex", gap: "2px", flexWrap: "nowrap", flex: 1, minWidth: 0 }}>
           {weekGroups.map((week, weekIdx) => (
-            <Box key={weekIdx} sx={{ display: "flex", flexDirection: "column", gap: "2px", flex: 1 }}>
+            <Box key={weekIdx} sx={{ display: "flex", flexDirection: "column", gap: "2px", flex: 1, minWidth: 12 }}>
               {/* Month label above first week of each month */}
               {weekIdx === 0 || dayjs(week[0]?.date).date() <= 7 ? (
                 <Typography
                   variant="caption"
                   sx={{
-                    fontSize: "0.65rem",
+                    fontSize: "0.75rem",
                     height: 12,
                     color: "text.secondary",
-                    textAlign: "center",
+                    textAlign: weekIdx === maxWeeks - 1 ? "right" : "left",
+                    whiteSpace: "nowrap",
                     lineHeight: 1,
                   }}
                 >
@@ -165,6 +167,7 @@ export default function HabitHeatmap({ habit, months = 3 }: HabitHeatmapProps) {
                       </Box>
                     }
                     arrow
+                    disableTouchListener
                   >
                     <Box
                       sx={{
@@ -174,11 +177,9 @@ export default function HabitHeatmap({ habit, months = 3 }: HabitHeatmapProps) {
                         bgcolor: bgcolor,
                         opacity: opacity,
                         borderRadius: 0.5,
-                        cursor: "pointer",
-                        transition: "all 0.2s ease-in-out",
+                        transition: "opacity 150ms ease",
                         "@media (hover: hover) and (pointer: fine)": {
                           "&:hover": {
-                            transform: "scale(1.2)",
                             opacity: 1,
                             zIndex: 10,
                           },
@@ -195,7 +196,7 @@ export default function HabitHeatmap({ habit, months = 3 }: HabitHeatmapProps) {
 
       {/* Legend */}
       <Box sx={{ display: "flex", alignItems: "center", gap: 1, mt: 2, justifyContent: "flex-end" }}>
-        <Typography variant="caption" color="text.secondary" sx={{ fontSize: "0.7rem" }}>
+        <Typography variant="caption" color="text.secondary" sx={{ fontSize: "0.75rem" }}>
           Less
         </Typography>
         {[0, 1, 2, 3, 4].map((level) => {
@@ -213,7 +214,7 @@ export default function HabitHeatmap({ habit, months = 3 }: HabitHeatmapProps) {
             />
           );
         })}
-        <Typography variant="caption" color="text.secondary" sx={{ fontSize: "0.7rem" }}>
+        <Typography variant="caption" color="text.secondary" sx={{ fontSize: "0.75rem" }}>
           More
         </Typography>
       </Box>

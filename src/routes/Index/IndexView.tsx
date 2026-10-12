@@ -1,23 +1,23 @@
-import { Check, Checklist } from "@mui/icons-material";
+import { Add, Check, Checklist } from "@mui/icons-material";
 import {
   Avatar,
   AvatarGroup,
-  Backdrop,
   Badge,
   Box,
+  Button,
   Checkbox,
   Chip,
   CircularProgress,
   Divider,
   Fab,
   Fade,
-  Grow,
   List,
   ListItem,
   ListItemAvatar,
   ListItemButton,
   ListItemText,
   Typography,
+  useTheme,
 } from "@mui/material";
 import { alpha } from "@mui/material/styles";
 import dayjs from "dayjs";
@@ -32,6 +32,8 @@ import { FrequencyUnit } from "../../types/FrequencyUnit";
 import { Habit } from "../../types/Habit";
 import { getProgress, getProgressBuffer, showSnackBar, toFriendlyFrequency } from "../../utils/helpers";
 import { ambientPageSx, contentLayerSx, glassPanelSx } from "../../styles/designLanguage";
+import { alphaOrFallback, readableHabitColor } from "../../utils/color";
+import { useActionSurfaceRef } from "../../hooks/useActionSurfaceRef";
 
 async function loader() {
   return {
@@ -59,12 +61,14 @@ IndexView.loader = loader;
 IndexView.action = action;
 
 export default function IndexView() {
+  const theme = useTheme();
   const { habits } = useLoaderData() as { habits: Habit[] };
   const navigation = useNavigation();
   const navigate = useNavigate();
   const [checkedHabitIds, setCheckedHabitIds] = useAtom(checkedHabitIdsAtom);
   const [userWeekStartsAtMonday] = useAtom(userWeekStartsAtMondayAtom);
   const [dayStartsAt] = useAtom(userDayStartsAtAtom);
+  const registerRef = useActionSurfaceRef("register");
 
   function sortHabitsCB(a: Habit, b: Habit) {
     // If progress is not 100, go first
@@ -117,7 +121,7 @@ export default function IndexView() {
   return (
     <Box sx={{ ...ambientPageSx, pb: 10 }}>
       {/* ── Header ── */}
-      <Fade in timeout={400}>
+      <Fade in timeout={160}>
         <Box
           sx={{
             position: "relative",
@@ -133,47 +137,17 @@ export default function IndexView() {
             pb: 2.5,
           }}
         >
-          {/* Dot-grid texture */}
-          <Box
-            sx={{
-              position: "absolute",
-              inset: 0,
-              backgroundImage: (theme) =>
-                theme.palette.mode === "dark"
-                  ? "radial-gradient(rgba(144, 198, 91, 0.07) 1px, transparent 1px)"
-                  : "radial-gradient(rgba(27, 94, 32, 0.045) 1px, transparent 1px)",
-              backgroundSize: "24px 24px",
-              pointerEvents: "none",
-            }}
-          />
-          {/* Decorative shape */}
-          <Box
-            sx={{
-              position: "absolute",
-              top: -30,
-              right: -20,
-              width: 140,
-              height: 140,
-              borderRadius: "50%",
-              background: (theme) =>
-                theme.palette.mode === "dark"
-                  ? "radial-gradient(circle, rgba(144, 198, 91, 0.12) 0%, transparent 70%)"
-                  : "radial-gradient(circle, rgba(46, 125, 50, 0.08) 0%, transparent 70%)",
-              pointerEvents: "none",
-            }}
-          />
           <Box sx={contentLayerSx}>
             <Typography
               variant="caption"
               align="center"
               display="block"
               sx={{
-                color: (theme) =>
-                  theme.palette.mode === "dark" ? "rgba(144, 198, 91, 0.7)" : "rgba(46, 125, 50, 0.7)",
+                color: "text.secondary",
                 fontWeight: 600,
                 letterSpacing: "0.08em",
                 textTransform: "uppercase",
-                fontSize: "0.65rem",
+                fontSize: "0.75rem",
                 mb: 0.5,
               }}
             >
@@ -181,6 +155,7 @@ export default function IndexView() {
             </Typography>
             <Typography
               variant="h5"
+              component="h1"
               align="center"
               sx={{
                 fontWeight: 700,
@@ -193,26 +168,25 @@ export default function IndexView() {
               variant="body2"
               align="center"
               sx={{
-                color: (theme) =>
-                  theme.palette.mode === "dark" ? "rgba(232, 245, 233, 0.55)" : "rgba(27, 94, 32, 0.6)",
+                color: "text.secondary",
                 mt: 0.5,
                 fontWeight: 500,
               }}
             >
               {sortedHabits.length > 0
                 ? `${sortedHabits.filter((h) => getProgress(h, false, userWeekStartsAtMonday) === 100).length} of ${sortedHabits.length} habits completed`
-                : "Have you kept up with your habits lately?"}
+                : "Start with one small habit."}
             </Typography>
           </Box>
         </Box>
       </Fade>
 
       {/* ── Content ── */}
-      <Box sx={{ ...contentLayerSx, pt: 1.5, px: 1, mx: "auto", maxWidth: 800 }}>
-        {habits ? (
-          <Form method="post">
+      <Box sx={{ ...contentLayerSx, pt: 1.5, px: 1, mx: "auto", maxWidth: 600 }}>
+        {sortedHabits.length > 0 ? (
+          <Form method="post" preventScrollReset>
             {allHabitsCompleted && (
-              <Fade in timeout={800}>
+              <Fade in timeout={160}>
                 <Box
                   sx={{
                     ...glassPanelSx,
@@ -232,12 +206,13 @@ export default function IndexView() {
                 </Box>
               </Fade>
             )}
-            <List disablePadding sx={{ px: 1, pt: 3 }}>
+            <List disablePadding sx={{ px: 1, pt: 1, pb: "calc(var(--hg-register-height, 58px) + 22px)" }}>
               {sortedHabits.map((habit) => {
                 const isChecked = checkedHabitIds.includes(habit.id);
-                const progress = getProgress(habit, isChecked, userWeekStartsAtMonday);
                 const registeredProgress = getProgress(habit, false, userWeekStartsAtMonday);
+                const previewProgress = getProgress(habit, isChecked, userWeekStartsAtMonday);
                 const progressBuffer = getProgressBuffer(habit, dayStartsAt, userWeekStartsAtMonday);
+                const progressColor = readableHabitColor(habit.color, theme.palette.background.paper, theme.palette.primary.main, 3);
                 const isFirstCompletedHabit = habit.id === firstCompletedHabitId;
                 return (
                   <Box key={habit.id} sx={{ mb: 1.5 }}>
@@ -249,45 +224,35 @@ export default function IndexView() {
                     <Box
                       sx={{
                         ...glassPanelSx,
-                        borderRadius: 3,
+                        borderRadius: "var(--hg-radius)",
+                        borderColor: (theme) =>
+                          alpha(theme.palette.primary.main, isChecked ? 0.7 : theme.palette.mode === "dark" ? 0.25 : 0.14),
                         overflow: "visible",
-                        boxShadow: (theme) =>
-                          theme.palette.mode === "dark"
-                            ? "0 12px 24px rgba(0,0,0,0.3)"
-                            : "0 10px 18px rgba(24, 54, 25, 0.12)",
-                        transition: "box-shadow 0.2s ease-in-out, transform 0.2s ease-in-out",
-                        "@media (hover: hover) and (pointer: fine)": {
-                          "&:hover": {
-                            boxShadow: (theme) =>
-                              theme.palette.mode === "dark"
-                                ? "0 6px 24px rgba(0,0,0,0.35)"
-                                : "0 6px 20px rgba(0,0,0,0.08)",
-                            transform: "translateY(-2px)",
-                          },
-                        },
+                        transition: "border-color 150ms ease",
                         ...(registeredProgress === 100
                           ? {
                               "& .MuiLinearProgress-root, & .MuiListItemText-root": {
                                 filter: "grayscale(100%)",
                               },
-                              opacity: 0.7,
                               bgcolor: (theme) =>
                                 theme.palette.mode === "dark"
                                   ? alpha(theme.palette.background.default, 0.9)
                                   : alpha(theme.palette.background.default, 0.95),
                             }
                           : {
-                              bgcolor: (theme) =>
-                                alpha(theme.palette.background.paper, theme.palette.mode === "dark" ? 0.8 : 0.88),
+                              bgcolor: "background.paper",
                             }),
                       }}
                     >
                       <ListItem
                         disablePadding
                         secondaryAction={
-                          <>
+                          <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", width: 48 }}>
                             {isChecked && <input type="hidden" name="habitIds" value={habit.id} />}
                             <Checkbox
+                              disableRipple
+                              disabled={navigation.state === "submitting"}
+                              inputProps={{ "aria-label": `Select ${habit.name} for registration` }}
                               checked={isChecked}
                               onClick={() =>
                                 setCheckedHabitIds((prev) =>
@@ -296,40 +261,38 @@ export default function IndexView() {
                               }
                               sx={{
                                 "& .MuiSvgIcon-root": { fontSize: 32 },
-                                color: habit.color,
+                                color: "text.secondary",
                                 "&.Mui-checked": {
-                                  color: habit.color,
+                                  color: "primary.main",
                                 },
-                                "@media (hover: hover) and (pointer: fine)": {
-                                  "&:hover": {
-                                    backgroundColor: `${habit.color}15`,
-                                    transform: "scale(1.1)",
-                                  },
+                                "&:hover": { backgroundColor: "transparent" },
+                                "&.Mui-focusVisible": {
+                                  outline: "2px solid",
+                                  outlineColor: "primary.main",
+                                  outlineOffset: 2,
                                 },
-                                "&:active": {
-                                  transform: "scale(0.9)",
-                                  backgroundColor: `${habit.color}25`,
-                                  transition: "all 0.1s ease-out",
-                                },
-                                padding: 2,
-                                borderRadius: 2,
-                                transition: "all 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
+                                padding: 1,
+                                borderRadius: "50%",
+                                transition: "color 150ms ease",
                               }}
                             />
-                          </>
+                          </Box>
                         }
                         sx={{ borderRadius: "inherit", ".MuiListItemButton-root": { borderRadius: "inherit" } }}
                       >
                         <ListItemButton
+                          disabled={navigation.state === "submitting"}
+                          aria-label={`View ${habit.name}, ${Math.round(previewProgress)}% complete${isChecked ? ", selected, not saved yet" : ""}`}
                           sx={{
                             py: 1.5,
                             px: 2,
                             display: "flex",
                             flexDirection: "column",
                             alignItems: "start",
-                            borderRadius: 3,
+                            borderRadius: "inherit",
                             position: "relative",
                             overflow: "visible",
+                            "&.Mui-disabled": { opacity: 1 },
                             "@media (hover: hover) and (pointer: fine)": {
                               "&:hover": {
                                 transform: "none",
@@ -339,16 +302,16 @@ export default function IndexView() {
                           }}
                           onClick={() => navigate(`/${habit.id}`)}
                         >
-                          <Box sx={{ display: "flex", alignItems: "center" }}>
+                          <Box sx={{ display: "flex", alignItems: "center", width: "100%", minWidth: 0 }}>
                             <ListItemAvatar sx={{ color: habit.color, overflow: "visible", zIndex: 10 }}>
-                              <Box sx={{ position: "relative", display: "inline-flex", overflow: "visible" }}>
+                              <Box aria-hidden="true" sx={{ position: "relative", display: "inline-flex", overflow: "visible" }}>
                                 <CircularProgress
                                   variant="determinate"
-                                  value={progress}
+                                  value={previewProgress}
                                   size={56}
                                   thickness={3}
                                   sx={{
-                                    color: habit.color || "primary.main",
+                                    color: progressColor,
                                     position: "absolute",
                                     top: -4,
                                     left: -4,
@@ -368,14 +331,15 @@ export default function IndexView() {
                                   }}
                                 />
                                 <Badge
-                                  invisible={progress !== 100}
-                                  badgeContent={"Done!"}
+                                  badgeContent={previewProgress === 100 ? <Check sx={{ fontSize: 12 }} /> : null}
                                   color="success"
-                                  anchorOrigin={{ vertical: "top", horizontal: "right" }}
+                                  anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+                                  sx={{ "& .MuiBadge-badge": { minWidth: 18, height: 18, p: 0, border: "2px solid", borderColor: "background.paper" } }}
                                 >
                                   <Avatar
                                     sx={{
-                                      bgcolor: habit.color || "text.primary",
+                                      bgcolor: habit.color || "primary.main",
+                                      color: (theme) => theme.palette.getContrastText(alphaOrFallback(habit.color, theme.palette.primary.main, 1)),
                                       width: 48,
                                       height: 48,
                                       fontSize: "1.5rem",
@@ -386,26 +350,25 @@ export default function IndexView() {
                                 </Badge>
                               </Box>
                             </ListItemAvatar>
-                            <ListItemText
+                            <ListItemText disableTypography sx={{ minWidth: 0 }}
                               primary={
-                                <Box sx={{ display: "flex", alignItems: "center", pr: 2 }}>
                                   <Typography
-                                    lineHeight={1.25}
+                                    lineHeight={1.35}
                                     sx={{
-                                      color: habit.color,
-                                      fontWeight: 500,
-                                      fontSize: "1.1rem",
+                                      color: (theme) => readableHabitColor(habit.color, theme.palette.background.paper, theme.palette.text.primary),
+                                      fontWeight: 600,
+                                      fontSize: "1.0625rem",
+                                      overflowWrap: "anywhere",
                                     }}
                                   >
                                     {habit.name}
                                   </Typography>
-                                  <HabitNotificationIndicator sx={{ ml: 1 }} habit={habit} />
-                                </Box>
                               }
                               secondary={
-                                <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
-                                  {toFriendlyFrequency(habit)}
-                                </Typography>
+                                <Box component="span" sx={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 1, mt: 0.5 }}>
+                                  <Typography component="span" variant="body2" color="text.secondary">{toFriendlyFrequency(habit)}</Typography>
+                                  <HabitNotificationIndicator habit={habit} />
+                                </Box>
                               }
                             />
                           </Box>
@@ -414,24 +377,22 @@ export default function IndexView() {
                               <LinearProgressWithLabel
                                 variant="buffer"
                                 valueBuffer={progressBuffer}
-                                value={progress}
+                                value={previewProgress}
                                 sx={{
                                   height: 6,
                                   borderRadius: 3,
+                                  bgcolor: "action.hover",
                                   ".MuiLinearProgress-bar1Buffer": {
-                                    backgroundColor: habit.color,
+                                    backgroundColor: progressColor,
                                     borderRadius: 3,
                                   },
                                   ".MuiLinearProgress-bar2Buffer": {
-                                    backgroundColor: habit.color,
+                                    backgroundColor: progressColor,
                                     opacity: 0.3,
                                     borderRadius: 3,
                                   },
                                   ".MuiLinearProgress-dashed": {
                                     display: "none",
-                                  },
-                                  ".MuiLinearProgress-root": {
-                                    backgroundColor: "rgba(0,0,0,0.08)",
                                   },
                                 }}
                               />
@@ -451,278 +412,135 @@ export default function IndexView() {
                 width: "100%",
                 display: "flex",
                 justifyContent: "center",
-                bottom: "calc(96px + env(safe-area-inset-bottom, 0px))",
+                bottom: "calc(var(--hg-dock-height, 66px) + 30px + env(safe-area-inset-bottom, 0px))",
                 "@media (display-mode: standalone)": {
-                  bottom: "calc(104px + env(safe-area-inset-bottom, 0px))",
+                  bottom: "calc(var(--hg-dock-height, 66px) + 38px + env(safe-area-inset-bottom, 0px))",
                 },
                 left: 0,
                 zIndex: 1000,
+                pointerEvents: "none",
               }}
             >
-              <Grow in={checkedHabitIds.length > 0} timeout={300}>
+              <Fade in={checkedHabitIds.length > 0} timeout={180}>
                 <Fab
+                  ref={registerRef}
                   variant="extended"
                   color="primary"
                   type="submit"
+                  aria-label={navigation.state === "submitting" ? "Registering habits" : `Register ${checkedHabitIds.length} ${checkedHabitIds.length === 1 ? "habit" : "habits"}`}
+                  aria-busy={navigation.state === "submitting"}
                   disabled={!checkedHabitIds.length || navigation.state === "submitting"}
                   sx={{
-                    borderRadius: 4,
-                    px: 3,
-                    py: 1.5,
-                    minWidth: 120,
-                    height: 56,
+                    borderRadius: 999,
+                    pointerEvents: "auto",
+                    px: 2,
+                    minHeight: navigation.state === "submitting" ? "max(58px, var(--hg-register-height, 58px))" : 58,
+                    height: "auto",
+                    py: 1.25,
+                    flexWrap: "wrap",
+                    width: "calc(100% - 48px)",
+                    maxWidth: 320,
+                    gap: 1,
+                    color: "#f7fbf7",
+                    background: "linear-gradient(125deg, #285624 0%, #396f2d 55%, #4b7b2f 100%)",
+                    border: "1px solid rgba(255,255,255,0.2)",
+                    boxShadow: (theme) => theme.palette.mode === "dark"
+                      ? "0 4px 16px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.12)"
+                      : "0 4px 16px rgba(39,87,32,0.18), inset 0 1px 0 rgba(255,255,255,0.16)",
                     fontSize: "1rem",
-                    fontWeight: 500,
-                    background: "linear-gradient(132deg, #3f7f2d 0%, #5ca942 52%, #87c960 100%)",
-                    boxShadow: "0 12px 24px rgba(44, 101, 38, 0.34)",
-                    position: "relative",
-                    overflow: "hidden",
-                    transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+                    fontWeight: 700,
                     "@media (hover: hover) and (pointer: fine)": {
-                      "&:hover": {
-                        boxShadow: "0 16px 28px rgba(44, 101, 38, 0.4)",
-                        transform: "translateY(-2px) scale(1.02)",
-                        background: "linear-gradient(132deg, #4d9437 0%, #67b24a 52%, #99d373 100%)",
-                        "&::before": {
-                          left: "100%",
-                        },
-                      },
-                    },
-                    "&:active": {
-                      transform: "scale(0.95)",
-                      boxShadow: "0 4px 12px rgba(71, 133, 35, 0.5)",
-                      background: "linear-gradient(132deg, #4d9437 0%, #67b24a 52%, #99d373 100%)",
-                      transition: "all 0.1s ease-out",
+                      "&:hover": { background: "linear-gradient(125deg, #2d6028 0%, #3c742e 55%, #4b7b2f 100%)" },
                     },
                     "&.Mui-disabled": {
-                      bgcolor: "action.disabledBackground",
-                      color: "action.disabled",
-                      background: "none",
-                    },
-                    "&::before": {
-                      content: '""',
-                      position: "absolute",
-                      top: 0,
-                      left: "-100%",
-                      width: "100%",
-                      height: "100%",
-                      background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent)",
-                      transition: "left 0.6s ease-in-out",
+                      color: checkedHabitIds.length ? "#f7fbf7" : "transparent",
+                      background: checkedHabitIds.length ? "linear-gradient(125deg, #285624 0%, #396f2d 55%, #4b7b2f 100%)" : "none",
+                      borderColor: checkedHabitIds.length ? "rgba(255,255,255,0.2)" : "transparent",
+                      ...(!checkedHabitIds.length && { boxShadow: "none" }),
                     },
                   }}
                 >
                   {navigation.state === "submitting" ? (
                     <>
-                      <CircularProgress size={20} sx={{ mr: 1, color: "inherit" }} />
-                      Registering...
+                      <CircularProgress size={20} sx={{ color: "inherit" }} />
+                      <Box component="span" sx={{ overflowWrap: "anywhere" }}>Registering…</Box>
                     </>
                   ) : (
                     <>
-                      <Check
+                      <Check sx={{ fontSize: 20 }} />
+                      <Box component="span" sx={{ display: "flex", alignItems: "center", gap: 1, flex: 1 }}>
+                        Register
+                        <Box component="span" sx={{ borderRadius: 999, bgcolor: "rgba(0,0,0,0.18)", minWidth: 24, px: 0.5, lineHeight: "24px", fontSize: "0.8rem", fontVariantNumeric: "tabular-nums" }}>
+                          {checkedHabitIds.length}
+                        </Box>
+                      </Box>
+                      <AvatarGroup
+                        aria-hidden="true"
+                        max={4}
                         sx={{
-                          mr: 1,
-                          transition: "transform 0.2s ease-in-out",
-                          "@media (hover: hover) and (pointer: fine)": {
-                            ".MuiFab-root:hover &": {
-                              transform: "rotate(360deg)",
-                            },
-                          },
+                          minWidth: 0,
+                          flexShrink: 0,
+                          justifyContent: "flex-start",
+                          "& .MuiAvatar-root": { width: 26, height: 26, fontSize: "0.75rem", border: "2px solid #386c2c" },
+                          "& .MuiSvgIcon-root": { fontSize: 16 },
+                          "@keyframes habitEnter": { from: { opacity: 0, transform: "translateY(3px)" }, to: { opacity: 1, transform: "none" } },
+                          "@media (prefers-reduced-motion: reduce)": { "& .MuiAvatar-root": { animation: "none" } },
                         }}
-                      />
-                      Register
+                      >
+                        {checkedHabitIds.map((id) => {
+                          const habit = habits.find((habit) => habit.id === id);
+                          return habit ? <Avatar key={id} sx={{ bgcolor: habit.color || "primary.main", color: (theme) => theme.palette.getContrastText(alphaOrFallback(habit.color, theme.palette.primary.main, 1)), animation: "habitEnter 160ms ease-out" }}>{iconMap[habit.icon]}</Avatar> : null;
+                        })}
+                      </AvatarGroup>
                     </>
                   )}
-                  <AvatarGroup
-                    sx={{
-                      ml: 1.5,
-                      position: "relative",
-                      ".MuiAvatar-root": {
-                        width: 24,
-                        height: 24,
-                        fontSize: "0.75rem",
-                        border: "2px solid rgba(255,255,255,0.8)",
-                        boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
-                        transition: "all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)",
-                        opacity: 0,
-                        transform: "translateX(100px) scale(0)",
-                        "@media (hover: hover) and (pointer: fine)": {
-                          "&:hover": {
-                            transform: "scale(1.2) rotate(5deg)",
-                            zIndex: 10,
-                            boxShadow: "0 4px 12px rgba(0,0,0,0.25)",
-                            "&::before": {
-                              left: "100%",
-                            },
-                          },
-                        },
-                        "&:active": {
-                          transform: "scale(1.1)",
-                          transition: "transform 0.1s ease-out",
-                        },
-                        "&::after": {
-                          content: '""',
-                          position: "absolute",
-                          top: -2,
-                          left: -2,
-                          right: -2,
-                          bottom: -2,
-                          border: "2px solid currentColor",
-                          borderRadius: "50%",
-                          opacity: 0,
-                          transform: "scale(1)",
-                          animation: "avatarPulse 2s infinite",
-                        },
-                        "&::before": {
-                          content: '""',
-                          position: "absolute",
-                          top: 0,
-                          left: "-100%",
-                          width: "100%",
-                          height: "100%",
-                          background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent)",
-                          transition: "left 0.5s",
-                          borderRadius: "50%",
-                        },
-                      },
-                      ".MuiSvgIcon-root": {
-                        fontSize: "1rem",
-                      },
-                      "@keyframes slideInFromBehind": {
-                        "0%": {
-                          opacity: 0,
-                          transform: "translateX(100px) scale(0)",
-                        },
-                        "50%": {
-                          opacity: 0.8,
-                          transform: "translateX(20px) scale(1.1)",
-                        },
-                        "100%": {
-                          opacity: 1,
-                          transform: "translateX(0) scale(1)",
-                        },
-                      },
-                      "@keyframes avatarPulse": {
-                        "0%": {
-                          opacity: 0.7,
-                          transform: "scale(1)",
-                        },
-                        "70%": {
-                          opacity: 0,
-                          transform: "scale(1.4)",
-                        },
-                        "100%": {
-                          opacity: 0,
-                          transform: "scale(1)",
-                        },
-                      },
-                      ".MuiAvatar-root:nth-of-type(1)": {
-                        animation: "slideInFromBehind 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.0s both",
-                      },
-                      ".MuiAvatar-root:nth-of-type(2)": {
-                        animation: "slideInFromBehind 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.1s both",
-                      },
-                      ".MuiAvatar-root:nth-of-type(3)": {
-                        animation: "slideInFromBehind 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.2s both",
-                      },
-                      ".MuiAvatar-root:nth-of-type(4)": {
-                        animation: "slideInFromBehind 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.3s both",
-                      },
-                      ".MuiAvatar-root:nth-of-type(n+5)": {
-                        animation: "slideInFromBehind 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.4s both",
-                      },
-                    }}
-                    max={4}
-                  >
-                    {checkedHabitIds.map((id) => {
-                      const habit = habits.find((h) => h.id === id)!;
-                      return (
-                        <Avatar
-                          key={id}
-                          sx={{
-                            bgcolor: habit.color,
-                            background: `linear-gradient(135deg, ${habit.color} 0%, ${habit.color}cc 100%)`,
-                          }}
-                        >
-                          {iconMap[habit.icon]}
-                        </Avatar>
-                      );
-                    })}
-                  </AvatarGroup>
                 </Fab>
-              </Grow>
+              </Fade>
             </Box>
           </Form>
         ) : (
-          <Fade in timeout={600}>
+          <Fade in timeout={160}>
             <Box
               sx={{
                 display: "flex",
                 flexDirection: "column",
                 alignItems: "center",
                 justifyContent: "center",
-                height: "60%",
                 textAlign: "center",
-                px: 4,
-                pt: 6,
+                px: 3,
+                py: 6,
               }}
             >
               <Box
                 sx={{
-                  width: 100,
-                  height: 100,
-                  borderRadius: "50%",
-                  background: (theme) =>
-                    theme.palette.mode === "dark"
-                      ? "radial-gradient(circle, rgba(144, 198, 91, 0.12) 0%, transparent 70%)"
-                      : "radial-gradient(circle, rgba(46, 125, 50, 0.08) 0%, transparent 70%)",
+                  width: 72,
+                  height: 72,
+                  borderRadius: "var(--hg-radius)",
+                  bgcolor: "action.hover",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  mb: 3,
+                  mb: 2.5,
                 }}
               >
-                <Check sx={{ fontSize: 48, color: "primary.main", opacity: 0.5 }} />
+                <Checklist sx={{ fontSize: 36, color: "primary.main" }} />
               </Box>
-              <Typography variant="h6" color="text.primary" sx={{ mb: 1, fontWeight: 600 }}>
+              <Typography component="h2" variant="h6" color="text.primary" sx={{ mb: 1, fontWeight: 600 }}>
                 No habits yet
               </Typography>
               <Typography variant="body2" color="text.secondary" sx={{ mb: 3, lineHeight: 1.6 }}>
-                Start building better habits by tapping the + button below
+                Choose something small you want to do regularly.
               </Typography>
-              <Typography variant="caption" color="text.secondary" sx={{ opacity: 0.6 }}>
-                Your journey to a better you begins with one small step
-              </Typography>
+              <Form action="/new-habit" method="post">
+                <Button type="submit" variant="contained" startIcon={<Add />} size="large" loading={navigation.state === "submitting"}>
+                  Create your first habit
+                </Button>
+              </Form>
             </Box>
           </Fade>
         )}
       </Box>
 
-      {/* Loading Backdrop */}
-      <Backdrop
-        sx={{
-          color: "#fff",
-          zIndex: 2000,
-          flexDirection: "column",
-          gap: 2,
-        }}
-        open={navigation.state === "submitting"}
-      >
-        <CircularProgress
-          color="primary"
-          size={48}
-          sx={{
-            "& .MuiCircularProgress-circle": {
-              strokeLinecap: "round",
-            },
-          }}
-        />
-        <Typography variant="h6" color="inherit">
-          Registering habits...
-        </Typography>
-        <Typography variant="body2" color="inherit" sx={{ opacity: 0.8 }}>
-          Just a moment while we save your progress
-        </Typography>
-      </Backdrop>
     </Box>
   );
 }

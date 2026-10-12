@@ -48,6 +48,8 @@ This mode is explicitly selected by the `dev:local` command (`local-demo` Vite m
 
 Run the backend regression checks with `npm run test:local`. They use Node's built-in test runner and the installed TypeScript compiler, with no extra packages or Firebase connections.
 
+Jotai developer tools are hidden by default. To enable them locally, run `VITE_SHOW_DEVTOOLS=true npm run dev:local` (or `npm run dev`). They are excluded from production builds.
+
 ## Built With
 
 - [React](https://reactjs.org/)

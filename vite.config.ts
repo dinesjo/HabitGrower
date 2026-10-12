@@ -27,7 +27,7 @@ export default defineConfig(({ command, mode }) => {
       ...(localDemo ? [{
         name: "local-demo-html",
         transformIndexHtml(html: string) {
-          // Use the existing system-font fallbacks without Google Fonts requests.
+          // Keep local mode isolated if an external font link is added later.
           return html.replace(/<link\b[^>]*https:\/\/fonts\.(?:googleapis|gstatic)\.com[^>]*>/g, "");
         },
       }] : [mkcert(), VitePWA({

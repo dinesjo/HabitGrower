@@ -19,13 +19,16 @@ import {
 import { checkedHabitIdsAtom, store, userDayStartsAtAtom, userWeekStartsAtMondayAtom } from "./store";
 import { Habit } from "./types/Habit";
 import { requireAuth } from "./utils/requireAuth";
-// Note that this may get included in your production builds. Please import it conditionally if you want to avoid that
 import { Button } from "@mui/material";
-import "jotai-devtools/styles.css";
 import Main from "./components/Main";
 import { showSnackBar } from "./utils/helpers";
 import { isLocalMode } from "./data/mode";
 import { getBackend } from "./data/backend";
+import { installModuleLoadRecovery } from "./utils/moduleLoadRecovery";
+
+// Install before router loaders can start importing the backend.
+const removeLoadRecovery = installModuleLoadRecovery();
+import.meta.hot?.dispose(removeLoadRecovery);
 
 export const router = createBrowserRouter(
   createRoutesFromElements(
@@ -77,7 +80,7 @@ export const router = createBrowserRouter(
               "Habit deleted!",
               "success",
               <Button color="inherit" size="small" onClick={restoreHabit}>
-                UNDO
+                Undo
               </Button>
             );
             return redirect("/");

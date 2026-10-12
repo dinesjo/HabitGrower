@@ -2,7 +2,7 @@ import { NotificationsActiveOutlined } from "@mui/icons-material";
 import { Box, SxProps, Typography } from "@mui/material";
 import dayjs from "dayjs";
 import { Habit } from "../types/Habit";
-import { alphaOrFallback } from "../utils/color";
+import { alphaOrFallback, readableHabitColor } from "../utils/color";
 
 export default function HabitNotificationIndicator({ habit, ...props }: { habit: Habit; sx?: SxProps }) {
   if (habit.notificationEnabled && habit.notificationTime) {
@@ -13,7 +13,9 @@ export default function HabitNotificationIndicator({ habit, ...props }: { habit:
             display: "flex",
             alignItems: "center",
             gap: 0.6,
-            color: habit.color,
+            color: (theme) => readableHabitColor(habit.color, theme.palette.background.paper, theme.palette.text.primary),
+            whiteSpace: "nowrap",
+            flexShrink: 0,
             px: 0.8,
             py: 0.35,
             borderRadius: 999,
@@ -26,7 +28,7 @@ export default function HabitNotificationIndicator({ habit, ...props }: { habit:
           }}
         >
           <NotificationsActiveOutlined sx={{ fontSize: "1rem" }} />
-          <Typography variant="caption">
+          <Typography component="span" variant="caption" sx={{ fontVariantNumeric: "tabular-nums" }}>
             {(() => {
               const [hours, minutes] = habit.notificationTime.split(":");
               return dayjs.utc().set("hour", parseInt(hours)).set("minute", parseInt(minutes)).local().format("HH:mm");
