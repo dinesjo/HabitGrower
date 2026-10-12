@@ -21,7 +21,7 @@ import { atomWithStorage, createJSONStorage } from "jotai/utils";
 import { forwardRef, ReactElement, Ref, useId, useMemo, useRef, useState } from "react";
 import { Form, useNavigation } from "react-router-dom";
 import { Habit } from "../../types/Habit";
-import { confirmationActionsSx, confirmationPaperSx, glassPanelSx, sectionLabelSx } from "../../styles/designLanguage";
+import { confirmationActionsSx, confirmationFormStyle, confirmationPaperSx, glassPanelSx, sectionLabelSx } from "../../styles/designLanguage";
 
 const sortDirectionAtom = atomWithStorage<"asc" | "desc">("sortHabitListDirection", "desc");
 const historyPageSize = 12;
@@ -118,7 +118,7 @@ export default function SelectedHabitList({ habit }: { habit: Habit }) {
         PaperProps={{ sx: confirmationPaperSx }}
         sx={{ "& .MuiDialog-container": { alignItems: { xs: "flex-end", sm: "center" } } }}
       >
-        <Form action={"unregister/" + dateToDelete} method="delete" preventScrollReset onSubmit={() => setOpen(false)}>
+        <Form action={"unregister/" + dateToDelete} method="delete" preventScrollReset style={confirmationFormStyle} onSubmit={() => setOpen(false)}>
           <DialogTitle id={titleId} sx={{ px: 3, pt: 3, pb: 1, fontSize: "1.5rem", lineHeight: 1.3 }}>
             Remove registration?
           </DialogTitle>

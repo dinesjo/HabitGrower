@@ -2,20 +2,23 @@ import { Box, Button, Container, Typography } from "@mui/material";
 import { Link as RouterLink, isRouteErrorResponse, useRouteError } from "react-router-dom";
 import { ambientPageSx, contentLayerSx, glassPanelSx } from "../styles/designLanguage";
 
+function messageOrFallback(message: unknown, fallback: string) {
+  return typeof message === "string" && message.trim() ? message : fallback;
+}
+
 export default function ErrorPage() {
   const error = useRouteError();
-  let errorMessage: string;
+  const fallbackMessage = "We couldn't open this screen. Try again from your habit list.";
+  let errorMessage = fallbackMessage;
 
   if (isRouteErrorResponse(error)) {
-    // error is type `ErrorResponse`
-    errorMessage = error.data.message || error.statusText;
+    errorMessage = messageOrFallback(error.data?.message, messageOrFallback(error.statusText, fallbackMessage));
   } else if (error instanceof Error) {
-    errorMessage = error.message;
+    errorMessage = messageOrFallback(error.message, fallbackMessage);
   } else if (typeof error === "string") {
-    errorMessage = error;
+    errorMessage = messageOrFallback(error, fallbackMessage);
   } else {
     console.error(error);
-    errorMessage = "Unknown error";
   }
   const missingHabit = isRouteErrorResponse(error) && error.status === 404;
   return (

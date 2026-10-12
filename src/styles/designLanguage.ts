@@ -40,6 +40,12 @@ export const confirmationPaperSx = {
   borderColor: "divider",
 } as const;
 
+export const confirmationFormStyle = {
+  display: "flex",
+  flexDirection: "column",
+  minHeight: 0,
+} as const;
+
 export const confirmationActionsSx = {
   display: "grid",
   gridTemplateColumns: "repeat(2, minmax(0, 1fr))",

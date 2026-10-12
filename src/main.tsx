@@ -75,7 +75,7 @@ export const router = createBrowserRouter(
               "Habit deleted!",
               "success",
               <Button color="inherit" size="small" onClick={restoreHabit}>
-                UNDO
+                Undo
               </Button>
             );
             return redirect("/");

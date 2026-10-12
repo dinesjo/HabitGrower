@@ -4,7 +4,7 @@ import { TransitionProps } from "@mui/material/transitions";
 import { forwardRef, ReactElement, Ref, useId, useState } from "react";
 import { Form, useNavigation } from "react-router-dom";
 import { Habit } from "../types/Habit";
-import { confirmationActionsSx, confirmationPaperSx } from "../styles/designLanguage";
+import { confirmationActionsSx, confirmationFormStyle, confirmationPaperSx } from "../styles/designLanguage";
 
 const Transition = forwardRef(function Transition(
   props: TransitionProps & {
@@ -42,7 +42,7 @@ export default function DeleteHabitWithConfirm({ habit, id }: { habit: Habit; id
         PaperProps={{ sx: confirmationPaperSx }}
         sx={{ "& .MuiDialog-container": { alignItems: { xs: "flex-end", sm: "center" } } }}
       >
-        <Form action={`/${id}/delete`} method="post">
+        <Form action={`/${id}/delete`} method="post" style={confirmationFormStyle}>
           <DialogTitle id={titleId} sx={{ px: 3, pt: 3, pb: 1, fontSize: "1.5rem", lineHeight: 1.3 }}>
             Delete habit?
           </DialogTitle>

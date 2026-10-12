@@ -123,8 +123,6 @@ export default function AccountView() {
                 py: 1.5,
                 borderRadius: "var(--hg-control-radius)",
                 fontWeight: 600,
-                borderWidth: 1.5,
-                "&:hover": { borderWidth: 1.5 },
               }}
             >
               {isLocalMode ? "Reset demo data" : "Sign out"}
@@ -175,8 +173,8 @@ function NotificationsStatus() {
   const [permission, setPermission] = useAtom(notificationPermissionAtom);
 
   return (
-    <ListItem>
-      <ListItemIcon sx={{ color: "primary.main", minWidth: 44 }}>
+    <ListItem sx={{ minHeight: 72 }}>
+      <ListItemIcon sx={{ color: "primary.main", minWidth: 36 }}>
         {permission === "granted" ? <NotificationsActiveOutlined /> : <NotificationsOffOutlined />}
       </ListItemIcon>
       <ListItemText primary="Notifications" secondary={isLocalMode ? "Disabled in the local demo" : permission === "denied" ? "Blocked by your browser. Enable them in browser settings." : undefined} />

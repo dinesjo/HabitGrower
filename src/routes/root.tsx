@@ -1,4 +1,4 @@
-import { AccountCircle, Add, Home } from "@mui/icons-material";
+import { AccountCircle, Add, Close, Home } from "@mui/icons-material";
 import {
   Alert,
   Avatar,
@@ -6,6 +6,7 @@ import {
   Box,
   Button,
   CircularProgress,
+  IconButton,
   LinearProgress,
   Slide,
   Snackbar,
@@ -187,7 +188,14 @@ export default function Root() {
               fontSize: "1.2rem",
             },
           }}
-          action={snackbarAction}
+          action={snackbarAction ? (
+            <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+              {snackbarAction}
+              <IconButton size="small" color="inherit" aria-label="Dismiss message" onClick={() => setSnackbarMessage("")}>
+                <Close sx={{ fontSize: 18 }} />
+              </IconButton>
+            </Box>
+          ) : undefined}
           elevation={0}
           variant="standard"
         >
