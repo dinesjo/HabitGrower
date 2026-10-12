@@ -58,6 +58,7 @@ export default function EditHabitForm() {
   const { id } = useParams();
   const navigate = useNavigate();
   const navigation = useNavigation();
+  const isSaving = navigation.state === "submitting";
   const colorChoices = [
     "SlateGray",
     "SteelBlue",
@@ -79,9 +80,9 @@ export default function EditHabitForm() {
 
   return (
     <Box sx={{ ...ambientPageSx, minHeight: ["100vh", "100dvh"] }}>
-      <Form autoComplete="off" method="post">
+      <Form autoComplete="off" method="post" aria-busy={isSaving}>
         <Box sx={{ ...contentLayerSx, px: 2, pt: 2, pb: 3, maxWidth: 600, mx: "auto" }}>
-          <Button startIcon={<ChevronLeft />} onClick={handleBack} sx={{ ml: -1, mb: 1, minHeight: 44 }}>
+          <Button startIcon={<ChevronLeft />} disabled={isSaving} onClick={handleBack} sx={{ ml: -1, mb: 1, minHeight: 44 }}>
             Back to habit
           </Button>
           <Typography component="h1" variant="h4" sx={{ fontSize: "2rem", mb: 0.5 }}>Edit habit</Typography>
@@ -92,10 +93,10 @@ export default function EditHabitForm() {
           <Box component="section" aria-labelledby="habit-details-heading" sx={{ ...glassPanelSx, p: { xs: 2, sm: 3 }, mb: 2.5 }}>
             <Typography id="habit-details-heading" component="h2" variant="h6" sx={{ mb: 2.5 }}>Your habit</Typography>
             <Box sx={{ display: "grid", gap: 2.5 }}>
-              <TextField required name="name" label="Habit name" defaultValue={habit.name} onChange={(e) => setDraftAppearance((draft) => ({ ...draft, name: e.target.value }))} fullWidth />
-              <TextField name="description" label="Description" defaultValue={habit.description || ""} multiline minRows={2} fullWidth />
+              <TextField required disabled={isSaving} name="name" label="Habit name" defaultValue={habit.name} onChange={(e) => setDraftAppearance((draft) => ({ ...draft, name: e.target.value }))} fullWidth />
+              <TextField disabled={isSaving} name="description" label="Description" defaultValue={habit.description || ""} multiline minRows={2} fullWidth />
               <Box sx={{ display: "grid", gridTemplateColumns: "96px minmax(0, 1fr)", gap: 1.5 }}>
-                <FormControl required fullWidth>
+                <FormControl required disabled={isSaving} fullWidth>
                   <InputLabel id="habit-icon-label">Icon</InputLabel>
                   <Select
                     labelId="habit-icon-label" name="icon" label="Icon" defaultValue={habit.icon}
@@ -113,7 +114,7 @@ export default function EditHabitForm() {
                     ))}
                   </Select>
                 </FormControl>
-                <FormControl fullWidth>
+                <FormControl disabled={isSaving} fullWidth>
                   <InputLabel id="habit-color-label">Color</InputLabel>
                   <Select labelId="habit-color-label" name="color" label="Color" defaultValue={habit.color || ""}
                     onChange={(e) => setDraftAppearance((draft) => ({ ...draft, color: e.target.value }))}
@@ -141,8 +142,8 @@ export default function EditHabitForm() {
           <Box component="section" aria-labelledby="habit-goal-heading" sx={{ ...glassPanelSx, p: { xs: 2, sm: 3 }, mb: 2.5 }}>
             <Typography id="habit-goal-heading" component="h2" variant="h6" sx={{ mb: 2.5 }}>Your goal</Typography>
             <Box sx={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr) minmax(0, 1fr)", gap: 1.5 }}>
-              <TextField name="frequency" label="Times" placeholder="3" type="number" inputProps={{ inputMode: "numeric" }} defaultValue={habit.frequency || ""} onChange={(e) => setDraftAppearance((draft) => ({ ...draft, frequency: e.target.value ? Number(e.target.value) : undefined }))} fullWidth />
-              <FormControl fullWidth>
+              <TextField disabled={isSaving} name="frequency" label="Times" placeholder="3" type="number" inputProps={{ inputMode: "numeric" }} defaultValue={habit.frequency || ""} onChange={(e) => setDraftAppearance((draft) => ({ ...draft, frequency: e.target.value ? Number(e.target.value) : undefined }))} fullWidth />
+              <FormControl disabled={isSaving} fullWidth>
                 <InputLabel id="frequencyUnit">Per</InputLabel>
                 <Select name="frequencyUnit" label="Per" labelId="frequencyUnit" defaultValue={habit.frequencyUnit || ""} onChange={(e) => setDraftAppearance((draft) => ({ ...draft, frequencyUnit: (e.target.value || undefined) as Habit["frequencyUnit"] }))} fullWidth>
                   <MenuItem value="">None</MenuItem>
@@ -155,14 +156,14 @@ export default function EditHabitForm() {
           <Box component="section" aria-labelledby="habit-reminders-heading" sx={{ ...glassPanelSx, p: { xs: 2, sm: 3 }, mb: 2.5 }}>
             <Typography id="habit-reminders-heading" component="h2" variant="h6" sx={{ mb: 2 }}>Reminders</Typography>
             <Grid2 container spacing={2.5}>
-              <NotificationsPermissionAlert />
+              <NotificationsPermissionAlert disabled={isSaving} />
               <Grid2 size={12}>
                 <Box component="label" sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 2, cursor: notificationPermission === "granted" ? "pointer" : "default" }}>
                   <Box>
                     <Typography sx={{ fontWeight: 600 }}>Daily reminder</Typography>
                     <Typography variant="body2" color="text.secondary">A nudge when your habit is still waiting.</Typography>
                   </Box>
-                  <Switch inputProps={{ "aria-label": "Daily reminder" }} disabled={notificationPermission !== "granted"} name="notificationEnabled" defaultChecked={habit.notificationEnabled} onChange={(e) => setNotificationsEnabled(e.target.checked)} />
+                  <Switch inputProps={{ "aria-label": "Daily reminder" }} disabled={isSaving || notificationPermission !== "granted"} name="notificationEnabled" defaultChecked={habit.notificationEnabled} onChange={(e) => setNotificationsEnabled(e.target.checked)} />
                 </Box>
               </Grid2>
               <Grid2 size={12}>
@@ -176,7 +177,7 @@ export default function EditHabitForm() {
                     if (newTime) setNotificationTime(newTime.utc().format("HH:mm"));
                     else setNotificationTime(undefined);
                   }}
-                  ampm={false} label="Reminder time" disabled={notificationPermission !== "granted" || !notificationsEnabled}
+                  ampm={false} label="Reminder time" disabled={isSaving || notificationPermission !== "granted" || !notificationsEnabled}
                   slotProps={{ textField: { fullWidth: true }, dialog: { sx: mobileTimePickerDialogSx } }}
                 />
                 <input type="hidden" name="notificationTime" value={notificationTime || ""} />
@@ -186,7 +187,7 @@ export default function EditHabitForm() {
               )}
               {notificationsEnabled && notificationTime && (
                 <Grid2 size={12}>
-                  <Button variant="outlined" startIcon={<Notifications />} fullWidth onClick={() => sendTestNotification(previewHabit)} sx={{ minHeight: 48 }}>Send test notification</Button>
+                  <Button disabled={isSaving} variant="outlined" startIcon={<Notifications />} fullWidth onClick={() => sendTestNotification(previewHabit)} sx={{ minHeight: 48 }}>Send test notification</Button>
                 </Grid2>
               )}
             </Grid2>
@@ -198,8 +199,10 @@ export default function EditHabitForm() {
 
         <Box sx={{ position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 1100, bgcolor: "background.paper", borderTop: "1px solid", borderColor: "divider", px: 2, pt: 1.5, pb: "calc(12px + env(safe-area-inset-bottom, 0px))" }}>
           <Box sx={{ display: "flex", gap: 1.5, maxWidth: 568, mx: "auto" }}>
-            <Button variant="outlined" onClick={handleBack} sx={{ minHeight: 48, minWidth: 100 }}>Cancel</Button>
-            <Button loading={navigation.state === "submitting"} variant="contained" type="submit" sx={{ minHeight: 48, flex: 1 }}>Save changes</Button>
+            <Button disabled={isSaving} variant="outlined" onClick={handleBack} sx={{ minHeight: 48, minWidth: 100 }}>Cancel</Button>
+            <Button loading={isSaving} loadingPosition="start" variant="contained" type="submit" sx={{ minHeight: 48, flex: 1, "&.MuiButton-loading": { color: "text.primary" } }}>
+              {isSaving ? "Saving…" : "Save changes"}
+            </Button>
           </Box>
         </Box>
       </Form>
@@ -298,7 +301,7 @@ async function sendTestNotification(habit: Habit) {
   }
 }
 
-function NotificationsPermissionAlert() {
+function NotificationsPermissionAlert({ disabled }: { disabled: boolean }) {
   const [permission, setPermission] = useAtom(notificationPermissionAtom);
 
   if (isLocalMode) {
@@ -322,7 +325,7 @@ function NotificationsPermissionAlert() {
       <Typography variant="body2" color="text.secondary" sx={{ mb: 1.5 }}>
         Enable notifications to use reminders.
       </Typography>
-      <Button variant="outlined" fullWidth onClick={async () => {
+      <Button disabled={disabled} variant="outlined" fullWidth onClick={async () => {
         const result = await Notification.requestPermission();
         setPermission(result);
       }}>

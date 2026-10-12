@@ -185,7 +185,7 @@ export default function SelectedHabit() {
                   variant="determinate"
                   value={progress}
                   aria-label={`Registered progress ${periodLabel.toLowerCase()}`}
-                  sx={{ gridColumn: "1 / -1", height: 6, "& .MuiLinearProgress-bar": { bgcolor: habit.color || "primary.main" } }}
+                  sx={{ gridColumn: "1 / -1", height: 6, bgcolor: "action.hover", "& .MuiLinearProgress-bar": { bgcolor: (theme) => readableHabitColor(habit.color, theme.palette.background.paper, theme.palette.primary.main, 3) } }}
                 />
               </Box>
             )}

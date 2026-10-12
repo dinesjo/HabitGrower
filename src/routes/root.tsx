@@ -27,6 +27,7 @@ export default function Root() {
   const navigation = useNavigation();
   const location = useLocation();
   const loading = navigation.state === "loading";
+  const isSubmitting = navigation.state === "submitting";
   const [showLoading, setShowLoading] = useState(false);
 
   // User signed in using hook
@@ -235,6 +236,9 @@ export default function Root() {
                 to={page.path}
                 aria-label={page.text}
                 aria-current={active ? "page" : undefined}
+                aria-disabled={isSubmitting || undefined}
+                tabIndex={isSubmitting ? -1 : undefined}
+                onClick={(event: React.MouseEvent<HTMLAnchorElement>) => { if (isSubmitting) event.preventDefault(); }}
                 sx={{
                   textDecoration: "none",
                   display: "flex",
@@ -243,6 +247,8 @@ export default function Root() {
                   justifyContent: "center",
                   minWidth: 0,
                   minHeight: 52,
+                  pointerEvents: isSubmitting ? "none" : undefined,
+                  opacity: isSubmitting ? 0.5 : 1,
                   px: 1,
                   py: 0.75,
                   borderRadius: "var(--hg-control-radius)",
@@ -314,6 +320,8 @@ export default function Root() {
                 type="submit"
                 variant="contained"
                 aria-label="Add new habit"
+                disabled={isSubmitting}
+                loading={isSubmitting && navigation.formAction?.endsWith("/new-habit")}
                 sx={{ width: "100%", minWidth: 0, minHeight: 52, px: 0.5, py: 0.75, flexDirection: "column", gap: 0.25 }}
               >
                 <Add sx={{ fontSize: "1.4rem" }} />

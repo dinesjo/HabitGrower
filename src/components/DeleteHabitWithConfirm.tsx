@@ -17,6 +17,7 @@ const Transition = forwardRef(function Transition(
 
 export default function DeleteHabitWithConfirm({ habit, id }: { habit: Habit; id: string }) {
   const navigation = useNavigation();
+  const isSubmitting = navigation.state === "submitting";
   const titleId = useId();
   const descriptionId = useId();
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -25,12 +26,13 @@ export default function DeleteHabitWithConfirm({ habit, id }: { habit: Habit; id
 
   return (
     <>
-      <Button startIcon={<DeleteOutlined />} variant="outlined" color="error" onClick={handleOpen}>
+      <Button disabled={isSubmitting} startIcon={<DeleteOutlined />} variant="outlined" color="error" onClick={handleOpen}>
         Delete
       </Button>
       <Dialog
         open={deleteDialogOpen}
-        onClose={handleClose}
+        onClose={() => { if (!isSubmitting) handleClose(); }}
+        disableEscapeKeyDown={isSubmitting}
         aria-labelledby={titleId}
         aria-describedby={descriptionId}
         TransitionComponent={Transition}
@@ -53,17 +55,18 @@ export default function DeleteHabitWithConfirm({ habit, id }: { habit: Habit; id
             </DialogContentText>
           </DialogContent>
           <DialogActions sx={confirmationActionsSx}>
-            <Button onClick={handleClose} variant="outlined" sx={{ minHeight: 48 }}>
+            <Button disabled={isSubmitting} onClick={handleClose} variant="outlined" sx={{ minHeight: 48 }}>
               Cancel
             </Button>
             <Button
               variant="contained"
               type="submit"
               color="error"
-              loading={navigation.state === "submitting"}
-              sx={{ minHeight: 48 }}
+              loading={isSubmitting}
+              loadingPosition="start"
+              sx={{ minHeight: 48, "&.MuiButton-loading": { color: "text.primary" } }}
             >
-              Delete habit
+              {isSubmitting ? "Deleting…" : "Delete habit"}
             </Button>
           </DialogActions>
         </Form>

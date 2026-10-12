@@ -124,6 +124,7 @@ export function createAppTheme(mode: PaletteMode) {
       },
       MuiButton: {
         styleOverrides: {
+          loadingIndicator: ({ theme }) => ({ color: theme.palette.text.primary }),
           root: {
             borderRadius: "var(--hg-control-radius)",
             minHeight: 44,

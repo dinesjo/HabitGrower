@@ -2,7 +2,6 @@ import { Add, Check, Checklist } from "@mui/icons-material";
 import {
   Avatar,
   AvatarGroup,
-  Backdrop,
   Badge,
   Box,
   Button,
@@ -18,6 +17,7 @@ import {
   ListItemButton,
   ListItemText,
   Typography,
+  useTheme,
 } from "@mui/material";
 import { alpha } from "@mui/material/styles";
 import dayjs from "dayjs";
@@ -60,6 +60,7 @@ IndexView.loader = loader;
 IndexView.action = action;
 
 export default function IndexView() {
+  const theme = useTheme();
   const { habits } = useLoaderData() as { habits: Habit[] };
   const navigation = useNavigation();
   const navigate = useNavigate();
@@ -209,6 +210,7 @@ export default function IndexView() {
                 const registeredProgress = getProgress(habit, false, userWeekStartsAtMonday);
                 const previewProgress = getProgress(habit, isChecked, userWeekStartsAtMonday);
                 const progressBuffer = getProgressBuffer(habit, dayStartsAt, userWeekStartsAtMonday);
+                const progressColor = readableHabitColor(habit.color, theme.palette.background.paper, theme.palette.primary.main, 3);
                 const isFirstCompletedHabit = habit.id === firstCompletedHabitId;
                 return (
                   <Box key={habit.id} sx={{ mb: 1.5 }}>
@@ -247,6 +249,7 @@ export default function IndexView() {
                             {isChecked && <input type="hidden" name="habitIds" value={habit.id} />}
                             <Checkbox
                               disableRipple
+                              disabled={navigation.state === "submitting"}
                               inputProps={{ "aria-label": `Select ${habit.name} for registration` }}
                               checked={isChecked}
                               onClick={() =>
@@ -276,6 +279,7 @@ export default function IndexView() {
                         sx={{ borderRadius: "inherit", ".MuiListItemButton-root": { borderRadius: "inherit" } }}
                       >
                         <ListItemButton
+                          disabled={navigation.state === "submitting"}
                           aria-label={`View ${habit.name}, ${Math.round(previewProgress)}% complete${isChecked ? ", selected, not saved yet" : ""}`}
                           sx={{
                             py: 1.5,
@@ -286,6 +290,7 @@ export default function IndexView() {
                             borderRadius: "inherit",
                             position: "relative",
                             overflow: "visible",
+                            "&.Mui-disabled": { opacity: 1 },
                             "@media (hover: hover) and (pointer: fine)": {
                               "&:hover": {
                                 transform: "none",
@@ -304,7 +309,7 @@ export default function IndexView() {
                                   size={56}
                                   thickness={3}
                                   sx={{
-                                    color: habit.color || "primary.main",
+                                    color: progressColor,
                                     position: "absolute",
                                     top: -4,
                                     left: -4,
@@ -374,20 +379,18 @@ export default function IndexView() {
                                 sx={{
                                   height: 6,
                                   borderRadius: 3,
+                                  bgcolor: "action.hover",
                                   ".MuiLinearProgress-bar1Buffer": {
-                                    backgroundColor: habit.color,
+                                    backgroundColor: progressColor,
                                     borderRadius: 3,
                                   },
                                   ".MuiLinearProgress-bar2Buffer": {
-                                    backgroundColor: habit.color,
+                                    backgroundColor: progressColor,
                                     opacity: 0.3,
                                     borderRadius: 3,
                                   },
                                   ".MuiLinearProgress-dashed": {
                                     display: "none",
-                                  },
-                                  ".MuiLinearProgress-root": {
-                                    backgroundColor: "rgba(0,0,0,0.08)",
                                   },
                                 }}
                               />
@@ -421,7 +424,8 @@ export default function IndexView() {
                   variant="extended"
                   color="primary"
                   type="submit"
-                  aria-label={`Register ${checkedHabitIds.length} ${checkedHabitIds.length === 1 ? "habit" : "habits"}`}
+                  aria-label={navigation.state === "submitting" ? "Registering habits" : `Register ${checkedHabitIds.length} ${checkedHabitIds.length === 1 ? "habit" : "habits"}`}
+                  aria-busy={navigation.state === "submitting"}
                   disabled={!checkedHabitIds.length || navigation.state === "submitting"}
                   sx={{
                     borderRadius: 999,
@@ -442,7 +446,12 @@ export default function IndexView() {
                     "@media (hover: hover) and (pointer: fine)": {
                       "&:hover": { background: "linear-gradient(125deg, #2d6028 0%, #3c742e 55%, #4b7b2f 100%)" },
                     },
-                    "&.Mui-disabled": { background: "none", borderColor: "transparent" },
+                    "&.Mui-disabled": {
+                      color: checkedHabitIds.length ? "#f7fbf7" : "transparent",
+                      background: checkedHabitIds.length ? "linear-gradient(125deg, #285624 0%, #396f2d 55%, #4b7b2f 100%)" : "none",
+                      borderColor: checkedHabitIds.length ? "rgba(255,255,255,0.2)" : "transparent",
+                      ...(!checkedHabitIds.length && { boxShadow: "none" }),
+                    },
                   }}
                 >
                   {navigation.state === "submitting" ? (
@@ -516,7 +525,7 @@ export default function IndexView() {
                 Choose something small you want to do regularly.
               </Typography>
               <Form action="/new-habit" method="post">
-                <Button type="submit" variant="contained" startIcon={<Add />} size="large">
+                <Button type="submit" variant="contained" startIcon={<Add />} size="large" loading={navigation.state === "submitting"}>
                   Create your first habit
                 </Button>
               </Form>
@@ -525,32 +534,6 @@ export default function IndexView() {
         )}
       </Box>
 
-      {/* Loading Backdrop */}
-      <Backdrop
-        sx={{
-          color: "#fff",
-          zIndex: 2000,
-          flexDirection: "column",
-          gap: 2,
-        }}
-        open={navigation.state === "submitting"}
-      >
-        <CircularProgress
-          color="primary"
-          size={48}
-          sx={{
-            "& .MuiCircularProgress-circle": {
-              strokeLinecap: "round",
-            },
-          }}
-        />
-        <Typography variant="h6" color="inherit">
-          Registering habits...
-        </Typography>
-        <Typography variant="body2" color="inherit" sx={{ opacity: 0.8 }}>
-          Just a moment while we save your progress
-        </Typography>
-      </Backdrop>
     </Box>
   );
 }

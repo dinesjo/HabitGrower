@@ -34,12 +34,12 @@ export function alphaOrFallback(color: string | undefined, fallback: string, opa
   return alpha(fallback, opacity);
 }
 
-export function readableHabitColor(color: string | undefined, background: string, fallback: string): string {
+export function readableHabitColor(color: string | undefined, background: string, fallback: string, minimumContrast = 5): string {
   const solidColor = alphaOrFallback(color, fallback, 1);
   const adjust = getLuminance(background) < 0.5 ? lighten : darken;
   for (let amount = 0; amount <= 1; amount += 0.1) {
     const candidate = adjust(solidColor, amount);
-    if (getContrastRatio(candidate, background) >= 5) return candidate;
+    if (getContrastRatio(candidate, background) >= minimumContrast) return candidate;
   }
   return fallback;
 }

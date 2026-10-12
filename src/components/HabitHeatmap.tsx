@@ -2,6 +2,7 @@ import { Box, Paper, Tooltip, Typography, useTheme } from "@mui/material";
 import dayjs from "dayjs";
 import { Habit } from "../types/Habit";
 import { glassPanelSx, sectionLabelSx } from "../styles/designLanguage";
+import { readableHabitColor } from "../utils/color";
 
 interface HabitHeatmapProps {
   habit: Habit;
@@ -76,7 +77,7 @@ export default function HabitHeatmap({ habit, months = 3 }: HabitHeatmapProps) {
       return { bgcolor: theme.palette.divider, opacity: 1 };
     }
 
-    const baseColor = habit.color || theme.palette.primary.main;
+    const baseColor = readableHabitColor(habit.color, theme.palette.background.paper, theme.palette.primary.main, 3);
     // Use different opacity levels to create gradient effect
     const opacities = [0, 0.4, 0.6, 0.8, 1];
     return { bgcolor: baseColor, opacity: opacities[level] };

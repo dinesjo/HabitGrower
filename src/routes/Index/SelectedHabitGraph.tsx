@@ -1,4 +1,4 @@
-import { Box, Divider, ToggleButton, ToggleButtonGroup, Typography } from "@mui/material";
+import { Box, Divider, ToggleButton, ToggleButtonGroup, Typography, useTheme } from "@mui/material";
 import { BarChart } from "@mui/x-charts";
 import dayjs from "dayjs";
 import { useAtom } from "jotai";
@@ -6,6 +6,7 @@ import { useMemo } from "react";
 import { daysShownAtom, graphFrequencyUnitAtom, userWeekStartsAtMondayAtom } from "../../store";
 import { Habit } from "../../types/Habit";
 import { glassPanelSx, sectionLabelSx } from "../../styles/designLanguage";
+import { readableHabitColor } from "../../utils/color";
 
 const daysShownMap: Record<number, string> = {
   14: "14 days",
@@ -115,6 +116,7 @@ function getPeriodLabel(periodKey: string, unit: "day" | "week" | "month"): stri
 }
 
 export default function SelectedHabitGraph({ habit }: { habit: Habit }) {
+  const theme = useTheme();
   const [daysShown] = useAtom(daysShownAtom);
   const [graphFrequencyUnit] = useAtom(graphFrequencyUnitAtom);
   const [userWeekStartsAtMonday] = useAtom(userWeekStartsAtMondayAtom);
@@ -283,7 +285,7 @@ export default function SelectedHabitGraph({ habit }: { habit: Habit }) {
                 tickMinStep: 1, // will always be integers
               },
             ]}
-            series={[{ dataKey: "value", color: habit.color || "#90c65b", label: "Completions" }]}
+            series={[{ dataKey: "value", color: readableHabitColor(habit.color, theme.palette.background.paper, theme.palette.primary.main, 3), label: "Completions" }]}
             grid={{ horizontal: true }}
             slotProps={{
               legend: { hidden: true },
