@@ -38,24 +38,26 @@ export default defineConfig(({ command, mode }) => {
           name: "HabitGrower",
           short_name: "HabitGrower",
           description: "Grow your habits!",
-          theme_color: "#478523",
-          background_color: "#101e26",
+          theme_color: "#142019",
+          background_color: "#142019",
           icons: [
+            {
+              src: "pwa-192x192.png",
+              sizes: "192x192",
+              type: "image/png",
+              purpose: "any",
+            },
+            {
+              src: "pwa-512x512.png",
+              sizes: "512x512",
+              type: "image/png",
+              purpose: "any",
+            },
             {
               src: "pwa-maskable-192x192.png",
               sizes: "192x192",
               type: "image/png",
-            },
-            {
-              src: "pwa-maskable-512x512.png",
-              sizes: "512x512",
-              type: "image/png",
-            },
-            {
-              src: "pwa-maskable-512x512.png",
-              sizes: "512x512",
-              type: "image/png",
-              purpose: "any",
+              purpose: "maskable",
             },
             {
               src: "pwa-maskable-512x512.png",

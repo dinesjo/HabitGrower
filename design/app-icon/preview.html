@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>HabitGrower — production icon sizing</title>
+  <style>
+    :root { color-scheme: dark; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #0d1511; color: #eaf4e7; }
+    * { box-sizing: border-box; }
+    body { margin: 0; }
+    main { max-width: 1000px; margin: auto; padding: 36px 24px; }
+    h1 { font-family: Georgia, serif; font-size: 32px; line-height: 1.15; margin: 0 0 14px; }
+    header p, article p, footer { color: #aebbad; font-size: 14px; line-height: 1.6; }
+    header { margin-bottom: 28px; }
+    .grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 28px; }
+    .large { width: 180px; max-width: 100%; aspect-ratio: 1; border-radius: 22%; display: block; }
+    h2 { font-size: 17px; margin: 18px 0 8px; }
+    article p { min-height: 88px; margin: 0 0 22px; }
+    .sizes { display: flex; align-items: flex-end; gap: 22px; }
+    figure { margin: 0; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+    figure img { display: block; border-radius: 22%; }
+    figcaption { color: #aebbad; font-size: 11px; text-align: center; }
+    .circle { border-radius: 50%; }
+    .safe { clip-path: circle(40% at 50% 50%); }
+    .small { display: flex; gap: 28px; align-items: flex-end; margin-top: 30px; padding: 20px; background: #142019; border-radius: 12px; width: fit-content; }
+    footer { margin-top: 30px; padding-top: 20px; border-top: 1px solid #304237; }
+    @media (max-width: 600px) { .grid { grid-template-columns: 1fr; } article p { min-height: 0; } }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>The approved H, sized for installation.</h1>
+      <p>The iOS export gives the mark more presence. Android gets separate artwork with enough clearance for launcher masks.</p>
+    </header>
+    <div class="grid">
+      <article>
+        <img class="large" src="source.png" alt="Approved source draft before its surrounding space was reduced" />
+        <h2>Approved draft</h2>
+        <p>The original draft has a mark about 56% of the canvas height. This is the baseline for comparison.</p>
+        <div class="sizes">
+          <figure><img src="source.png" width="60" height="60" alt="Draft at 60 CSS pixels" /><figcaption>60 px</figcaption></figure>
+          <figure><img src="source.png" width="80" height="80" alt="Draft at 80 CSS pixels" /><figcaption>80 px</figcaption></figure>
+        </div>
+      </article>
+      <article>
+        <img class="large" src="/apple-touch-icon.png" alt="Production Apple touch icon with the larger mark" />
+        <h2>iOS / regular PWA</h2>
+        <p>The mark fills 72% of the canvas height. The Apple touch asset is an opaque 180 × 180 PNG with an explicit page link.</p>
+        <div class="sizes">
+          <figure><img src="/apple-touch-icon.png" width="60" height="60" alt="Apple touch icon at 60 CSS pixels with an iOS-style mask" /><figcaption>60 px · iOS shape</figcaption></figure>
+          <figure><img src="/apple-touch-icon.png" width="80" height="80" alt="Apple touch icon at 80 CSS pixels with an iOS-style mask" /><figcaption>80 px</figcaption></figure>
+        </div>
+      </article>
+      <article>
+        <img class="large circle" src="/pwa-maskable-512x512.png" alt="Production maskable icon with a circular launcher mask" />
+        <h2>Maskable PWA</h2>
+        <p>The complete mark stays within 38% of the canvas radius. The minimum 40% safe circle below leaves every part visible.</p>
+        <div class="sizes">
+          <figure><img class="circle" src="/pwa-maskable-512x512.png" width="60" height="60" alt="Maskable icon at 60 CSS pixels with a circle mask" /><figcaption>60 px · circle</figcaption></figure>
+          <figure><img class="safe" src="/pwa-maskable-512x512.png" width="80" height="80" alt="Maskable icon showing only the guaranteed 40% radius safe area" /><figcaption>Minimum safe area</figcaption></figure>
+        </div>
+      </article>
+    </div>
+    <div class="small">
+      <figure><img src="/favicon-16x16.png" width="16" height="16" alt="Production favicon at 16 pixels" /><figcaption>16 px favicon</figcaption></figure>
+      <figure><img src="/favicon-32x32.png" width="32" height="32" alt="Production favicon at 32 pixels" /><figcaption>32 px favicon</figcaption></figure>
+    </div>
+    <footer>Browser shape and size previews. These show the actual exported assets; they are not screenshots from an installed iPhone app.</footer>
+  </main>
+</body>
+</html>
