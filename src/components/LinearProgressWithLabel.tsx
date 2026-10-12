@@ -36,9 +36,12 @@ export default function LinearProgressWithLabel({ ...props }) {
           <Chip
             sx={{
               width: "100%",
+              height: "auto",
+              minHeight: 24,
+              py: 0.25,
               color: "text.primary",
               fontVariantNumeric: "tabular-nums",
-              "& .MuiChip-label": { px: 1, overflow: "visible", textOverflow: "clip" },
+              "& .MuiChip-label": { px: 1, lineHeight: 1.25, overflow: "visible", textOverflow: "clip" },
             }}
             variant="outlined"
             label={`${progressValue}%`}

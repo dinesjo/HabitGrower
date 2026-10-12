@@ -78,4 +78,11 @@ export const mobileTimePickerDialogSx = {
     letterSpacing: "-0.02em",
   },
   "& .MuiDialogActions-root": { px: 2, py: 1.5 },
+  "@media (max-height: 480px)": {
+    "& .MuiDialogContent-root": { display: "flex", minHeight: 0, overflow: "hidden" },
+    "& .MuiPickersLayout-root": { display: "flex", flexDirection: "column", flex: 1, minHeight: 0 },
+    "& .MuiTimePickerToolbar-root": { flexShrink: 0 },
+    "& .MuiPickersLayout-contentWrapper": { flex: 1, minHeight: 0, overflowY: "auto" },
+    "& .MuiTimeClock-root": { flexShrink: 0 },
+  },
 } as const;

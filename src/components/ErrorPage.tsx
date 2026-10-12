@@ -25,7 +25,7 @@ export default function ErrorPage() {
     <Box sx={{ ...ambientPageSx, minHeight: ["100vh", "100dvh"] }}>
       <Container sx={{ ...contentLayerSx, display: "flex", minHeight: ["100vh", "100dvh"], alignItems: "center", justifyContent: "center", py: 4 }}>
         <Box sx={{ ...glassPanelSx, p: { xs: 3, sm: 4 }, maxWidth: 480, width: "100%", textAlign: "center" }}>
-          <Typography component="h1" variant="h4" sx={{ fontSize: "2rem", mb: 1.5 }}>
+          <Typography component="h1" variant="h4" sx={{ fontSize: "clamp(1.25rem, 10vw, 2rem)", mb: 1.5, overflowWrap: "anywhere" }}>
             {missingHabit ? "Habit not found" : "Something went wrong"}
           </Typography>
           <Typography variant="body2" color="text.secondary" sx={{ mb: 3, lineHeight: 1.6, overflowWrap: "anywhere" }}>

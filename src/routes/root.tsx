@@ -6,6 +6,7 @@ import {
   Box,
   Button,
   CircularProgress,
+  GlobalStyles,
   IconButton,
   LinearProgress,
   Slide,
@@ -16,14 +17,22 @@ import { alpha } from "@mui/material/styles";
 import { useUser } from "../hooks/useUser";
 import { isLocalMode } from "../data/mode";
 import { useAtom } from "jotai";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Form, Link, Outlet, ScrollRestoration, useLocation, useNavigation } from "react-router-dom";
 import { checkedHabitIdsAtom, snackbarActionAtom, snackbarMessageAtom, snackbarOpenAtom, snackbarSeverityAtom, userWeekStartsAtMondayAtom } from "../store";
 import { fetchAllHabits } from "../services/habitsPersistance";
 import { getProgress } from "../utils/helpers";
 import { Habit } from "../types/Habit";
+import { ActionHeightContext, ActionSurface, useActionSurfaceRef } from "../hooks/useActionSurfaceRef";
 
 export default function Root() {
+  const [actionHeights, setActionHeights] = useState({ dock: 66, register: 58, editor: 73 });
+  const updateActionHeight = useCallback((surface: ActionSurface, height: number) => {
+    const roundedHeight = Math.ceil(height);
+    if (roundedHeight <= 0) return;
+    setActionHeights((current) => current[surface] === roundedHeight ? current : { ...current, [surface]: roundedHeight });
+  }, []);
+  const dockRef = useActionSurfaceRef("dock", updateActionHeight);
   // Router
   const navigation = useNavigation();
   const location = useLocation();
@@ -51,7 +60,17 @@ export default function Root() {
   const hasPendingRegistration = location.pathname === "/" && checkedHabitIds.length > 0;
   const safeBottom = "env(safe-area-inset-bottom, 0px)";
   const navBottom = `calc(12px + ${safeBottom})`;
-  const outletBottomPadding = isSignInPage ? 0 : `calc(96px + ${safeBottom})`;
+  const outletBottomPadding = isSignInPage ? 0 : isEditingHabit
+    ? "calc(var(--hg-editor-height, 73px) + 24px)"
+    : `calc(var(--hg-dock-height, 66px) + 30px + ${safeBottom})`;
+  const snackbarBottom = isSignInPage ? `calc(16px + ${safeBottom})` : isEditingHabit
+    ? "calc(var(--hg-editor-height, 73px) + 16px)"
+    : hasPendingRegistration
+      ? `calc(var(--hg-dock-height, 66px) + var(--hg-register-height, 58px) + 52px + ${safeBottom})`
+      : `calc(var(--hg-dock-height, 66px) + 26px + ${safeBottom})`;
+  const focusBottomPadding = isSignInPage ? `calc(16px + ${safeBottom})` : isEditingHabit
+    ? `${actionHeights.editor + 24}px`
+    : `calc(${actionHeights.dock + (hasPendingRegistration ? actionHeights.register + 46 : 30)}px + ${safeBottom})`;
 
   useEffect(() => {
     let timeoutId: NodeJS.Timeout;
@@ -117,7 +136,13 @@ export default function Root() {
   ];
 
   return (
-    <>
+    <ActionHeightContext.Provider value={updateActionHeight}>
+      <GlobalStyles styles={{ html: {
+        scrollPaddingBottom: focusBottomPadding,
+        "--hg-dock-height": `${actionHeights.dock}px`,
+        "--hg-register-height": `${actionHeights.register}px`,
+        "--hg-editor-height": `${actionHeights.editor}px`,
+      } }} />
       {showLoading && (
         <LinearProgress
           sx={{
@@ -163,7 +188,7 @@ export default function Root() {
         autoHideDuration={snackbarAction ? null : 4000}
         onClose={() => setSnackbarMessage("")}
         sx={{
-          bottom: `calc(${isSignInPage ? 16 : hasPendingRegistration ? 176 : 92}px + ${safeBottom})`,
+          bottom: snackbarBottom,
           left: "50%",
           right: "auto",
           transform: "translateX(-50%)",
@@ -182,8 +207,10 @@ export default function Root() {
             border: "1px solid",
             borderColor: "divider",
             alignItems: "center",
+            flexWrap: "wrap",
             boxShadow: "0 4px 16px rgba(0,0,0,0.12)",
-            "& .MuiAlert-message": { minWidth: 0, overflowWrap: "anywhere", lineHeight: 1.5 },
+            "& .MuiAlert-message": { flex: "1 1 5rem", minWidth: 0, overflowWrap: "anywhere", lineHeight: 1.5 },
+            "& .MuiAlert-action": { flexShrink: 0 },
             "& .MuiAlert-icon": {
               fontSize: "1.2rem",
             },
@@ -206,6 +233,7 @@ export default function Root() {
       {/* Primary actions share one thumb-reachable surface. */}
       {!isSignInPage && !isEditingHabit && (
         <Box
+          ref={dockRef}
           component="nav"
           aria-label="Main navigation"
           sx={{
@@ -341,6 +369,6 @@ export default function Root() {
           )}
         </Box>
       )}
-    </>
+    </ActionHeightContext.Provider>
   );
 }

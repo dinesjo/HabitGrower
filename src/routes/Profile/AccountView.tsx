@@ -218,6 +218,7 @@ function DayStartPicker() {
     <ListItem sx={{ py: 2.5 }}>
       <TimePicker
         desktopModeMediaQuery="@media (min-width: 600px) and (pointer: fine)"
+        orientation="portrait"
         value={dayStartsAt}
         onChange={(newDayStartsAt: Dayjs | null) => {
           if (newDayStartsAt) {

@@ -33,6 +33,7 @@ import { Habit } from "../../types/Habit";
 import { getProgress, getProgressBuffer, showSnackBar, toFriendlyFrequency } from "../../utils/helpers";
 import { ambientPageSx, contentLayerSx, glassPanelSx } from "../../styles/designLanguage";
 import { alphaOrFallback, readableHabitColor } from "../../utils/color";
+import { useActionSurfaceRef } from "../../hooks/useActionSurfaceRef";
 
 async function loader() {
   return {
@@ -67,6 +68,7 @@ export default function IndexView() {
   const [checkedHabitIds, setCheckedHabitIds] = useAtom(checkedHabitIdsAtom);
   const [userWeekStartsAtMonday] = useAtom(userWeekStartsAtMondayAtom);
   const [dayStartsAt] = useAtom(userDayStartsAtAtom);
+  const registerRef = useActionSurfaceRef("register");
 
   function sortHabitsCB(a: Habit, b: Habit) {
     // If progress is not 100, go first
@@ -204,7 +206,7 @@ export default function IndexView() {
                 </Box>
               </Fade>
             )}
-            <List disablePadding sx={{ px: 1, pt: 1, pb: 10 }}>
+            <List disablePadding sx={{ px: 1, pt: 1, pb: "calc(var(--hg-register-height, 58px) + 22px)" }}>
               {sortedHabits.map((habit) => {
                 const isChecked = checkedHabitIds.includes(habit.id);
                 const registeredProgress = getProgress(habit, false, userWeekStartsAtMonday);
@@ -410,9 +412,9 @@ export default function IndexView() {
                 width: "100%",
                 display: "flex",
                 justifyContent: "center",
-                bottom: "calc(96px + env(safe-area-inset-bottom, 0px))",
+                bottom: "calc(var(--hg-dock-height, 66px) + 30px + env(safe-area-inset-bottom, 0px))",
                 "@media (display-mode: standalone)": {
-                  bottom: "calc(104px + env(safe-area-inset-bottom, 0px))",
+                  bottom: "calc(var(--hg-dock-height, 66px) + 38px + env(safe-area-inset-bottom, 0px))",
                 },
                 left: 0,
                 zIndex: 1000,
@@ -421,6 +423,7 @@ export default function IndexView() {
             >
               <Fade in={checkedHabitIds.length > 0} timeout={180}>
                 <Fab
+                  ref={registerRef}
                   variant="extended"
                   color="primary"
                   type="submit"
@@ -431,7 +434,10 @@ export default function IndexView() {
                     borderRadius: 999,
                     pointerEvents: "auto",
                     px: 2,
-                    height: 58,
+                    minHeight: navigation.state === "submitting" ? "max(58px, var(--hg-register-height, 58px))" : 58,
+                    height: "auto",
+                    py: 1.25,
+                    flexWrap: "wrap",
                     width: "calc(100% - 48px)",
                     maxWidth: 320,
                     gap: 1,
@@ -456,8 +462,8 @@ export default function IndexView() {
                 >
                   {navigation.state === "submitting" ? (
                     <>
-                      <CircularProgress size={20} sx={{ mr: 1, color: "inherit" }} />
-                      Registering...
+                      <CircularProgress size={20} sx={{ color: "inherit" }} />
+                      <Box component="span" sx={{ overflowWrap: "anywhere" }}>Registering…</Box>
                     </>
                   ) : (
                     <>
@@ -472,7 +478,8 @@ export default function IndexView() {
                         aria-hidden="true"
                         max={4}
                         sx={{
-                          minWidth: 84,
+                          minWidth: 0,
+                          flexShrink: 0,
                           justifyContent: "flex-start",
                           "& .MuiAvatar-root": { width: 26, height: 26, fontSize: "0.75rem", border: "2px solid #386c2c" },
                           "& .MuiSvgIcon-root": { fontSize: 16 },

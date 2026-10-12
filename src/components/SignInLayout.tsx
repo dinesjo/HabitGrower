@@ -7,8 +7,8 @@ export default function SignInLayout({ children }: { children: ReactNode }) {
     <Box sx={{ ...ambientPageSx, minHeight: ["100vh", "100dvh"], display: "flex", flexDirection: "column", alignItems: "center", px: 2, py: 4 }}>
       <Box sx={{ ...contentLayerSx, width: "100%", maxWidth: 420, my: "auto" }}>
         <Box sx={{ textAlign: "center", mb: 4 }}>
-          <Typography component="h1" variant="h3" sx={{ fontSize: { xs: "2.75rem", sm: "3rem" }, lineHeight: 1.1, mb: 1.5 }}>
-            Habit<Box component="span" sx={{ color: "primary.main" }}>Grower</Box>
+          <Typography component="h1" variant="h3" sx={{ fontSize: { xs: "clamp(2rem, 16vw, 2.75rem)", sm: "3rem" }, lineHeight: 1.1, mb: 1.5 }}>
+            Habit<wbr /><Box component="span" sx={{ color: "primary.main" }}>Grower</Box>
           </Typography>
           <Typography color="text.secondary" sx={{ maxWidth: 300, mx: "auto", lineHeight: 1.6 }}>
             Build better habits, one day at a time

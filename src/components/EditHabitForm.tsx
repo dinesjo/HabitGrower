@@ -27,6 +27,7 @@ import { ambientPageSx, contentLayerSx, glassPanelSx, mobileTimePickerDialogSx }
 import { isLocalMode } from "../data/mode";
 import { alphaOrFallback } from "../utils/color";
 import DeleteHabitWithConfirm from "./DeleteHabitWithConfirm";
+import { useActionSurfaceRef } from "../hooks/useActionSurfaceRef";
 
 dayjs.extend(utc);
 
@@ -59,6 +60,7 @@ export default function EditHabitForm() {
   const navigate = useNavigate();
   const navigation = useNavigation();
   const isSaving = navigation.state === "submitting";
+  const editorRef = useActionSurfaceRef("editor");
   const colorChoices = [
     "SlateGray",
     "SteelBlue",
@@ -95,8 +97,8 @@ export default function EditHabitForm() {
             <Box sx={{ display: "grid", gap: 2.5 }}>
               <TextField required disabled={isSaving} name="name" label="Habit name" defaultValue={habit.name} onChange={(e) => setDraftAppearance((draft) => ({ ...draft, name: e.target.value }))} fullWidth />
               <TextField disabled={isSaving} name="description" label="Description" defaultValue={habit.description || ""} multiline minRows={2} fullWidth />
-              <Box sx={{ display: "grid", gridTemplateColumns: "96px minmax(0, 1fr)", gap: 1.5 }}>
-                <FormControl required disabled={isSaving} fullWidth>
+              <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1.5 }}>
+                <FormControl required disabled={isSaving} sx={{ flex: "0 0 6rem", maxWidth: "100%" }}>
                   <InputLabel id="habit-icon-label">Icon</InputLabel>
                   <Select
                     labelId="habit-icon-label" name="icon" label="Icon" defaultValue={habit.icon}
@@ -114,7 +116,7 @@ export default function EditHabitForm() {
                     ))}
                   </Select>
                 </FormControl>
-                <FormControl disabled={isSaving} fullWidth>
+                <FormControl disabled={isSaving} sx={{ flex: "1 1 9rem", minWidth: 0 }}>
                   <InputLabel id="habit-color-label">Color</InputLabel>
                   <Select labelId="habit-color-label" name="color" label="Color" defaultValue={habit.color || ""}
                     onChange={(e) => setDraftAppearance((draft) => ({ ...draft, color: e.target.value }))}
@@ -141,9 +143,9 @@ export default function EditHabitForm() {
 
           <Box component="section" aria-labelledby="habit-goal-heading" sx={{ ...glassPanelSx, p: { xs: 2, sm: 3 }, mb: 2.5 }}>
             <Typography id="habit-goal-heading" component="h2" variant="h6" sx={{ mb: 2.5 }}>Your goal</Typography>
-            <Box sx={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr) minmax(0, 1fr)", gap: 1.5 }}>
-              <TextField disabled={isSaving} name="frequency" label="Times" placeholder="3" type="number" inputProps={{ inputMode: "numeric" }} defaultValue={habit.frequency || ""} onChange={(e) => setDraftAppearance((draft) => ({ ...draft, frequency: e.target.value ? Number(e.target.value) : undefined }))} fullWidth />
-              <FormControl disabled={isSaving} fullWidth>
+            <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1.5 }}>
+              <TextField disabled={isSaving} name="frequency" label="Times" placeholder="3" type="number" inputProps={{ inputMode: "numeric" }} defaultValue={habit.frequency || ""} onChange={(e) => setDraftAppearance((draft) => ({ ...draft, frequency: e.target.value ? Number(e.target.value) : undefined }))} sx={{ flex: "1 1 7rem", minWidth: 0 }} />
+              <FormControl disabled={isSaving} sx={{ flex: "1 1 7rem", minWidth: 0 }}>
                 <InputLabel id="frequencyUnit">Per</InputLabel>
                 <Select name="frequencyUnit" label="Per" labelId="frequencyUnit" defaultValue={habit.frequencyUnit || ""} onChange={(e) => setDraftAppearance((draft) => ({ ...draft, frequencyUnit: (e.target.value || undefined) as Habit["frequencyUnit"] }))} fullWidth>
                   <MenuItem value="">None</MenuItem>
@@ -169,6 +171,7 @@ export default function EditHabitForm() {
               <Grid2 size={12}>
                 <TimePicker
                   desktopModeMediaQuery="@media (min-width: 600px) and (pointer: fine)"
+                  orientation="portrait"
                   value={notificationTime ? (() => {
                     const [hours, minutes] = notificationTime.split(":");
                     return dayjs.utc().set("hour", parseInt(hours)).set("minute", parseInt(minutes)).local();
@@ -197,11 +200,19 @@ export default function EditHabitForm() {
           </Box>
         </Box>
 
-        <Box sx={{ position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 1100, bgcolor: "background.paper", borderTop: "1px solid", borderColor: "divider", px: 2, pt: 1.5, pb: "calc(12px + env(safe-area-inset-bottom, 0px))" }}>
-          <Box sx={{ display: "flex", gap: 1.5, maxWidth: 568, mx: "auto" }}>
+        <Box ref={editorRef} sx={{ position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 1100, bgcolor: "background.paper", borderTop: "1px solid", borderColor: "divider", px: 2, pt: 1.5, pb: "calc(12px + env(safe-area-inset-bottom, 0px))" }}>
+          <Box sx={{ display: "flex", gap: 1.5, maxWidth: 568, mx: "auto", minHeight: isSaving ? "max(48px, calc(var(--hg-editor-height, 73px) - 25px - env(safe-area-inset-bottom, 0px)))" : undefined }}>
             <Button disabled={isSaving} variant="outlined" onClick={handleBack} sx={{ minHeight: 48, minWidth: 100 }}>Cancel</Button>
-            <Button loading={isSaving} loadingPosition="start" variant="contained" type="submit" sx={{ minHeight: 48, flex: 1, "&.MuiButton-loading": { color: "text.primary" } }}>
-              {isSaving ? "Saving…" : "Save changes"}
+            <Button loading={isSaving} loadingPosition="start" variant="contained" type="submit" sx={{
+              minHeight: 48, flex: 1, containerType: "inline-size",
+              "&.MuiButton-loading": { color: "text.primary" },
+              "@container (max-width: 10rem)": {
+                "& .MuiButton-startIcon": { display: "none" },
+                "& .MuiButton-loadingIndicator": { top: 12, left: "calc(50% - 8px)" },
+                "& .saving-label": { pt: 3 },
+              },
+            }}>
+              {isSaving ? <Box component="span" className="saving-label">Saving…</Box> : "Save changes"}
             </Button>
           </Box>
         </Box>
