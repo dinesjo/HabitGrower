@@ -24,6 +24,11 @@ import Main from "./components/Main";
 import { showSnackBar } from "./utils/helpers";
 import { isLocalMode } from "./data/mode";
 import { getBackend } from "./data/backend";
+import { installModuleLoadRecovery } from "./utils/moduleLoadRecovery";
+
+// Install before router loaders can start importing the backend.
+const removeLoadRecovery = installModuleLoadRecovery();
+import.meta.hot?.dispose(removeLoadRecovery);
 
 export const router = createBrowserRouter(
   createRoutesFromElements(

@@ -6,7 +6,9 @@
   "scripts": {
     "dev": "vite",
     "dev:local": "vite --mode local-demo",
+    "test": "node --test tests/*.test.mjs",
     "test:local": "node --test tests/local-backend.test.mjs",
+    "test:recovery": "node --test tests/module-load-recovery.test.mjs",
     "build": "tsc && vite build",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview"
