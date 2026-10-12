@@ -7,13 +7,14 @@ HabitGrower is a Progressive Web Application (PWA) built with React, TypeScript,
 ## Working Effectively
 
 ### Bootstrap and Dependencies
-- Install dependencies: `npm install` -- takes 2 minutes. NEVER CANCEL. Set timeout to 5+ minutes.
-  - Expect deprecation warnings and ~15 vulnerabilities (these are known and do not affect functionality)
+- Use Node 22 from `.node-version`; CI and Vercel use the same major version.
+- Install dependencies: `npm ci` -- takes 2 minutes. NEVER CANCEL. Set timeout to 5+ minutes.
+  - Run `npm audit` for current findings; do not assume dependency vulnerabilities are harmless.
   - All required dependencies will be installed successfully
 
 ### Building and Linting
 - Lint the code: `npm run lint` -- takes 2 seconds
-  - Expect TypeScript version warning (5.8.2 vs officially supported <5.6.0) - this is harmless
+  - ESLint 10 uses `eslint.config.js`; TypeScript ESLint 8 supports the installed compiler.
   - Must pass with 0 warnings before committing changes
 - Build for production: `npm run build` -- takes 25 seconds. NEVER CANCEL. Set timeout to 60+ seconds.
   - Compiles TypeScript and builds with Vite
@@ -138,18 +139,17 @@ Key Config Files:
 ## CI/CD Information
 - GitHub Actions automatically deploy to Firebase Hosting on main branch
 - Pull requests get preview deployments
-- Build command in CI: `npm ci && npm run build`
+- Validation command in CI: `npm ci && npm run lint && npm test && npm run build`
 - Deployment targets: Firebase Hosting (frontend) + Vercel (API functions)
 
 ## Known Issues and Limitations
 - **mkcert plugin fails in CI environments** - use the workaround documented above
-- **No automated test suite** - relies entirely on manual testing
-- **15 vulnerabilities in dependencies** - mostly dev dependencies, safe to ignore
-- **TypeScript version warning** - using newer TypeScript than officially supported by ESLint, but works fine
+- Automated tests cover local persistence, module recovery, API behavior, and developer tools compatibility. Run `npm test` alongside manual validation.
+- Check current dependency security with `npm audit`; see the README for scoped compatibility overrides.
 - **Large bundle size warnings** - normal for this app due to Firebase and MUI dependencies
 
 ## Important Notes for GitHub Copilot
-- This codebase has NO automated tests - always perform manual validation
+- Run the automated tests and manually validate affected user flows.
 - The development server requires the mkcert workaround in CI environments
 - Firebase configuration is public and safe to view/modify
 - Build times are fast (under 30 seconds) - don't skip the build step

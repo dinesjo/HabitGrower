@@ -32,7 +32,7 @@ import.meta.hot?.dispose(removeLoadRecovery);
 
 export const router = createBrowserRouter(
   createRoutesFromElements(
-    <Route element={<Root />} id="root" errorElement={<ErrorPage />}>
+    <Route element={<Root />} id="root" errorElement={<ErrorPage />} hydrateFallbackElement={<></>}>
       <Route path="/">
         <Route index element={<IndexView />} loader={requireAuth(IndexView.loader)} action={IndexView.action} />
         <Route path=":id" element={<SelectedHabit />} loader={requireAuth(SelectedHabit.loader)} />

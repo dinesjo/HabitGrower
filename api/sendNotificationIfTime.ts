@@ -1,11 +1,13 @@
 import dayjs from "dayjs";
-import admin from "firebase-admin";
+import { cert, getApps, initializeApp } from "firebase-admin/app";
+import { getDatabase } from "firebase-admin/database";
+import { FirebaseMessagingError, getMessaging, MessagingErrorCode } from "firebase-admin/messaging";
 import { Habit } from "../src/types/Habit";
 import { RTDBUser } from "../src/types/RTDBUser";
 
-if (!admin.apps.length) {
-  admin.initializeApp({
-    credential: admin.credential.cert({
+if (!getApps().length) {
+  initializeApp({
+    credential: cert({
       projectId: process.env.FIREBASE_PROJECT_ID,
       clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
       privateKey: process.env.FIREBASE_PRIVATE_KEY!.replace(/\\n/g, "\n"),
@@ -14,7 +16,7 @@ if (!admin.apps.length) {
   });
 }
 
-const db = admin.database();
+const db = getDatabase();
 
 export default async function handler(req, res) {
   if (req.method !== "POST") {
@@ -49,8 +51,7 @@ export default async function handler(req, res) {
 
           if (habit.notificationEnabled && (bypass || (!habitComplete && habit.notificationTime === currentTime))) {
             promises.push(
-              admin
-                .messaging()
+              getMessaging()
                 .send({
                   token: fcmToken,
                   data: {
@@ -63,7 +64,7 @@ export default async function handler(req, res) {
                   },
                 })
                 .catch(async (error) => {
-                  if (error.code === "messaging/registration-token-not-registered") {
+                  if (error instanceof FirebaseMessagingError && error.hasCode(MessagingErrorCode.REGISTRATION_TOKEN_NOT_REGISTERED)) {
                     console.warn("Removing invalid FCM token:", fcmToken);
                     await db.ref(`users/${userId}/fcmTokens/${fcmTokenKey}`).remove();
                   }
