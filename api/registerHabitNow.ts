@@ -1,5 +1,6 @@
 import dayjs from "dayjs";
-import admin from "firebase-admin";
+import { cert, getApps, initializeApp } from "firebase-admin/app";
+import { getDatabase } from "firebase-admin/database";
 
 const allowCors = (fn) => async (req, res) => {
   res.setHeader("Access-Control-Allow-Credentials", true);
@@ -16,9 +17,9 @@ const allowCors = (fn) => async (req, res) => {
   return await fn(req, res);
 };
 
-if (!admin.apps.length) {
-  admin.initializeApp({
-    credential: admin.credential.cert({
+if (!getApps().length) {
+  initializeApp({
+    credential: cert({
       projectId: process.env.FIREBASE_PROJECT_ID,
       clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
       privateKey: process.env.FIREBASE_PRIVATE_KEY!.replace(/\\n/g, "\n"),
@@ -27,7 +28,7 @@ if (!admin.apps.length) {
   });
 }
 
-const db = admin.database();
+const db = getDatabase();
 
 async function handler(req, res) {
   if (req.method !== "POST") {

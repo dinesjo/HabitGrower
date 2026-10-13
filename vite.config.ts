@@ -10,6 +10,8 @@ export default defineConfig(({ command, mode }) => {
   }
 
   return {
+    // Preserve Vite 5's browser support when upgrading the build tool.
+    build: { target: ["es2020", "edge88", "firefox78", "chrome87", "safari14"] },
     server: {
       host: localDemo ? "127.0.0.1" : true,
       ...(localDemo ? {
