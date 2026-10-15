@@ -26,6 +26,7 @@ import { useAtom } from "jotai";
 import type { FormEvent } from "react";
 import { Form, Link, useFetcher, useLoaderData, useNavigate, useNavigation, useRevalidator } from "react-router-dom";
 import HabitNotificationIndicator from "../../components/HabitNotificationIndicator";
+import HabitCheckInFeedback from "../../components/HabitCheckInFeedback";
 import LinearProgressWithLabel from "../../components/LinearProgressWithLabel";
 import { iconMap } from "../../constants/iconMap";
 import { fetchAllHabits, registerHabitsNow } from "../../services/habitsPersistance";
@@ -418,13 +419,12 @@ export default function IndexView() {
                                   </Typography>
                               }
                               secondary={
-                                <Box component="span" sx={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 1, mt: 0.5 }}>
-                                  <Typography component="span" variant="body2" color="text.secondary">{toFriendlyFrequency(habit)}</Typography>
-                                  <HabitNotificationIndicator habit={habit} />
-                                  {justSaved && <Typography component="span" sx={{ color: "primary.main", fontSize: "0.75rem", fontWeight: 700 }}>
-                                    <Check sx={{ fontSize: 14, verticalAlign: "text-bottom", mr: 0.25 }} />
-                                    {reachedGoal ? `${habit.frequencyUnit === "week" ? "Weekly" : habit.frequencyUnit === "month" ? "Monthly" : "Daily"} goal reached` : "Check-in added"}
-                                  </Typography>}
+                                <Box sx={{ mt: 0.5 }}>
+                                  <Box sx={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 1 }}>
+                                    <Typography component="span" variant="body2" color="text.secondary">{toFriendlyFrequency(habit)}</Typography>
+                                    <HabitNotificationIndicator habit={habit} />
+                                  </Box>
+                                  <HabitCheckInFeedback message={justSaved ? reachedGoal ? `${habit.frequencyUnit === "week" ? "Weekly" : habit.frequencyUnit === "month" ? "Monthly" : "Daily"} goal reached` : "Check-in added" : null} />
                                 </Box>
                               }
                             />

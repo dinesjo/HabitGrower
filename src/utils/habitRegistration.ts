@@ -2,7 +2,7 @@ import type { Habit } from "../types/Habit";
 
 export const REGISTRATION_FETCHER_KEY = "habit-registration";
 export const REGISTRATION_GRACE_MS = 1000;
-export const REGISTRATION_FEEDBACK_MS = 1800;
+export const REGISTRATION_FEEDBACK_MS = 2400;
 
 export interface RegistrationBatch {
   id: string;

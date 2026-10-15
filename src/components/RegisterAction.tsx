@@ -2,7 +2,7 @@ import { Check, Close } from "@mui/icons-material";
 import { Avatar, Box, Button, CircularProgress, Fade, IconButton, Tooltip, Typography } from "@mui/material";
 import { alpha } from "@mui/material/styles";
 import { visuallyHidden } from "@mui/utils";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { Habit } from "../types/Habit";
 import type { RegistrationState } from "../utils/habitRegistration";
 import { REGISTRATION_GRACE_MS } from "../utils/habitRegistration";
@@ -34,13 +34,20 @@ export default function RegisterAction({ habits, selected, registration, disable
     return () => window.clearTimeout(timeout);
   }, [saving, registration]);
 
-  const selectedHabits = ids.map((id) => habits.find((habit) => habit.id === id)).filter((habit): habit is Habit => !!habit);
+  const currentHabits = useMemo(() => ids.map((id) => habits.find((habit) => habit.id === id)).filter((habit): habit is Habit => !!habit), [habits, ids]);
+  // Preserve the icons and confirmation until the exit fade has finished.
+  const [lastContent, setLastContent] = useState({ habits: currentHabits, saved });
+  useEffect(() => {
+    if (visible) setLastContent({ habits: currentHabits, saved });
+  }, [visible, currentHabits, saved]);
+  const selectedHabits = visible ? currentHabits : lastContent.habits;
+  const confirmation = visible ? saved : lastContent.saved;
   const names = selectedHabits.map((habit) => habit.name).join(", ");
   const feedback = saved ? `Check-in added: ${names}` : saving ? slowSave ? `Still saving: ${names}` : `Adding: ${names}` : `Selected: ${names}`;
 
   return (
     <Box sx={{ position: "fixed", bottom: "calc(16px + env(safe-area-inset-bottom, 0px))", left: 0, width: "100%", display: "flex", justifyContent: "center", pointerEvents: "none", zIndex: 1000 }}>
-      <Fade in={visible} timeout={180}>
+      <Fade in={visible} timeout={{ enter: 180, exit: 240 }}>
         <Box
           ref={registerRef}
           aria-hidden={!visible}
@@ -108,13 +115,13 @@ export default function RegisterAction({ habits, selected, registration, disable
                 display: "flex", alignItems: "center", justifyContent: "center", gap: 0.75,
                 flexShrink: 0, minWidth: 112, minHeight: 44, px: 1.5,
                 borderRadius: "var(--hg-control-radius)",
-                bgcolor: saved ? "transparent" : "primary.main",
-                color: saved ? "primary.main" : "primary.contrastText",
+                bgcolor: confirmation ? "transparent" : "primary.main",
+                color: confirmation ? "primary.main" : "primary.contrastText",
                 transition: "background-color 180ms ease, color 180ms ease, transform 120ms ease",
               }}
             >
               {saving && slowSave ? <CircularProgress size={17} color="inherit" /> : <Check sx={{ fontSize: 20 }} />}
-              <Box component="span" sx={{ fontSize: "0.875rem", whiteSpace: "nowrap" }}>{saved ? "Added" : saving ? slowSave ? "Saving…" : "Adding…" : failed ? "Try again" : "Check in"}</Box>
+              <Box component="span" sx={{ fontSize: "0.875rem", whiteSpace: "nowrap" }}>{confirmation ? "Added" : saving ? slowSave ? "Saving…" : "Adding…" : failed ? "Try again" : "Check in"}</Box>
             </Box>
           </Button>
           <Box component="span" role={visible ? "status" : undefined} aria-live={visible ? "polite" : undefined} aria-atomic="true" sx={visuallyHidden}>{visible ? feedback : ""}</Box>
