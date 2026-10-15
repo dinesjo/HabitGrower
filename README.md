@@ -48,6 +48,8 @@ This mode is explicitly selected by the `dev:local` command (`local-demo` Vite m
 
 Run the backend regression checks with `npm run test:local`. They use Node's built-in test runner and the installed TypeScript compiler, with no extra packages or Firebase connections.
 
+For registration feedback testing, open `http://127.0.0.1:5174/?registrationDelay=3000` to simulate a three-second save, or add `&registrationFail=true` to reject the save without changing data. Use `&registrationFail=once` to reject the first save and allow a retry. These options only affect the local demo, cap the delay at ten seconds, and take effect when the page is loaded. Open the normal demo URL again to restore successful saves.
+
 Jotai developer tools are hidden by default. To enable them locally, run `VITE_SHOW_DEVTOOLS=true npm run dev:local` (or `npm run dev`). They are excluded from production builds.
 
 ## Dependency security and validation

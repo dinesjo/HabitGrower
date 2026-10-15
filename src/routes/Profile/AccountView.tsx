@@ -1,5 +1,6 @@
 import {
   Check,
+  ChevronLeft,
   DarkModeOutlined,
   DoNotDisturbOutlined,
   LogoutOutlined,
@@ -13,6 +14,7 @@ import {
   Button,
   Chip,
   Divider,
+  IconButton,
   LinearProgress,
   List,
   ListItem,
@@ -28,7 +30,7 @@ import type { AppUser } from "../../data/types";
 import { isLocalMode } from "../../data/mode";
 import { useAtom } from "jotai";
 import { ReactNode, Suspense } from "react";
-import { Form, redirect, useLoaderData, useNavigation } from "react-router-dom";
+import { Form, redirect, useLoaderData, useNavigate, useNavigation } from "react-router-dom";
 import { getUser } from "../../services/auth";
 import { notificationPermissionAtom, themeAtom, userDayStartsAtAtom, userWeekStartsAtMondayAtom } from "../../store";
 import { ambientPageSx, contentLayerSx, glassPanelSx, mobileTimePickerDialogSx, sectionLabelSx } from "../../styles/designLanguage";
@@ -46,16 +48,22 @@ AccountView.loader = loader;
 export default function AccountView() {
   const { user } = useLoaderData() as { user: AppUser };
   const navigation = useNavigation();
+  const navigate = useNavigate();
   const { displayName, email, photoURL } = user!;
 
   return (
     <Box
-      sx={{ ...ambientPageSx, display: "flex", flexDirection: "column", minHeight: ["100vh", "100dvh"] }}
+      sx={{ ...ambientPageSx, display: "flex", flexDirection: "column" }}
     >
-      <Box sx={{ ...contentLayerSx, px: 2, pt: 3, pb: 1, mx: "auto", maxWidth: 600, width: "100%" }}>
-        <Typography component="h1" variant="h4" sx={{ fontSize: "2rem", mb: 2.5 }}>
-          Profile
-        </Typography>
+      <Box sx={{ ...contentLayerSx, px: 2, pt: 2, pb: 1, mx: "auto", maxWidth: 600, width: "100%" }}>
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2.5 }}>
+          <IconButton aria-label="Back to habits" disabled={navigation.state === "submitting"} onClick={() => navigate("/")} sx={{ color: "text.secondary", "&:focus-visible": { outline: "2px solid", outlineColor: "primary.main", outlineOffset: 2 } }}>
+            <ChevronLeft />
+          </IconButton>
+          <Typography component="h1" variant="h4" sx={{ fontSize: "2rem" }}>
+            Settings
+          </Typography>
+        </Box>
         <Stack direction="row" alignItems="center" spacing={2}>
           <Avatar
             alt={displayName || "Profile picture"}

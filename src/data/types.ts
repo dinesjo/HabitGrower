@@ -21,7 +21,7 @@ export interface AppBackend {
   createEmptyHabit(): Promise<string>;
   updateHabit(id: string, habit: Habit): Promise<void>;
   deleteHabit(id: string): Promise<void>;
-  registerHabitsNow(ids: string[]): Promise<void>;
+  registerHabitsNow(ids: string[], timestamp?: string): Promise<void>;
   unregisterHabitByDate(id: string, date: string): Promise<void>;
   readPreference<K extends keyof Preferences>(key: K): Promise<Preferences[K]>;
   writePreference<K extends keyof Preferences>(key: K, value: Preferences[K]): Promise<void>;

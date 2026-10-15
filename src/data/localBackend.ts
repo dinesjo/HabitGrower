@@ -1,6 +1,7 @@
 import type { Habit } from "../types/Habit";
 import { createSampleHabits } from "./sampleHabits";
 import type { AppBackend, AppUser, Preferences } from "./types";
+import { registrationTimestamp } from "../utils/habitRegistration";
 
 export const LOCAL_STORAGE_KEY = "habitgrower.local-demo.v1";
 const demoUser: AppUser = { uid: "local-demo", displayName: "Local demo", email: "demo@example.test", photoURL: null };
@@ -27,7 +28,8 @@ function isDemoData(value: unknown): value is DemoData {
     (data.preferences.dayStartsAt === null || (typeof data.preferences.dayStartsAt === "string" && Number.isFinite(Date.parse(data.preferences.dayStartsAt))));
 }
 
-export function createLocalBackend(storage: Pick<Storage, "getItem" | "setItem">, now = () => new Date()): AppBackend {
+export function createLocalBackend(storage: Pick<Storage, "getItem" | "setItem">, now = () => new Date(), simulation: { delayMs?: number; fail?: boolean; failOnce?: boolean } = {}): AppBackend {
+  let hasFailedRegistration = false;
   function seed(): DemoData {
     return { version: 1, habits: createSampleHabits(now()), preferences: { dayStartsAt: null, weekStartsAtMonday: false } };
   }
@@ -98,10 +100,14 @@ export function createLocalBackend(storage: Pick<Storage, "getItem" | "setItem">
       data.habits = data.habits.filter((habit) => habit.id !== id);
       write(data);
     },
-    async registerHabitsNow(ids) {
+    async registerHabitsNow(ids, timestamp = registrationTimestamp(now())) {
+      if (simulation.delayMs) await new Promise((resolve) => setTimeout(resolve, simulation.delayMs));
+      if (simulation.fail || (simulation.failOnce && !hasFailedRegistration)) {
+        hasFailedRegistration = true;
+        throw new Error("Simulated registration failure.");
+      }
       const data = read();
-      const timestamp = now().toISOString().split(".")[0] + "Z";
-      for (const id of ids) {
+      for (const id of new Set(ids)) {
         const habit = find(data, id);
         habit.dates ??= {};
         habit.dates[timestamp] = Number(habit.dates[timestamp] || 0) + 1;

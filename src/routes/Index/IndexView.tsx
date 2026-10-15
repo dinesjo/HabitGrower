@@ -1,7 +1,7 @@
-import { Add, Check, Checklist } from "@mui/icons-material";
+import { Add, Check, Checklist, SettingsOutlined } from "@mui/icons-material";
 import {
+  Alert,
   Avatar,
-  AvatarGroup,
   Badge,
   Box,
   Button,
@@ -9,52 +9,65 @@ import {
   Chip,
   CircularProgress,
   Divider,
-  Fab,
   Fade,
+  IconButton,
   List,
   ListItem,
   ListItemAvatar,
   ListItemButton,
   ListItemText,
+  Tooltip,
   Typography,
   useTheme,
 } from "@mui/material";
 import { alpha } from "@mui/material/styles";
 import dayjs from "dayjs";
 import { useAtom } from "jotai";
-import { Form, redirect, useLoaderData, useNavigate, useNavigation } from "react-router-dom";
+import type { FormEvent } from "react";
+import { Form, Link, useFetcher, useLoaderData, useNavigate, useNavigation, useRevalidator } from "react-router-dom";
 import HabitNotificationIndicator from "../../components/HabitNotificationIndicator";
 import LinearProgressWithLabel from "../../components/LinearProgressWithLabel";
 import { iconMap } from "../../constants/iconMap";
 import { fetchAllHabits, registerHabitsNow } from "../../services/habitsPersistance";
-import { checkedHabitIdsAtom, store, userDayStartsAtAtom, userWeekStartsAtMondayAtom } from "../../store";
+import { checkedHabitIdsAtom, registrationAtom, store, userDayStartsAtAtom, userWeekStartsAtMondayAtom } from "../../store";
 import { FrequencyUnit } from "../../types/FrequencyUnit";
 import { Habit } from "../../types/Habit";
 import { getProgress, getProgressBuffer, showSnackBar, toFriendlyFrequency } from "../../utils/helpers";
 import { ambientPageSx, contentLayerSx, glassPanelSx } from "../../styles/designLanguage";
 import { alphaOrFallback, readableHabitColor } from "../../utils/color";
-import { useActionSurfaceRef } from "../../hooks/useActionSurfaceRef";
+import RegisterAction from "../../components/RegisterAction";
+import { createRegistrationBatch, projectRegistration, REGISTRATION_FETCHER_KEY, restoreRegistrationSelection } from "../../utils/habitRegistration";
 
 async function loader() {
-  return {
-    habits: await fetchAllHabits(),
-  };
+  try {
+    return { habits: await fetchAllHabits() };
+  } catch (error) {
+    const registration = store.get(registrationAtom);
+    if (!registration?.acknowledged) throw error;
+    // A failed refresh must not erase a confirmed check-in or offer a duplicate retry.
+    return { habits: projectRegistration(registration.batch.before, registration), refreshFailed: true };
+  }
 }
 
-// Register habits
 async function action({ request }: { request: Request }) {
-  // Get IDs from formData and register
   const formData = await request.formData();
-  const habitIds = formData.getAll("habitIds") as string[];
-  await registerHabitsNow(habitIds);
-
-  // Clear checked habits
-  store.set(checkedHabitIdsAtom, []);
-
-  // Show confirmation snackbar
-  showSnackBar(`Habit${habitIds.length > 1 ? "s" : ""} registered successfully!`, "success");
-
-  return redirect("/");
+  const registration = store.get(registrationAtom);
+  if (registration?.phase !== "saving" || formData.get("registrationId") !== registration.batch.id) {
+    return { ok: false };
+  }
+  const { batch } = registration;
+  try {
+    await registerHabitsNow(batch.habitIds, batch.timestamp);
+    if (store.get(registrationAtom)?.batch.id === batch.id) store.set(registrationAtom, { ...registration, acknowledged: true });
+    return { ok: true };
+  } catch (error) {
+    console.error("Habit registration failed", error);
+    if (store.get(registrationAtom)?.batch.id === batch.id) {
+      store.set(checkedHabitIdsAtom, restoreRegistrationSelection(store.get(checkedHabitIdsAtom), batch));
+      store.set(registrationAtom, { ...registration, phase: "error" });
+    }
+    return { ok: false };
+  }
 }
 
 IndexView.loader = loader;
@@ -62,13 +75,31 @@ IndexView.action = action;
 
 export default function IndexView() {
   const theme = useTheme();
-  const { habits } = useLoaderData() as { habits: Habit[] };
+  const { habits: loadedHabits, refreshFailed } = useLoaderData() as { habits: Habit[]; refreshFailed?: boolean };
+  const revalidator = useRevalidator();
+  const [registration] = useAtom(registrationAtom);
+  const registrationFetcher = useFetcher({ key: REGISTRATION_FETCHER_KEY });
+  const habits = projectRegistration(loadedHabits, registration);
+  const saving = registration?.phase === "saving";
   const navigation = useNavigation();
   const navigate = useNavigate();
   const [checkedHabitIds, setCheckedHabitIds] = useAtom(checkedHabitIdsAtom);
   const [userWeekStartsAtMonday] = useAtom(userWeekStartsAtMondayAtom);
   const [dayStartsAt] = useAtom(userDayStartsAtAtom);
-  const registerRef = useActionSurfaceRef("register");
+  const isBusy = saving || navigation.state === "submitting";
+
+  function handleRegister(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (store.get(registrationAtom)?.phase === "saving" || !checkedHabitIds.length) return;
+    let batch;
+    try { batch = createRegistrationBatch(habits, checkedHabitIds); }
+    catch { showSnackBar("A selected habit is no longer available. Reload your habit list.", "error"); return; }
+    store.set(registrationAtom, { phase: "saving", batch, acknowledged: false });
+    setCheckedHabitIds((ids) => ids.filter((id) => !batch.habitIds.includes(id)));
+    const data = new FormData();
+    data.set("registrationId", batch.id);
+    registrationFetcher.submit(data, { method: "post", action: "/?index", preventScrollReset: true });
+  }
 
   function sortHabitsCB(a: Habit, b: Habit) {
     // If progress is not 100, go first
@@ -101,14 +132,16 @@ export default function IndexView() {
     return a.name.localeCompare(b.name);
   }
 
-  const sortedHabits = habits ? habits.sort(sortHabitsCB) : [];
+  const sortingHabits = saving ? registration.batch.before : habits;
+  const order = new Map([...sortingHabits].sort(sortHabitsCB).map((habit, index) => [habit.id, index]));
+  const sortedHabits = [...habits].sort((a, b) => (order.get(a.id) ?? Infinity) - (order.get(b.id) ?? Infinity));
 
   let greeting = "Good ";
   if (dayjs().hour() < 10) greeting += "morning! 🌅";
   else if (dayjs().hour() < 19) greeting += "day! ☀️";
   else greeting += "evening! 🌙";
 
-  const firstCompletedHabitId = sortedHabits.find((habit) => {
+  const firstCompletedHabitId = [...sortingHabits].sort(sortHabitsCB).find((habit) => {
     const progress = getProgress(habit, false, userWeekStartsAtMonday);
     return progress === 100;
   })?.id;
@@ -137,7 +170,7 @@ export default function IndexView() {
             pb: 2.5,
           }}
         >
-          <Box sx={contentLayerSx}>
+          <Box sx={{ ...contentLayerSx, mx: "auto", maxWidth: 552 }}>
             <Typography
               variant="caption"
               align="center"
@@ -153,17 +186,32 @@ export default function IndexView() {
             >
               {dayjs().format("dddd, MMMM D")}
             </Typography>
-            <Typography
-              variant="h5"
-              component="h1"
-              align="center"
-              sx={{
-                fontWeight: 700,
-                color: (theme) => (theme.palette.mode === "dark" ? "#e8f5e9" : "#1b5e20"),
-              }}
-            >
-              {greeting}
-            </Typography>
+            <Box sx={{ display: "grid", gridTemplateColumns: "44px minmax(0, 1fr) 44px", alignItems: "center", gap: 0.5 }}>
+              <Box aria-hidden="true" />
+              <Typography
+                variant="h5"
+                component="h1"
+                align="center"
+                sx={{
+                  fontWeight: 700,
+                  fontSize: "clamp(1.25rem, 6vw, 1.5rem)",
+                  color: (theme) => (theme.palette.mode === "dark" ? "#e8f5e9" : "#1b5e20"),
+                }}
+              >
+                {greeting}
+              </Typography>
+              <Tooltip title="Settings">
+                <IconButton
+                  component={Link}
+                  to="/profile"
+                  aria-label="Settings"
+                  disabled={isBusy}
+                  sx={{ color: "text.secondary", "&:focus-visible": { outline: "2px solid", outlineColor: "primary.main", outlineOffset: 2 } }}
+                >
+                  <SettingsOutlined sx={{ fontSize: 22 }} />
+                </IconButton>
+              </Tooltip>
+            </Box>
             <Typography
               variant="body2"
               align="center"
@@ -183,9 +231,12 @@ export default function IndexView() {
 
       {/* ── Content ── */}
       <Box sx={{ ...contentLayerSx, pt: 1.5, px: 1, mx: "auto", maxWidth: 600 }}>
+        {refreshFailed && <Alert severity="warning" sx={{ mx: 1, mb: 1.5 }} action={<Button onClick={() => revalidator.revalidate()} disabled={revalidator.state !== "idle"}>Refresh</Button>}>
+          Your check-ins are saved, but the list couldn't refresh.
+        </Alert>}
         {sortedHabits.length > 0 ? (
-          <Form method="post" preventScrollReset>
-            {allHabitsCompleted && (
+          <form onSubmit={handleRegister}>
+            {allHabitsCompleted && !saving && (
               <Fade in timeout={160}>
                 <Box
                   sx={{
@@ -206,10 +257,13 @@ export default function IndexView() {
                 </Box>
               </Fade>
             )}
-            <List disablePadding sx={{ px: 1, pt: 1, pb: "calc(var(--hg-register-height, 58px) + 22px)" }}>
+            <List disablePadding sx={{ px: 1, pt: 1 }}>
               {sortedHabits.map((habit) => {
                 const isChecked = checkedHabitIds.includes(habit.id);
+                const isPending = saving && registration.batch.habitIds.includes(habit.id);
+                const justSaved = registration?.phase === "saved" && registration.batch.habitIds.includes(habit.id);
                 const registeredProgress = getProgress(habit, false, userWeekStartsAtMonday);
+                const reachedGoal = justSaved && registeredProgress === 100 && getProgress(registration.batch.before.find((item) => item.id === habit.id) || habit, false, userWeekStartsAtMonday) < 100;
                 const previewProgress = getProgress(habit, isChecked, userWeekStartsAtMonday);
                 const progressBuffer = getProgressBuffer(habit, dayStartsAt, userWeekStartsAtMonday);
                 const progressColor = readableHabitColor(habit.color, theme.palette.background.paper, theme.palette.primary.main, 3);
@@ -226,7 +280,7 @@ export default function IndexView() {
                         ...glassPanelSx,
                         borderRadius: "var(--hg-radius)",
                         borderColor: (theme) =>
-                          alpha(theme.palette.primary.main, isChecked ? 0.7 : theme.palette.mode === "dark" ? 0.25 : 0.14),
+                          alpha(theme.palette.primary.main, isChecked || isPending ? 0.7 : theme.palette.mode === "dark" ? 0.25 : 0.14),
                         overflow: "visible",
                         transition: "border-color 150ms ease",
                         ...(registeredProgress === 100
@@ -248,12 +302,11 @@ export default function IndexView() {
                         disablePadding
                         secondaryAction={
                           <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", width: 48 }}>
-                            {isChecked && <input type="hidden" name="habitIds" value={habit.id} />}
                             <Checkbox
                               disableRipple
-                              disabled={navigation.state === "submitting"}
-                              inputProps={{ "aria-label": `Select ${habit.name} for registration` }}
-                              checked={isChecked}
+                              disabled={navigation.state === "submitting" || isPending}
+                              inputProps={{ "aria-label": isPending ? `Saving check-in for ${habit.name}` : `Select ${habit.name} for registration` }}
+                              checked={isChecked || isPending}
                               onClick={() =>
                                 setCheckedHabitIds((prev) =>
                                   isChecked ? prev.filter((id) => id !== habit.id) : [...prev, habit.id]
@@ -281,8 +334,8 @@ export default function IndexView() {
                         sx={{ borderRadius: "inherit", ".MuiListItemButton-root": { borderRadius: "inherit" } }}
                       >
                         <ListItemButton
-                          disabled={navigation.state === "submitting"}
-                          aria-label={`View ${habit.name}, ${Math.round(previewProgress)}% complete${isChecked ? ", selected, not saved yet" : ""}`}
+                          disabled={isBusy}
+                          aria-label={`View ${habit.name}, ${Math.round(previewProgress)}% complete${isPending ? ", saving" : isChecked ? ", selected, not saved yet" : ""}`}
                           sx={{
                             py: 1.5,
                             px: 2,
@@ -368,6 +421,10 @@ export default function IndexView() {
                                 <Box component="span" sx={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 1, mt: 0.5 }}>
                                   <Typography component="span" variant="body2" color="text.secondary">{toFriendlyFrequency(habit)}</Typography>
                                   <HabitNotificationIndicator habit={habit} />
+                                  {justSaved && <Typography component="span" sx={{ color: "primary.main", fontSize: "0.75rem", fontWeight: 700 }}>
+                                    <Check sx={{ fontSize: 14, verticalAlign: "text-bottom", mr: 0.25 }} />
+                                    {reachedGoal ? `${habit.frequencyUnit === "week" ? "Weekly" : habit.frequencyUnit === "month" ? "Monthly" : "Daily"} goal reached` : "Check-in added"}
+                                  </Typography>}
                                 </Box>
                               }
                             />
@@ -405,99 +462,14 @@ export default function IndexView() {
                 );
               })}
             </List>
-            {/* Register FAB */}
-            <Box
-              sx={{
-                position: "fixed",
-                width: "100%",
-                display: "flex",
-                justifyContent: "center",
-                bottom: "calc(var(--hg-dock-height, 66px) + 30px + env(safe-area-inset-bottom, 0px))",
-                "@media (display-mode: standalone)": {
-                  bottom: "calc(var(--hg-dock-height, 66px) + 38px + env(safe-area-inset-bottom, 0px))",
-                },
-                left: 0,
-                zIndex: 1000,
-                pointerEvents: "none",
-              }}
-            >
-              <Fade in={checkedHabitIds.length > 0} timeout={180}>
-                <Fab
-                  ref={registerRef}
-                  variant="extended"
-                  color="primary"
-                  type="submit"
-                  aria-label={navigation.state === "submitting" ? "Registering habits" : `Register ${checkedHabitIds.length} ${checkedHabitIds.length === 1 ? "habit" : "habits"}`}
-                  aria-busy={navigation.state === "submitting"}
-                  disabled={!checkedHabitIds.length || navigation.state === "submitting"}
-                  sx={{
-                    borderRadius: 999,
-                    pointerEvents: "auto",
-                    px: 2,
-                    minHeight: navigation.state === "submitting" ? "max(58px, var(--hg-register-height, 58px))" : 58,
-                    height: "auto",
-                    py: 1.25,
-                    flexWrap: "wrap",
-                    width: "calc(100% - 48px)",
-                    maxWidth: 320,
-                    gap: 1,
-                    color: "#f7fbf7",
-                    background: "linear-gradient(125deg, #285624 0%, #396f2d 55%, #4b7b2f 100%)",
-                    border: "1px solid rgba(255,255,255,0.2)",
-                    boxShadow: (theme) => theme.palette.mode === "dark"
-                      ? "0 4px 16px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.12)"
-                      : "0 4px 16px rgba(39,87,32,0.18), inset 0 1px 0 rgba(255,255,255,0.16)",
-                    fontSize: "1rem",
-                    fontWeight: 700,
-                    "@media (hover: hover) and (pointer: fine)": {
-                      "&:hover": { background: "linear-gradient(125deg, #2d6028 0%, #3c742e 55%, #4b7b2f 100%)" },
-                    },
-                    "&.Mui-disabled": {
-                      color: checkedHabitIds.length ? "#f7fbf7" : "transparent",
-                      background: checkedHabitIds.length ? "linear-gradient(125deg, #285624 0%, #396f2d 55%, #4b7b2f 100%)" : "none",
-                      borderColor: checkedHabitIds.length ? "rgba(255,255,255,0.2)" : "transparent",
-                      ...(!checkedHabitIds.length && { boxShadow: "none" }),
-                    },
-                  }}
-                >
-                  {navigation.state === "submitting" ? (
-                    <>
-                      <CircularProgress size={20} sx={{ color: "inherit" }} />
-                      <Box component="span" sx={{ overflowWrap: "anywhere" }}>Registering…</Box>
-                    </>
-                  ) : (
-                    <>
-                      <Check sx={{ fontSize: 20 }} />
-                      <Box component="span" sx={{ display: "flex", alignItems: "center", gap: 1, flex: 1 }}>
-                        Register
-                        <Box component="span" sx={{ borderRadius: 999, bgcolor: "rgba(0,0,0,0.18)", minWidth: 24, px: 0.5, lineHeight: "24px", fontSize: "0.8rem", fontVariantNumeric: "tabular-nums" }}>
-                          {checkedHabitIds.length}
-                        </Box>
-                      </Box>
-                      <AvatarGroup
-                        aria-hidden="true"
-                        max={4}
-                        sx={{
-                          minWidth: 0,
-                          flexShrink: 0,
-                          justifyContent: "flex-start",
-                          "& .MuiAvatar-root": { width: 26, height: 26, fontSize: "0.75rem", border: "2px solid #386c2c" },
-                          "& .MuiSvgIcon-root": { fontSize: 16 },
-                          "@keyframes habitEnter": { from: { opacity: 0, transform: "translateY(3px)" }, to: { opacity: 1, transform: "none" } },
-                          "@media (prefers-reduced-motion: reduce)": { "& .MuiAvatar-root": { animation: "none" } },
-                        }}
-                      >
-                        {checkedHabitIds.map((id) => {
-                          const habit = habits.find((habit) => habit.id === id);
-                          return habit ? <Avatar key={id} sx={{ bgcolor: habit.color || "primary.main", color: (theme) => theme.palette.getContrastText(alphaOrFallback(habit.color, theme.palette.primary.main, 1)), animation: "habitEnter 160ms ease-out" }}>{iconMap[habit.icon]}</Avatar> : null;
-                        })}
-                      </AvatarGroup>
-                    </>
-                  )}
-                </Fab>
-              </Fade>
-            </Box>
-          </Form>
+            <RegisterAction
+              habits={habits}
+              selected={checkedHabitIds}
+              registration={registration}
+              disabled={navigation.state === "submitting"}
+              onDismissError={() => store.set(registrationAtom, null)}
+            />
+          </form>
         ) : (
           <Fade in timeout={160}>
             <Box
@@ -538,6 +510,22 @@ export default function IndexView() {
               </Form>
             </Box>
           </Fade>
+        )}
+        {sortedHabits.length > 0 && (
+          <Box sx={{ mx: 1, mt: 0.5, display: "flex", justifyContent: "flex-end" }}>
+            <Form action="/new-habit" method="post">
+              <Button
+                type="submit"
+                variant="outlined"
+                aria-label="Add new habit"
+                startIcon={<Add />}
+                disabled={isBusy}
+                loading={navigation.state === "submitting" && navigation.formAction?.endsWith("/new-habit")}
+              >
+                New habit
+              </Button>
+            </Form>
+          </Box>
         )}
       </Box>
 

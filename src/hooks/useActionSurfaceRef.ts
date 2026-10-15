@@ -1,6 +1,6 @@
 import { createContext, useContext, useLayoutEffect, useState } from "react";
 
-export type ActionSurface = "dock" | "register" | "editor";
+export type ActionSurface = "register" | "editor";
 type UpdateActionHeight = (surface: ActionSurface, height: number) => void;
 
 export const ActionHeightContext = createContext<UpdateActionHeight | undefined>(undefined);

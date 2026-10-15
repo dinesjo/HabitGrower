@@ -9,11 +9,11 @@ import ts from "typescript";
 // Compile the actual backend, with no browser, Firebase SDK, or test dependencies.
 const directory = await mkdtemp(join(tmpdir(), "habitgrower-local-test-"));
 after(() => rm(directory, { recursive: true, force: true }));
-for (const name of ["sampleHabits", "localBackend"]) {
-  const source = await readFile(new URL(`../src/data/${name}.ts`, import.meta.url), "utf8");
+for (const name of ["sampleHabits", "localBackend", "habitRegistration"]) {
+  const source = await readFile(new URL(`../src/${name === "habitRegistration" ? "utils" : "data"}/${name}.ts`, import.meta.url), "utf8");
   const compiled = ts.transpileModule(source, {
     compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.ES2022 },
-  }).outputText.replace('"./sampleHabits"', '"./sampleHabits.mjs"');
+  }).outputText.replace('"./sampleHabits"', '"./sampleHabits.mjs"').replace('"../utils/habitRegistration"', '"./habitRegistration.mjs"');
   await writeFile(join(directory, `${name}.mjs`), compiled);
 }
 const { createLocalBackend, LOCAL_STORAGE_KEY } = await import(pathToFileURL(join(directory, "localBackend.mjs")));
@@ -76,6 +76,28 @@ test("invalid check-in batches do not partially save", async () => {
   const before = await backend.fetchAllHabits();
   await assert.rejects(backend.registerHabitsNow(["demo-reading", "missing"]), /Habit not found/);
   assert.deepEqual(await backend.fetchAllHabits(), before);
+});
+
+test("registration failures leave all habits unchanged and an explicit click timestamp survives the save", async () => {
+  const { backend, storage } = setup();
+  const before = await backend.fetchAllHabits();
+  const rejecting = createLocalBackend(storage, () => timestamp, { fail: true });
+  await assert.rejects(rejecting.registerHabitsNow(["demo-reading", "demo-stretching"]), /Simulated registration failure/);
+  assert.deepEqual(await backend.fetchAllHabits(), before);
+  const clickedAt = "2026-10-11T11:59:59Z";
+  await backend.registerHabitsNow(["demo-stretching", "demo-stretching"], clickedAt);
+  assert.equal((await backend.fetchHabitById("demo-stretching")).dates[clickedAt], 1);
+});
+
+test("a rejected batch can be retried without adding either check-in twice", async () => {
+  const { backend, storage } = setup();
+  const before = await backend.fetchAllHabits();
+  const flaky = createLocalBackend(storage, () => timestamp, { failOnce: true });
+  const ids = ["demo-stretching", "demo-reading"];
+  await assert.rejects(flaky.registerHabitsNow(ids), /Simulated/);
+  assert.deepEqual(await backend.fetchAllHabits(), before);
+  await flaky.registerHabitsNow(ids);
+  for (const id of ids) assert.equal((await backend.fetchHabitById(id)).dates["2026-10-11T12:00:00Z"], 1);
 });
 
 test("deleting every habit stays empty after reload until explicit reset", async () => {

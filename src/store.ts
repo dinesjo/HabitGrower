@@ -5,6 +5,7 @@ import { atomWithStorage } from "jotai/utils";
 import { getBackend } from "./data/backend";
 import { isLocalMode } from "./data/mode";
 import { fetchFcmToken } from "./services/fetchFcmToken";
+import type { RegistrationState } from "./utils/habitRegistration";
 
 export const store = getDefaultStore();
 export const themeAtom = atomWithStorage<PaletteMode>("theme", "dark");
@@ -50,6 +51,7 @@ export const snackbarOpenAtom = atom<boolean>((get) => !!get(snackbarMessageAtom
 
 /* Habits */
 export const checkedHabitIdsAtom = atom<string[]>([]);
+export const registrationAtom = atom<RegistrationState | null>(null);
 
 /* Notifications */
 // Safely get notification permission, fallback to 'default' if Notification API not available

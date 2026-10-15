@@ -1,7 +1,7 @@
-import dayjs from "dayjs";
-import { get, push, ref, set } from "firebase/database";
+import { get, increment, push, ref, set, update } from "firebase/database";
 import { database, getUser } from "../firebase";
 import { Habit } from "../types/Habit";
+import { registrationTimestamp } from "../utils/habitRegistration";
 
 async function getUserIdOrThrow(): Promise<string> {
   const user = await getUser();
@@ -71,18 +71,17 @@ export async function deleteHabit(id: string): Promise<void> {
   await set(habitRef, null);
 }
 
-export async function registerHabitsNow(ids: string[]): Promise<void> {
+export async function registerHabitsNow(ids: string[], timestamp = registrationTimestamp()): Promise<void> {
   const userId = await getUserIdOrThrow();
-
-  const today = dayjs();
-  const todayString = today.toISOString().split(".")[0] + "Z"; // +Z for UTC
-
-  for (const id of ids) {
-    const todayRef = ref(database, `users/${userId}/habits/${id}/dates/${todayString}`);
-    // Increase the count of the habit for today
-    const currentCount = await get(todayRef).then((snapshot) => Number(snapshot.val()) || 0);
-    await set(todayRef, currentCount + 1);
-  }
+  const entries = await Promise.all([...new Set(ids)].map(async (id) => {
+    const path = `${id}/dates/${timestamp}`;
+    const current = (await get(ref(database, `users/${userId}/habits/${path}`))).val();
+    // Preserve old boolean history entries; numeric counts use server increments.
+    return [path, typeof current === "boolean" ? Number(current) + 1 : increment(1)];
+  }));
+  if (!entries.length) return;
+  // One atomic write prevents a failed batch from recording only some habits.
+  await update(ref(database, `users/${userId}/habits`), Object.fromEntries(entries));
 }
 
 export async function unregisterHabitByDate(id: string, date: string): Promise<void> {

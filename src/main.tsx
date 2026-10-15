@@ -16,7 +16,7 @@ import {
   unregisterHabitByDate,
   updateHabit,
 } from "./services/habitsPersistance";
-import { checkedHabitIdsAtom, store, userDayStartsAtAtom, userWeekStartsAtMondayAtom } from "./store";
+import { checkedHabitIdsAtom, registrationAtom, store, userDayStartsAtAtom, userWeekStartsAtMondayAtom } from "./store";
 import { Habit } from "./types/Habit";
 import { requireAuth } from "./utils/requireAuth";
 import { Button } from "@mui/material";
@@ -110,6 +110,7 @@ export const router = createBrowserRouter(
         {isLocalMode && <Route path="reset-demo" action={async () => {
           await (await getBackend()).resetDemoData();
           store.set(checkedHabitIdsAtom, []);
+          store.set(registrationAtom, null);
           await store.set(userDayStartsAtAtom, null);
           await store.set(userWeekStartsAtMondayAtom, false);
           showSnackBar("Sample habits and schedule restored.", "success");
