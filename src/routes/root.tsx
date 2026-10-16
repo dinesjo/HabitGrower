@@ -98,7 +98,7 @@ export default function Root() {
           "& > main > *": {
             flex: 1,
             paddingBottom: outletBottomPadding,
-            transition: location.pathname === "/" ? "padding-bottom 280ms ease" : undefined,
+            transition: location.pathname === "/" ? "padding-bottom 160ms ease" : undefined,
             boxSizing: "border-box",
           },
         }}

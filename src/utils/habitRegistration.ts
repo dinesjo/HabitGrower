@@ -1,8 +1,8 @@
 import type { Habit } from "../types/Habit";
 
 export const REGISTRATION_FETCHER_KEY = "habit-registration";
-export const REGISTRATION_GRACE_MS = 1000;
-export const REGISTRATION_FEEDBACK_MS = 2400;
+export const REGISTRATION_LOADING_DELAY_MS = 1000;
+export const REGISTRATION_FEEDBACK_MS = 900;
 
 export interface RegistrationBatch {
   id: string;
@@ -56,6 +56,6 @@ export function restoreRegistrationSelection(selected: string[], batch: Registra
   return [...new Set([...batch.habitIds, ...selected])];
 }
 
-export function registrationGraceRemaining(batch: RegistrationBatch, now = Date.now()) {
-  return Math.max(0, REGISTRATION_GRACE_MS - (now - batch.startedAt));
+export function registrationLoadingDelayRemaining(batch: RegistrationBatch, now = Date.now()) {
+  return Math.max(0, REGISTRATION_LOADING_DELAY_MS - (now - batch.startedAt));
 }

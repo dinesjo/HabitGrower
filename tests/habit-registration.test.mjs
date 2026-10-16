@@ -71,10 +71,10 @@ test("a second check-in at the same timestamp adds exactly one and newer server 
   assert.equal(helpers.projectRegistration(newer, { phase: "saved", batch, acknowledged: true })[0].dates[timestamp], 4);
 });
 
-test("the grace period is bounded without postponing the backend write", () => {
+test("the slow-save indicator has a bounded delay", () => {
   const batch = helpers.createRegistrationBatch(habits, ["a"], now);
-  assert.equal(helpers.registrationGraceRemaining(batch, now.getTime() + 250), 750);
-  assert.equal(helpers.registrationGraceRemaining(batch, now.getTime() + 1500), 0);
+  assert.equal(helpers.registrationLoadingDelayRemaining(batch, now.getTime() + 250), 750);
+  assert.equal(helpers.registrationLoadingDelayRemaining(batch, now.getTime() + 1500), 0);
   assert.throws(() => helpers.createRegistrationBatch(habits, [], now), /Select/);
   assert.throws(() => helpers.createRegistrationBatch(habits, ["missing"], now), /no longer available/);
 });

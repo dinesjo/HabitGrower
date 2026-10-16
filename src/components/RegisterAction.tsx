@@ -5,7 +5,7 @@ import { visuallyHidden } from "@mui/utils";
 import { useEffect, useMemo, useState } from "react";
 import type { Habit } from "../types/Habit";
 import type { RegistrationState } from "../utils/habitRegistration";
-import { REGISTRATION_GRACE_MS } from "../utils/habitRegistration";
+import { registrationLoadingDelayRemaining } from "../utils/habitRegistration";
 import { useActionSurfaceRef } from "../hooks/useActionSurfaceRef";
 import { iconMap } from "../constants/iconMap";
 import { alphaOrFallback } from "../utils/color";
@@ -21,6 +21,7 @@ interface Props {
 export default function RegisterAction({ habits, selected, registration, disabled, onDismissError }: Props) {
   const registerRef = useActionSurfaceRef("register");
   const saving = registration?.phase === "saving";
+  const savingBatch = saving ? registration.batch : null;
   const saved = registration?.phase === "saved" && !selected.length;
   const failed = registration?.phase === "error" && selected.length > 0;
   const ids = saving || saved ? registration.batch.habitIds : selected;
@@ -29,10 +30,10 @@ export default function RegisterAction({ habits, selected, registration, disable
 
   useEffect(() => {
     setSlowSave(false);
-    if (!saving || registration.acknowledged) return;
-    const timeout = window.setTimeout(() => setSlowSave(true), Math.max(0, REGISTRATION_GRACE_MS - (Date.now() - registration.batch.startedAt)));
+    if (!savingBatch) return;
+    const timeout = window.setTimeout(() => setSlowSave(true), registrationLoadingDelayRemaining(savingBatch));
     return () => window.clearTimeout(timeout);
-  }, [saving, registration]);
+  }, [savingBatch]);
 
   const currentHabits = useMemo(() => ids.map((id) => habits.find((habit) => habit.id === id)).filter((habit): habit is Habit => !!habit), [habits, ids]);
   // Preserve the icons and confirmation until the exit fade has finished.
@@ -47,7 +48,7 @@ export default function RegisterAction({ habits, selected, registration, disable
 
   return (
     <Box sx={{ position: "fixed", bottom: "calc(16px + env(safe-area-inset-bottom, 0px))", left: 0, width: "100%", display: "flex", justifyContent: "center", pointerEvents: "none", zIndex: 1000 }}>
-      <Fade in={visible} timeout={{ enter: 180, exit: 240 }}>
+      <Fade in={visible} timeout={{ enter: 120, exit: 160 }}>
         <Box
           ref={registerRef}
           aria-hidden={!visible}
@@ -121,7 +122,7 @@ export default function RegisterAction({ habits, selected, registration, disable
               }}
             >
               {saving && slowSave ? <CircularProgress size={17} color="inherit" /> : <Check sx={{ fontSize: 20 }} />}
-              <Box component="span" sx={{ fontSize: "0.875rem", whiteSpace: "nowrap" }}>{confirmation ? "Added" : saving ? slowSave ? "Saving…" : "Adding…" : failed ? "Try again" : "Check in"}</Box>
+              <Box component="span" sx={{ fontSize: "0.875rem", whiteSpace: "nowrap" }}>{confirmation ? "Added" : saving && slowSave ? "Saving…" : failed ? "Try again" : "Check in"}</Box>
             </Box>
           </Button>
           <Box component="span" role={visible ? "status" : undefined} aria-live={visible ? "polite" : undefined} aria-atomic="true" sx={visuallyHidden}>{visible ? feedback : ""}</Box>

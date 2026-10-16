@@ -420,11 +420,12 @@ export default function IndexView() {
                               }
                               secondary={
                                 <Box sx={{ mt: 0.5 }}>
-                                  <Box sx={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 1 }}>
-                                    <Typography component="span" variant="body2" color="text.secondary">{toFriendlyFrequency(habit)}</Typography>
-                                    <HabitNotificationIndicator habit={habit} />
-                                  </Box>
-                                  <HabitCheckInFeedback message={justSaved ? reachedGoal ? `${habit.frequencyUnit === "week" ? "Weekly" : habit.frequencyUnit === "month" ? "Monthly" : "Daily"} goal reached` : "Check-in added" : null} />
+                                  <HabitCheckInFeedback message={justSaved ? reachedGoal ? `${habit.frequencyUnit === "week" ? "Weekly" : habit.frequencyUnit === "month" ? "Monthly" : "Daily"} goal reached` : "Check-in added" : null}>
+                                    <Box sx={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 1 }}>
+                                      <Typography component="span" variant="body2" color="text.secondary">{toFriendlyFrequency(habit)}</Typography>
+                                      <HabitNotificationIndicator habit={habit} />
+                                    </Box>
+                                  </HabitCheckInFeedback>
                                 </Box>
                               }
                             />
