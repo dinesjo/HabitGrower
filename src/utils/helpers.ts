@@ -1,6 +1,7 @@
 import dayjs from "dayjs";
 import { snackbarActionAtom, snackbarMessageAtom, snackbarSeverityAtom, store } from "../store";
 import { Habit } from "../types/Habit";
+import { countRegistrations } from "./habitHistory";
 
 /**
  * Converts a string to a friendly format by adding spaces before capital letters and capitalizing the first letter.
@@ -88,15 +89,7 @@ export function getProgress(habit: Habit, isChecked: boolean, userWeekStartsAtMo
   const frequencyUnitStart = getFrequencyUnitStart(habit.frequencyUnit, userWeekStartsAtMonday);
 
   // Count the number of completed dates after the chosen start date
-  let completedDates = Number(isChecked);
-  if (habit.dates) {
-    completedDates += Object.keys(habit.dates).reduce((acc, date) => {
-      if (dayjs(date).isAfter(frequencyUnitStart)) {
-        return acc + Number(habit.dates![date]); // habit.dates![date] is true or 1
-      }
-      return acc;
-    }, 0);
-  }
+  const completedDates = Number(isChecked) + countRegistrations(habit.dates, (date) => dayjs(date).isAfter(frequencyUnitStart));
 
   return Math.min((completedDates / habit.frequency) * 100, 100);
 }
