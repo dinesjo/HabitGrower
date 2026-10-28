@@ -4,6 +4,7 @@ import {
   Box,
   Button,
   FormControl,
+  FormHelperText,
   Grid2,
   InputLabel,
   MenuItem,
@@ -16,7 +17,7 @@ import { TimePicker } from "@mui/x-date-pickers/TimePicker";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import { useAtom } from "jotai";
-import { useState } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import { Form, LoaderFunctionArgs, useActionData, useLoaderData, useNavigate, useNavigation, useParams } from "react-router-dom";
 import { frequencyUnits } from "../constants/frequencyUnits";
 import { iconMap } from "../constants/iconMap";
@@ -29,6 +30,8 @@ import { isLocalMode } from "../data/mode";
 import { alphaOrFallback } from "../utils/color";
 import DeleteHabitWithConfirm from "./DeleteHabitWithConfirm";
 import { useActionSurfaceRef } from "../hooks/useActionSurfaceRef";
+import { validateHabitGoal, type HabitGoalErrors } from "../utils/habitGoal";
+import type { HabitEditorActionData } from "../routes/habitEditorActions";
 
 dayjs.extend(utc);
 
@@ -59,7 +62,10 @@ export default function EditHabitForm() {
   const previewHabit = { ...habit, ...draftAppearance, name: draftAppearance.name || "Your habit" };
   const { id } = useParams();
   const isCreating = !id;
-  const actionData = useActionData() as { error?: string } | undefined;
+  const actionData = useActionData() as HabitEditorActionData | undefined;
+  const [goalErrors, setGoalErrors] = useState<HabitGoalErrors | null>(null);
+  const fieldErrors = goalErrors ?? actionData?.fieldErrors;
+  const formRef = useRef<HTMLFormElement>(null);
   const navigate = useNavigate();
   const navigation = useNavigation();
   const isSaving = navigation.state === "submitting";
@@ -83,9 +89,25 @@ export default function EditHabitForm() {
     navigate(isCreating ? "/" : `/${id}`);
   };
 
+  useEffect(() => {
+    if (fieldErrors?.frequency || fieldErrors?.frequencyUnit) {
+      const field = formRef.current?.querySelector<HTMLElement>('[aria-invalid="true"]');
+      field?.focus({ preventScroll: true });
+      field?.closest("[data-goal-field]")?.scrollIntoView({ block: "nearest" });
+    }
+  }, [fieldErrors]);
+
+  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    const form = event.currentTarget;
+    const data = new FormData(form);
+    const errors = validateHabitGoal({ frequency: data.get("frequency"), frequencyUnit: data.get("frequencyUnit") });
+    setGoalErrors(errors);
+    if (Object.keys(errors).length || !form.reportValidity()) event.preventDefault();
+  }
+
   return (
     <Box sx={{ ...ambientPageSx, minHeight: ["100vh", "100dvh"] }}>
-      <Form autoComplete="off" method="post" aria-busy={isSaving}>
+      <Form ref={formRef} autoComplete="off" method="post" noValidate onSubmit={handleSubmit} aria-busy={isSaving}>
         <Box sx={{ ...contentLayerSx, px: 2, pt: 2, pb: 3, maxWidth: 600, mx: "auto" }}>
           <Button startIcon={<ChevronLeft />} disabled={isSaving} onClick={handleBack} sx={{ ml: -1, mb: 1, minHeight: 44 }}>
             {isCreating ? "Back to habits" : "Back to habit"}
@@ -148,13 +170,20 @@ export default function EditHabitForm() {
           <Box component="section" aria-labelledby="habit-goal-heading" sx={{ ...glassPanelSx, p: { xs: 2, sm: 3 }, mb: 2.5 }}>
             <Typography id="habit-goal-heading" component="h2" variant="h6" sx={{ mb: 2.5 }}>Your goal</Typography>
             <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1.5 }}>
-              <TextField disabled={isSaving} name="frequency" label="Times" placeholder="3" type="number" inputProps={{ inputMode: "numeric" }} defaultValue={habit.frequency || ""} onChange={(e) => setDraftAppearance((draft) => ({ ...draft, frequency: e.target.value ? Number(e.target.value) : undefined }))} sx={{ flex: "1 1 7rem", minWidth: 0 }} />
-              <FormControl disabled={isSaving} sx={{ flex: "1 1 7rem", minWidth: 0 }}>
+              <TextField data-goal-field disabled={isSaving} name="frequency" label="Times" placeholder="3" type="number" inputProps={{ inputMode: "numeric", min: 1, step: 1, max: Number.MAX_SAFE_INTEGER }} error={!!fieldErrors?.frequency} helperText={fieldErrors?.frequency} defaultValue={habit.frequency ?? ""} onChange={(e) => {
+                setDraftAppearance((draft) => ({ ...draft, frequency: e.target.value ? Number(e.target.value) : undefined }));
+                setGoalErrors({});
+              }} sx={{ flex: "1 1 7rem", minWidth: 0 }} />
+              <FormControl data-goal-field disabled={isSaving} error={!!fieldErrors?.frequencyUnit} sx={{ flex: "1 1 7rem", minWidth: 0 }}>
                 <InputLabel id="frequencyUnit">Per</InputLabel>
-                <Select name="frequencyUnit" label="Per" labelId="frequencyUnit" defaultValue={habit.frequencyUnit || ""} onChange={(e) => setDraftAppearance((draft) => ({ ...draft, frequencyUnit: (e.target.value || undefined) as Habit["frequencyUnit"] }))} fullWidth>
+                <Select name="frequencyUnit" label="Per" labelId="frequencyUnit" aria-describedby={fieldErrors?.frequencyUnit ? "habit-frequency-unit-error" : undefined} defaultValue={habit.frequencyUnit || ""} onChange={(e) => {
+                  setDraftAppearance((draft) => ({ ...draft, frequencyUnit: (e.target.value || undefined) as Habit["frequencyUnit"] }));
+                  setGoalErrors({});
+                }} fullWidth>
                   <MenuItem value="">None</MenuItem>
                   {frequencyUnits.map((unit) => <MenuItem key={unit} value={unit}>{toFriendlyString(unit)}</MenuItem>)}
                 </Select>
+                {fieldErrors?.frequencyUnit && <FormHelperText id="habit-frequency-unit-error">{fieldErrors.frequencyUnit}</FormHelperText>}
               </FormControl>
             </Box>
           </Box>

@@ -2,6 +2,7 @@ import type { Habit } from "../types/Habit";
 import { createSampleHabits } from "./sampleHabits";
 import type { AppBackend, AppUser, Preferences } from "./types";
 import { registrationTimestamp } from "../utils/habitRegistration";
+import { normalizeHabitGoal } from "../utils/habitGoal";
 
 export const LOCAL_STORAGE_KEY = "habitgrower.local-demo.v1";
 const demoUser: AppUser = { uid: "local-demo", displayName: "Local demo", email: "demo@example.test", photoURL: null };
@@ -75,25 +76,24 @@ export function createLocalBackend(storage: Pick<Storage, "getItem" | "setItem">
     async fetchAllHabits() { return read().habits; },
     async fetchHabitById(id) { return read().habits.find((habit) => habit.id === id); },
     async createHabit(habit) {
+      const goal = normalizeHabitGoal(habit);
       const data = read();
       const id = crypto.randomUUID();
       data.habits.push({
         ...habit, id, notificationEnabled: false,
-        frequency: habit.frequency ? Number(habit.frequency) : undefined,
-        frequencyUnit: ["day", "week", "month"].includes(habit.frequencyUnit || "") ? habit.frequencyUnit : undefined,
+        ...goal,
       });
       write(data);
       return id;
     },
     async updateHabit(id, habit) {
+      const goal = normalizeHabitGoal(habit);
       const data = read();
       const index = data.habits.findIndex((existing) => existing.id === id);
       // Upsert also supports restoring a deleted habit through Undo.
       const updated: Habit = {
         ...(index >= 0 ? data.habits[index] : {}), ...habit, id, notificationEnabled: false,
-        // HTML forms submit numeric inputs and an unset frequency unit as strings.
-        frequency: habit.frequency ? Number(habit.frequency) : undefined,
-        frequencyUnit: ["day", "week", "month"].includes(habit.frequencyUnit || "") ? habit.frequencyUnit : undefined,
+        ...goal,
       };
       if (index < 0) data.habits.push(updated);
       else data.habits[index] = updated;

@@ -9,11 +9,13 @@ import ts from "typescript";
 // Compile the actual backend, with no browser, Firebase SDK, or test dependencies.
 const directory = await mkdtemp(join(tmpdir(), "habitgrower-local-test-"));
 after(() => rm(directory, { recursive: true, force: true }));
-for (const name of ["sampleHabits", "localBackend", "habitRegistration"]) {
-  const source = await readFile(new URL(`../src/${name === "habitRegistration" ? "utils" : "data"}/${name}.ts`, import.meta.url), "utf8");
+for (const name of ["sampleHabits", "localBackend", "habitRegistration", "habitGoal"]) {
+  const source = await readFile(new URL(`../src/${["habitRegistration", "habitGoal"].includes(name) ? "utils" : "data"}/${name}.ts`, import.meta.url), "utf8");
   const compiled = ts.transpileModule(source, {
     compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.ES2022 },
-  }).outputText.replace('"./sampleHabits"', '"./sampleHabits.mjs"').replace('"../utils/habitRegistration"', '"./habitRegistration.mjs"');
+  }).outputText.replace('"./sampleHabits"', '"./sampleHabits.mjs"')
+    .replace('"../utils/habitRegistration"', '"./habitRegistration.mjs"')
+    .replace('"../utils/habitGoal"', '"./habitGoal.mjs"');
   await writeFile(join(directory, `${name}.mjs`), compiled);
 }
 const { createLocalBackend, LOCAL_STORAGE_KEY } = await import(pathToFileURL(join(directory, "localBackend.mjs")));
@@ -92,6 +94,26 @@ test("creation persists completed details once and a failed save leaves no place
   fail = true;
   await assert.rejects(recording.createHabit(details), /Could not save/);
   assert.deepEqual(await backend.fetchAllHabits(), before);
+});
+
+test("local persistence rejects invalid goals without changing data and supports clearing a goal", async () => {
+  const { backend } = setup();
+  const before = await backend.fetchAllHabits();
+  for (const goal of [
+    { frequency: -1, frequencyUnit: "day" }, { frequency: 0, frequencyUnit: "day" },
+    { frequency: 1.5, frequencyUnit: "week" }, { frequency: 2 }, { frequencyUnit: "month" },
+  ]) {
+    const habit = { id: "demo-reading", name: "Read", icon: "AutoStories", ...goal };
+    await assert.rejects(backend.createHabit(habit), /Check your habit goal/);
+    await assert.rejects(backend.updateHabit(habit.id, habit), /Check your habit goal/);
+    assert.deepEqual(await backend.fetchAllHabits(), before);
+  }
+  const habit = await backend.fetchHabitById("demo-water");
+  await backend.updateHabit(habit.id, { ...habit, frequency: "", frequencyUnit: "" });
+  const saved = await backend.fetchHabitById(habit.id);
+  assert.equal(saved.frequency, undefined);
+  assert.equal(saved.frequencyUnit, undefined);
+  assert.deepEqual(saved.dates, habit.dates);
 });
 
 test("invalid check-in batches do not partially save", async () => {
