@@ -74,10 +74,14 @@ export function createLocalBackend(storage: Pick<Storage, "getItem" | "setItem">
     async signOut() { /* The local demo has no authenticated session. */ },
     async fetchAllHabits() { return read().habits; },
     async fetchHabitById(id) { return read().habits.find((habit) => habit.id === id); },
-    async createEmptyHabit() {
+    async createHabit(habit) {
       const data = read();
       const id = crypto.randomUUID();
-      data.habits.push({ id, name: "New Habit", icon: "Default", notificationEnabled: false });
+      data.habits.push({
+        ...habit, id, notificationEnabled: false,
+        frequency: habit.frequency ? Number(habit.frequency) : undefined,
+        frequencyUnit: ["day", "week", "month"].includes(habit.frequencyUnit || "") ? habit.frequencyUnit : undefined,
+      });
       write(data);
       return id;
     },

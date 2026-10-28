@@ -31,8 +31,8 @@ export function ref(_, path) { return path; }
 export function increment(delta) { return { ".sv": { increment: delta } }; }
 export async function get(path) { calls.push(["get", path]); if (path === readFailure) throw new Error("read rejected"); return { val: () => values.get(path) ?? null }; }
 export async function update(path, payload) { calls.push(["update", path, payload]); if (writeFailure) throw writeFailure; }
-export function push() { throw new Error("Unexpected push"); }
-export function set() { throw new Error("Registration must use one atomic update"); }
+export function push(path) { calls.push(["push", path]); return { key: "new-habit", path: path + "/new-habit" }; }
+export async function set(path, payload) { calls.push(["set", path, payload]); if (writeFailure) throw writeFailure; }
 `);
 
 const helpers = await import(pathToFileURL(join(directory, "habitRegistration.mjs")));
@@ -86,6 +86,7 @@ test("Firebase registration writes the entire deduplicated batch once, with nume
   await firebase.registerHabitsNow(["a", "b", "a"], timestamp);
   const writes = db.calls.filter(([operation]) => operation === "update");
   assert.equal(writes.length, 1);
+  assert.equal(db.calls.filter(([operation]) => operation === "set").length, 0);
   assert.equal(db.calls.filter(([operation]) => operation === "get").length, 2);
   assert.deepEqual(writes[0], ["update", "users/test-user/habits", {
     [`a/dates/${timestamp}`]: { ".sv": { increment: 1 } },
@@ -102,4 +103,18 @@ test("a failed read prevents every write and a rejected atomic write propagates 
   db.failWrite();
   await assert.rejects(firebase.registerHabitsNow(["a", "b"], timestamp), /write rejected/);
   assert.equal(db.calls.filter(([operation]) => operation === "update").length, 1);
+});
+
+test("Firebase creation saves complete details in one write and propagates write failure", async () => {
+  db.reset();
+  const details = { name: "Read", icon: "AutoStories", frequency: 2, frequencyUnit: "week" };
+  assert.equal(await firebase.createHabit(details), "new-habit");
+  assert.deepEqual(db.calls, [
+    ["push", "users/test-user/habits"],
+    ["set", { key: "new-habit", path: "users/test-user/habits/new-habit" }, details],
+  ]);
+  db.reset();
+  db.failWrite();
+  await assert.rejects(firebase.createHabit(details), /write rejected/);
+  assert.equal(db.calls.filter(([operation]) => operation === "set").length, 1);
 });

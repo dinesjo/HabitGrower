@@ -1,5 +1,6 @@
 import { ChevronLeft, Notifications } from "@mui/icons-material";
 import {
+  Alert,
   Box,
   Button,
   FormControl,
@@ -16,7 +17,7 @@ import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import { useAtom } from "jotai";
 import { useState } from "react";
-import { Form, LoaderFunctionArgs, useLoaderData, useNavigate, useNavigation, useParams } from "react-router-dom";
+import { Form, LoaderFunctionArgs, useActionData, useLoaderData, useNavigate, useNavigation, useParams } from "react-router-dom";
 import { frequencyUnits } from "../constants/frequencyUnits";
 import { iconMap } from "../constants/iconMap";
 import { fetchHabitById } from "../services/habitsPersistance";
@@ -57,6 +58,8 @@ export default function EditHabitForm() {
   }));
   const previewHabit = { ...habit, ...draftAppearance, name: draftAppearance.name || "Your habit" };
   const { id } = useParams();
+  const isCreating = !id;
+  const actionData = useActionData() as { error?: string } | undefined;
   const navigate = useNavigate();
   const navigation = useNavigation();
   const isSaving = navigation.state === "submitting";
@@ -77,7 +80,7 @@ export default function EditHabitForm() {
   ] as const;
 
   const handleBack = () => {
-    navigate(`/${id}`);
+    navigate(isCreating ? "/" : `/${id}`);
   };
 
   return (
@@ -85,13 +88,14 @@ export default function EditHabitForm() {
       <Form autoComplete="off" method="post" aria-busy={isSaving}>
         <Box sx={{ ...contentLayerSx, px: 2, pt: 2, pb: 3, maxWidth: 600, mx: "auto" }}>
           <Button startIcon={<ChevronLeft />} disabled={isSaving} onClick={handleBack} sx={{ ml: -1, mb: 1, minHeight: 44 }}>
-            Back to habit
+            {isCreating ? "Back to habits" : "Back to habit"}
           </Button>
-          <Typography component="h1" variant="h4" sx={{ fontSize: "2rem", mb: 0.5 }}>Edit habit</Typography>
-          <Typography color="text.secondary" sx={{ overflowWrap: "anywhere" }}>{habit.name}</Typography>
+          <Typography component="h1" variant="h4" sx={{ fontSize: "2rem", mb: 0.5 }}>{isCreating ? "Create habit" : "Edit habit"}</Typography>
+          <Typography color="text.secondary" sx={{ overflowWrap: "anywhere" }}>{isCreating ? "Choose something small you want to do regularly." : habit.name}</Typography>
         </Box>
 
         <Box sx={{ ...contentLayerSx, px: 2, maxWidth: 600, mx: "auto", pb: 3 }}>
+          {actionData?.error && <Alert severity="error" sx={{ mb: 2.5 }}>{actionData.error}</Alert>}
           <Box component="section" aria-labelledby="habit-details-heading" sx={{ ...glassPanelSx, p: { xs: 2, sm: 3 }, mb: 2.5 }}>
             <Typography id="habit-details-heading" component="h2" variant="h6" sx={{ mb: 2.5 }}>Your habit</Typography>
             <Box sx={{ display: "grid", gap: 2.5 }}>
@@ -195,9 +199,9 @@ export default function EditHabitForm() {
               )}
             </Grid2>
           </Box>
-          <Box sx={{ pt: 0.5, "& .MuiButton-root": { minHeight: 44, borderRadius: "var(--hg-control-radius)" } }}>
-            <DeleteHabitWithConfirm habit={habit} id={id!} />
-          </Box>
+          {id && <Box sx={{ pt: 0.5, "& .MuiButton-root": { minHeight: 44, borderRadius: "var(--hg-control-radius)" } }}>
+            <DeleteHabitWithConfirm habit={habit} id={id} />
+          </Box>}
         </Box>
 
         <Box ref={editorRef} sx={{ position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 1100, bgcolor: "background.paper", borderTop: "1px solid", borderColor: "divider", px: 2, pt: 1.5, pb: "calc(12px + env(safe-area-inset-bottom, 0px))" }}>
@@ -212,7 +216,7 @@ export default function EditHabitForm() {
                 "& .saving-label": { pt: 3 },
               },
             }}>
-              {isSaving ? <Box component="span" className="saving-label">Saving…</Box> : "Save changes"}
+              {isSaving ? <Box component="span" className="saving-label">Saving…</Box> : isCreating ? "Create habit" : "Save changes"}
             </Button>
           </Box>
         </Box>

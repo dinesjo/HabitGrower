@@ -24,7 +24,7 @@ import { alpha } from "@mui/material/styles";
 import dayjs from "dayjs";
 import { useAtom } from "jotai";
 import type { FormEvent } from "react";
-import { Form, Link, useFetcher, useLoaderData, useNavigate, useNavigation, useRevalidator } from "react-router-dom";
+import { Link, useFetcher, useLoaderData, useNavigate, useNavigation, useRevalidator } from "react-router-dom";
 import HabitNotificationIndicator from "../../components/HabitNotificationIndicator";
 import HabitCheckInFeedback from "../../components/HabitCheckInFeedback";
 import LinearProgressWithLabel from "../../components/LinearProgressWithLabel";
@@ -504,28 +504,24 @@ export default function IndexView() {
               <Typography variant="body2" color="text.secondary" sx={{ mb: 3, lineHeight: 1.6 }}>
                 Choose something small you want to do regularly.
               </Typography>
-              <Form action="/new-habit" method="post">
-                <Button type="submit" variant="contained" startIcon={<Add />} size="large" loading={navigation.state === "submitting"}>
-                  Create your first habit
-                </Button>
-              </Form>
+              <Button component={Link} to="/new-habit" variant="contained" startIcon={<Add />} size="large">
+                Create your first habit
+              </Button>
             </Box>
           </Fade>
         )}
         {sortedHabits.length > 0 && (
           <Box sx={{ mx: 1, mt: 0.5, display: "flex", justifyContent: "flex-end" }}>
-            <Form action="/new-habit" method="post">
-              <Button
-                type="submit"
-                variant="outlined"
-                aria-label="Add new habit"
-                startIcon={<Add />}
-                disabled={isBusy}
-                loading={navigation.state === "submitting" && navigation.formAction?.endsWith("/new-habit")}
-              >
-                New habit
-              </Button>
-            </Form>
+            <Button
+              component={Link}
+              to="/new-habit"
+              variant="outlined"
+              aria-label="Add new habit"
+              startIcon={<Add />}
+              disabled={isBusy}
+            >
+              New habit
+            </Button>
           </Box>
         )}
       </Box>

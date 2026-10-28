@@ -43,7 +43,7 @@ test("starts with a synthetic user and fresh daily, weekly, monthly, and empty h
 
 test("CRUD, reload persistence, safe copies, notification isolation, and delete undo", async () => {
   const { backend, storage } = setup();
-  const id = await backend.createEmptyHabit();
+  const id = await backend.createHabit({ name: "Initial habit", icon: "Default" });
   const habit = await backend.fetchHabitById(id);
   await backend.updateHabit(id, { ...habit, name: "Test habit", frequency: "2", frequencyUnit: "day", notificationEnabled: true });
   const reloaded = createLocalBackend(storage, () => timestamp);
@@ -69,6 +69,29 @@ test("repeated check-ins at the same timestamp increment; history removal persis
   assert.equal((await backend.fetchHabitById(id)).dates[date], 2);
   await backend.unregisterHabitByDate(id, date);
   assert.equal((await createLocalBackend(storage).fetchHabitById(id)).dates[date], undefined);
+});
+
+test("creation persists completed details once and a failed save leaves no placeholder", async () => {
+  const { backend, storage } = setup();
+  await backend.fetchAllHabits();
+  const writes = [];
+  let fail = false;
+  const recording = createLocalBackend({
+    ...storage,
+    setItem(key, value) {
+      writes.push(value);
+      if (fail) throw new Error("quota");
+      storage.setItem(key, value);
+    },
+  });
+  const details = { name: "Read", icon: "AutoStories", frequency: 2, frequencyUnit: "week" };
+  const id = await recording.createHabit(details);
+  assert.equal(writes.length, 1);
+  assert.deepEqual(await backend.fetchHabitById(id), { ...details, id, notificationEnabled: false });
+  const before = await backend.fetchAllHabits();
+  fail = true;
+  await assert.rejects(recording.createHabit(details), /Could not save/);
+  assert.deepEqual(await backend.fetchAllHabits(), before);
 });
 
 test("invalid check-in batches do not partially save", async () => {
@@ -128,7 +151,7 @@ test("malformed data recovers; browser storage failures stay local and fail expl
   const unavailable = createLocalBackend({ getItem() { throw new Error("denied"); }, setItem() {} });
   await assert.rejects(unavailable.fetchAllHabits(), /Could not read local demo data/);
   const full = createLocalBackend({ getItem() { return null; }, setItem() { throw new Error("quota"); } });
-  await assert.rejects(full.createEmptyHabit(), /Could not save local demo data/);
+  await assert.rejects(full.createHabit({ name: "Test", icon: "Default" }), /Could not save local demo data/);
 });
 
 test("the app's eager import graph contains no Firebase SDK or initializer", async () => {

@@ -43,16 +43,11 @@ export async function fetchHabitById(id: string): Promise<Habit | undefined> {
 /**
  * @returns the id of the new habit
  */
-export async function createEmptyHabit(): Promise<string> {
+export async function createHabit(habit: Omit<Habit, "id">): Promise<string> {
   const userId = await getUserIdOrThrow();
-  // Push a new habit to the database
+  // Allocate the ID locally, then save the completed form in one write.
   const newHabitRef = push(ref(database, `users/${userId}/habits`));
-  await set(newHabitRef, {
-    name: "New Habit",
-    icon: "Default",
-    notificationEnabled: false,
-    notificationTime: null,
-  });
+  await set(newHabitRef, habit);
   return newHabitRef.key!; // can't be null since not root
 }
 
