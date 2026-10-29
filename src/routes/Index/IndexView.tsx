@@ -29,6 +29,7 @@ import { Link, useFetcher, useLoaderData, useNavigate, useNavigation, useRevalid
 import HabitNotificationIndicator from "../../components/HabitNotificationIndicator";
 import HabitCheckInFeedback from "../../components/HabitCheckInFeedback";
 import HabitMotionList from "../../components/HabitMotionList";
+import GrowthIllustration from "../../components/GrowthIllustration";
 import LinearProgressWithLabel from "../../components/LinearProgressWithLabel";
 import { iconMap } from "../../constants/iconMap";
 import { fetchAllHabits, registerHabitsNow } from "../../services/habitsPersistance";
@@ -253,15 +254,20 @@ export default function IndexView() {
                     px: 2,
                     mx: 1,
                     mb: 2,
-                    textAlign: "center",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 1.5,
                   }}
                 >
-                  <Typography variant="h6" sx={{ fontWeight: 600, mb: 0.5, color: "primary.main" }}>
-                    🎉 Congratulations!
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    You've completed all your habits for now
-                  </Typography>
+                  <GrowthIllustration variant="flourish" />
+                  <Box sx={{ minWidth: 0 }}>
+                    <Typography component="h2" variant="h6" sx={{ fontWeight: 600, mb: 0.5, color: "primary.main", overflowWrap: "anywhere" }}>
+                      Congratulations!
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      You've completed all your habits for now
+                    </Typography>
+                  </Box>
                 </Box>
               </Fade>
             )}
@@ -498,19 +504,8 @@ export default function IndexView() {
                 py: 6,
               }}
             >
-              <Box
-                sx={{
-                  width: 72,
-                  height: 72,
-                  borderRadius: "var(--hg-radius)",
-                  bgcolor: "action.hover",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  mb: 2.5,
-                }}
-              >
-                <Checklist sx={{ fontSize: 36, color: "primary.main" }} />
+              <Box sx={{ mb: 2.5 }}>
+                <GrowthIllustration variant="seedling" />
               </Box>
               <Typography component="h2" variant="h6" color="text.primary" sx={{ mb: 1, fontWeight: 600 }}>
                 No habits yet
