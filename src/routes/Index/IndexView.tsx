@@ -11,22 +11,25 @@ import {
   Divider,
   Fade,
   IconButton,
-  List,
   ListItem,
   ListItemAvatar,
   ListItemButton,
   ListItemText,
   Tooltip,
   Typography,
+  useMediaQuery,
   useTheme,
 } from "@mui/material";
 import { alpha } from "@mui/material/styles";
 import dayjs from "dayjs";
 import { useAtom } from "jotai";
+import * as m from "motion/react-m";
 import type { FormEvent } from "react";
-import { Form, Link, useFetcher, useLoaderData, useNavigate, useNavigation, useRevalidator } from "react-router-dom";
+import { Link, useFetcher, useLoaderData, useNavigate, useNavigation, useRevalidator } from "react-router-dom";
 import HabitNotificationIndicator from "../../components/HabitNotificationIndicator";
 import HabitCheckInFeedback from "../../components/HabitCheckInFeedback";
+import HabitMotionList from "../../components/HabitMotionList";
+import GrowthIllustration from "../../components/GrowthIllustration";
 import LinearProgressWithLabel from "../../components/LinearProgressWithLabel";
 import { iconMap } from "../../constants/iconMap";
 import { fetchAllHabits, registerHabitsNow } from "../../services/habitsPersistance";
@@ -38,6 +41,8 @@ import { ambientPageSx, contentLayerSx, glassPanelSx } from "../../styles/design
 import { alphaOrFallback, readableHabitColor } from "../../utils/color";
 import RegisterAction from "../../components/RegisterAction";
 import { createRegistrationBatch, projectRegistration, REGISTRATION_FETCHER_KEY, restoreRegistrationSelection } from "../../utils/habitRegistration";
+
+const listTransition = { layout: { duration: 0.24, ease: [0.22, 1, 0.36, 1] as const } };
 
 async function loader() {
   try {
@@ -76,6 +81,7 @@ IndexView.action = action;
 
 export default function IndexView() {
   const theme = useTheme();
+  const reducedMotion = useMediaQuery("(prefers-reduced-motion: reduce)");
   const { habits: loadedHabits, refreshFailed } = useLoaderData() as { habits: Habit[]; refreshFailed?: boolean };
   const revalidator = useRevalidator();
   const [registration] = useAtom(registrationAtom);
@@ -147,10 +153,12 @@ export default function IndexView() {
     return progress === 100;
   })?.id;
 
-  const allHabitsCompleted = sortedHabits.every((habit) => {
+  const allHabitsCompleted = sortingHabits.every((habit) => {
     const progress = getProgress(habit, false, userWeekStartsAtMonday);
     return progress === 100;
   });
+  // Selection and pending progress should not trigger list movement.
+  const listLayout = JSON.stringify([sortedHabits.map((habit) => habit.id), firstCompletedHabitId, allHabitsCompleted]);
 
   return (
     <Box sx={{ ...ambientPageSx, pb: 10 }}>
@@ -237,7 +245,7 @@ export default function IndexView() {
         </Alert>}
         {sortedHabits.length > 0 ? (
           <form onSubmit={handleRegister}>
-            {allHabitsCompleted && !saving && (
+            {allHabitsCompleted && (
               <Fade in timeout={160}>
                 <Box
                   sx={{
@@ -246,20 +254,25 @@ export default function IndexView() {
                     px: 2,
                     mx: 1,
                     mb: 2,
-                    textAlign: "center",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 1.5,
                   }}
                 >
-                  <Typography variant="h6" sx={{ fontWeight: 600, mb: 0.5, color: "primary.main" }}>
-                    🎉 Congratulations!
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    You've completed all your habits for now
-                  </Typography>
+                  <GrowthIllustration variant="flourish" />
+                  <Box sx={{ minWidth: 0 }}>
+                    <Typography component="h2" variant="h6" sx={{ fontWeight: 600, mb: 0.5, color: "primary.main", overflowWrap: "anywhere" }}>
+                      Congratulations!
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      You've completed all your habits for now
+                    </Typography>
+                  </Box>
                 </Box>
               </Fade>
             )}
-            <List disablePadding sx={{ px: 1, pt: 1 }}>
-              {sortedHabits.map((habit) => {
+            <HabitMotionList>
+              {sortedHabits.flatMap((habit) => {
                 const isChecked = checkedHabitIds.includes(habit.id);
                 const isPending = saving && registration.batch.habitIds.includes(habit.id);
                 const justSaved = registration?.phase === "saved" && registration.batch.habitIds.includes(habit.id);
@@ -269,13 +282,19 @@ export default function IndexView() {
                 const progressBuffer = getProgressBuffer(habit, dayStartsAt, userWeekStartsAtMonday);
                 const progressColor = readableHabitColor(habit.color, theme.palette.background.paper, theme.palette.primary.main, 3);
                 const isFirstCompletedHabit = habit.id === firstCompletedHabitId;
-                return (
-                  <Box key={habit.id} sx={{ mb: 1.5 }}>
-                    {isFirstCompletedHabit && (
-                      <Divider sx={{ my: 2 }}>
+                return [
+                  isFirstCompletedHabit && (
+                    <Box component={m.li} key="completed-divider" role="presentation" initial={false}
+                      layout={reducedMotion ? false : "position"} layoutDependency={listLayout} transition={listTransition}
+                      sx={{ listStyle: "none", position: "relative" }}>
+                      <Divider component="div" sx={{ my: 2 }}>
                         <Chip label="Completed" size="small" icon={<Checklist />} color="success" variant="filled" />
                       </Divider>
-                    )}{" "}
+                    </Box>
+                  ),
+                  <Box component={m.li} key={habit.id} initial={false}
+                    layout={reducedMotion ? false : "position"} layoutDependency={listLayout} transition={listTransition}
+                    sx={{ listStyle: "none", position: "relative", zIndex: justSaved ? 1 : 0, mb: 1.5 }}>
                     <Box
                       sx={{
                         ...glassPanelSx,
@@ -300,6 +319,7 @@ export default function IndexView() {
                       }}
                     >
                       <ListItem
+                        component="div"
                         disablePadding
                         secondaryAction={
                           <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", width: 48 }}>
@@ -459,10 +479,10 @@ export default function IndexView() {
                         </ListItemButton>
                       </ListItem>
                     </Box>
-                  </Box>
-                );
+                  </Box>,
+                ];
               })}
-            </List>
+            </HabitMotionList>
             <RegisterAction
               habits={habits}
               selected={checkedHabitIds}
@@ -484,19 +504,8 @@ export default function IndexView() {
                 py: 6,
               }}
             >
-              <Box
-                sx={{
-                  width: 72,
-                  height: 72,
-                  borderRadius: "var(--hg-radius)",
-                  bgcolor: "action.hover",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  mb: 2.5,
-                }}
-              >
-                <Checklist sx={{ fontSize: 36, color: "primary.main" }} />
+              <Box sx={{ mb: 2.5 }}>
+                <GrowthIllustration variant="seedling" />
               </Box>
               <Typography component="h2" variant="h6" color="text.primary" sx={{ mb: 1, fontWeight: 600 }}>
                 No habits yet
@@ -504,28 +513,24 @@ export default function IndexView() {
               <Typography variant="body2" color="text.secondary" sx={{ mb: 3, lineHeight: 1.6 }}>
                 Choose something small you want to do regularly.
               </Typography>
-              <Form action="/new-habit" method="post">
-                <Button type="submit" variant="contained" startIcon={<Add />} size="large" loading={navigation.state === "submitting"}>
-                  Create your first habit
-                </Button>
-              </Form>
+              <Button component={Link} to="/new-habit" variant="contained" startIcon={<Add />} size="large">
+                Create your first habit
+              </Button>
             </Box>
           </Fade>
         )}
         {sortedHabits.length > 0 && (
           <Box sx={{ mx: 1, mt: 0.5, display: "flex", justifyContent: "flex-end" }}>
-            <Form action="/new-habit" method="post">
-              <Button
-                type="submit"
-                variant="outlined"
-                aria-label="Add new habit"
-                startIcon={<Add />}
-                disabled={isBusy}
-                loading={navigation.state === "submitting" && navigation.formAction?.endsWith("/new-habit")}
-              >
-                New habit
-              </Button>
-            </Form>
+            <Button
+              component={Link}
+              to="/new-habit"
+              variant="outlined"
+              aria-label="Add new habit"
+              startIcon={<Add />}
+              disabled={isBusy}
+            >
+              New habit
+            </Button>
           </Box>
         )}
       </Box>

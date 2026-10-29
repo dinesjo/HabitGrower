@@ -3,6 +3,7 @@ import dayjs from "dayjs";
 import { Habit } from "../types/Habit";
 import { glassPanelSx, sectionLabelSx } from "../styles/designLanguage";
 import { readableHabitColor } from "../utils/color";
+import { groupRegistrations } from "../utils/habitHistory";
 
 interface HabitHeatmapProps {
   habit: Habit;
@@ -11,6 +12,7 @@ interface HabitHeatmapProps {
 
 export default function HabitHeatmap({ habit, months = 3 }: HabitHeatmapProps) {
   const theme = useTheme();
+  const dailyCounts = groupRegistrations(habit.dates, (timestamp) => dayjs(timestamp).format("YYYY-MM-DD"));
 
   // Generate the last N months of data
   const generateHeatmapData = () => {
@@ -25,14 +27,7 @@ export default function HabitHeatmap({ habit, months = 3 }: HabitHeatmapProps) {
     while (currentDate.isBefore(endDate) || currentDate.isSame(endDate, "day")) {
       const dateKey = currentDate.format("YYYY-MM-DD");
 
-      // Count ALL registrations on this day
-      // Dates are stored as ISO timestamps (e.g., "2025-01-15T10:00:00Z")
-      const count = habit.dates
-        ? Object.keys(habit.dates).filter((timestamp) => {
-            const timestampDay = dayjs(timestamp).format("YYYY-MM-DD");
-            return timestampDay === dateKey && habit.dates![timestamp];
-          }).length
-        : 0;
+      const count = dailyCounts[dateKey] || 0;
 
       // Calculate week index
       if (currentDate.diff(currentWeekStart, "day") >= 7) {

@@ -8,14 +8,15 @@ import ts from "typescript";
 
 const directory = await mkdtemp(join(tmpdir(), "habitgrower-registration-test-"));
 after(() => rm(directory, { recursive: true, force: true }));
-for (const [name, folder] of [["habitRegistration", "utils"], ["firebaseHabits", "data"]]) {
+for (const [name, folder] of [["habitRegistration", "utils"], ["habitGoal", "utils"], ["firebaseHabits", "data"]]) {
   const source = await readFile(new URL(`../src/${folder}/${name}.ts`, import.meta.url), "utf8");
   const compiled = ts.transpileModule(source, {
     compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.ES2022 },
   }).outputText
     .replace('"firebase/database"', '"./database.mjs"')
     .replace('"../firebase"', '"./auth.mjs"')
-    .replace('"../utils/habitRegistration"', '"./habitRegistration.mjs"');
+    .replace('"../utils/habitRegistration"', '"./habitRegistration.mjs"')
+    .replace('"../utils/habitGoal"', '"./habitGoal.mjs"');
   await writeFile(join(directory, `${name}.mjs`), compiled);
 }
 await writeFile(join(directory, "auth.mjs"), 'export const database = {}; export async function getUser() { return { uid: "test-user" }; }');
@@ -31,8 +32,8 @@ export function ref(_, path) { return path; }
 export function increment(delta) { return { ".sv": { increment: delta } }; }
 export async function get(path) { calls.push(["get", path]); if (path === readFailure) throw new Error("read rejected"); return { val: () => values.get(path) ?? null }; }
 export async function update(path, payload) { calls.push(["update", path, payload]); if (writeFailure) throw writeFailure; }
-export function push() { throw new Error("Unexpected push"); }
-export function set() { throw new Error("Registration must use one atomic update"); }
+export function push(path) { calls.push(["push", path]); return { key: "new-habit", path: path + "/new-habit" }; }
+export async function set(path, payload) { calls.push(["set", path, payload]); if (writeFailure) throw writeFailure; }
 `);
 
 const helpers = await import(pathToFileURL(join(directory, "habitRegistration.mjs")));
@@ -86,6 +87,7 @@ test("Firebase registration writes the entire deduplicated batch once, with nume
   await firebase.registerHabitsNow(["a", "b", "a"], timestamp);
   const writes = db.calls.filter(([operation]) => operation === "update");
   assert.equal(writes.length, 1);
+  assert.equal(db.calls.filter(([operation]) => operation === "set").length, 0);
   assert.equal(db.calls.filter(([operation]) => operation === "get").length, 2);
   assert.deepEqual(writes[0], ["update", "users/test-user/habits", {
     [`a/dates/${timestamp}`]: { ".sv": { increment: 1 } },
@@ -102,4 +104,50 @@ test("a failed read prevents every write and a rejected atomic write propagates 
   db.failWrite();
   await assert.rejects(firebase.registerHabitsNow(["a", "b"], timestamp), /write rejected/);
   assert.equal(db.calls.filter(([operation]) => operation === "update").length, 1);
+});
+
+test("Firebase creation saves complete details in one write and propagates write failure", async () => {
+  db.reset();
+  const details = { name: "Read", icon: "AutoStories", frequency: 2, frequencyUnit: "week" };
+  assert.equal(await firebase.createHabit(details), "new-habit");
+  assert.deepEqual(db.calls, [
+    ["push", "users/test-user/habits"],
+    ["set", { key: "new-habit", path: "users/test-user/habits/new-habit" }, details],
+  ]);
+  db.reset();
+  db.failWrite();
+  await assert.rejects(firebase.createHabit(details), /write rejected/);
+  assert.equal(db.calls.filter(([operation]) => operation === "set").length, 1);
+});
+
+test("Firebase rejects invalid goals before writes and normalizes form counts to numbers", async () => {
+  for (const goal of [
+    { frequency: -1, frequencyUnit: "day" }, { frequency: 0, frequencyUnit: "day" },
+    { frequency: 1.5, frequencyUnit: "week" }, { frequency: 2 }, { frequencyUnit: "month" },
+  ]) {
+    db.reset();
+    const habit = { id: "a", name: "Read", icon: "AutoStories", ...goal };
+    await assert.rejects(firebase.createHabit(habit), /Check your habit goal/);
+    await assert.rejects(firebase.updateHabit("a", habit), /Check your habit goal/);
+    assert.deepEqual(db.calls, []);
+  }
+  db.reset();
+  await firebase.createHabit({ name: "Read", icon: "AutoStories", frequency: "3", frequencyUnit: "week" });
+  assert.equal(db.calls.find(([operation]) => operation === "set")[2].frequency, 3);
+});
+
+test("clearing a Firebase goal uses null rather than undefined and preserves history", async () => {
+  db.reset();
+  const history = { [timestamp]: 3 };
+  db.values.set("users/test-user/habits/a", { name: "Read", icon: "AutoStories", frequency: 3, frequencyUnit: "day", dates: history });
+  await firebase.updateHabit("a", { id: "a", name: "Read", icon: "AutoStories", frequency: "", frequencyUnit: "" });
+  const saved = db.calls.find(([operation]) => operation === "set")[2];
+  assert.equal(saved.frequency, null);
+  assert.equal(saved.frequencyUnit, null);
+  assert.deepEqual(saved.dates, history);
+  db.reset();
+  await firebase.createHabit({ name: "Optional", icon: "Default" });
+  const created = db.calls.find(([operation]) => operation === "set")[2];
+  assert.equal(created.frequency, null);
+  assert.equal(created.frequencyUnit, null);
 });

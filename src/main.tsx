@@ -10,14 +10,12 @@ import AccountView from "./routes/Profile/AccountView";
 import SignInView from "./routes/Profile/SignInView";
 import Root from "./routes/root";
 import {
-  createEmptyHabit,
   deleteHabit,
   fetchHabitById,
   unregisterHabitByDate,
   updateHabit,
 } from "./services/habitsPersistance";
 import { checkedHabitIdsAtom, registrationAtom, store, userDayStartsAtAtom, userWeekStartsAtMondayAtom } from "./store";
-import { Habit } from "./types/Habit";
 import { requireAuth } from "./utils/requireAuth";
 import { Button } from "@mui/material";
 import Main from "./components/Main";
@@ -25,6 +23,7 @@ import { showSnackBar } from "./utils/helpers";
 import { isLocalMode } from "./data/mode";
 import { getBackend } from "./data/backend";
 import { installModuleLoadRecovery } from "./utils/moduleLoadRecovery";
+import { newHabitLoader, saveHabitAction } from "./routes/habitEditorActions";
 
 // Install before router loaders can start importing the backend.
 const removeLoadRecovery = installModuleLoadRecovery();
@@ -40,17 +39,7 @@ export const router = createBrowserRouter(
           path=":id/edit"
           element={<EditHabitForm />}
           loader={requireAuth(EditHabitForm.loader)}
-          action={async ({ params, request }) => {
-            if (!params.id) {
-              return redirect("/");
-            }
-            const formData = Object.fromEntries(await request.formData());
-            const habitData = formData as unknown as Habit;
-            habitData.notificationEnabled = formData.notificationEnabled === "on";
-            await updateHabit(params.id, habitData);
-            showSnackBar("Habit updated!", "success");
-            return redirect("/");
-          }}
+          action={saveHabitAction}
         />
         <Route
           path=":id/delete"
@@ -99,10 +88,9 @@ export const router = createBrowserRouter(
         />
         <Route
           path="new-habit"
-          action={async () => {
-            const id = await createEmptyHabit();
-            return redirect(`/${id}/edit`);
-          }}
+          element={<EditHabitForm />}
+          loader={requireAuth(newHabitLoader)}
+          action={saveHabitAction}
         />
       </Route>
       <Route path="profile">

@@ -18,7 +18,7 @@ export interface AppBackend {
   signOut(): Promise<void>;
   fetchAllHabits(): Promise<Habit[]>;
   fetchHabitById(id: string): Promise<Habit | undefined>;
-  createEmptyHabit(): Promise<string>;
+  createHabit(habit: Omit<Habit, "id">): Promise<string>;
   updateHabit(id: string, habit: Habit): Promise<void>;
   deleteHabit(id: string): Promise<void>;
   registerHabitsNow(ids: string[], timestamp?: string): Promise<void>;

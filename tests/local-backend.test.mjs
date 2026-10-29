@@ -9,11 +9,13 @@ import ts from "typescript";
 // Compile the actual backend, with no browser, Firebase SDK, or test dependencies.
 const directory = await mkdtemp(join(tmpdir(), "habitgrower-local-test-"));
 after(() => rm(directory, { recursive: true, force: true }));
-for (const name of ["sampleHabits", "localBackend", "habitRegistration"]) {
-  const source = await readFile(new URL(`../src/${name === "habitRegistration" ? "utils" : "data"}/${name}.ts`, import.meta.url), "utf8");
+for (const name of ["sampleHabits", "localBackend", "habitRegistration", "habitGoal"]) {
+  const source = await readFile(new URL(`../src/${["habitRegistration", "habitGoal"].includes(name) ? "utils" : "data"}/${name}.ts`, import.meta.url), "utf8");
   const compiled = ts.transpileModule(source, {
     compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.ES2022 },
-  }).outputText.replace('"./sampleHabits"', '"./sampleHabits.mjs"').replace('"../utils/habitRegistration"', '"./habitRegistration.mjs"');
+  }).outputText.replace('"./sampleHabits"', '"./sampleHabits.mjs"')
+    .replace('"../utils/habitRegistration"', '"./habitRegistration.mjs"')
+    .replace('"../utils/habitGoal"', '"./habitGoal.mjs"');
   await writeFile(join(directory, `${name}.mjs`), compiled);
 }
 const { createLocalBackend, LOCAL_STORAGE_KEY } = await import(pathToFileURL(join(directory, "localBackend.mjs")));
@@ -43,7 +45,7 @@ test("starts with a synthetic user and fresh daily, weekly, monthly, and empty h
 
 test("CRUD, reload persistence, safe copies, notification isolation, and delete undo", async () => {
   const { backend, storage } = setup();
-  const id = await backend.createEmptyHabit();
+  const id = await backend.createHabit({ name: "Initial habit", icon: "Default" });
   const habit = await backend.fetchHabitById(id);
   await backend.updateHabit(id, { ...habit, name: "Test habit", frequency: "2", frequencyUnit: "day", notificationEnabled: true });
   const reloaded = createLocalBackend(storage, () => timestamp);
@@ -69,6 +71,49 @@ test("repeated check-ins at the same timestamp increment; history removal persis
   assert.equal((await backend.fetchHabitById(id)).dates[date], 2);
   await backend.unregisterHabitByDate(id, date);
   assert.equal((await createLocalBackend(storage).fetchHabitById(id)).dates[date], undefined);
+});
+
+test("creation persists completed details once and a failed save leaves no placeholder", async () => {
+  const { backend, storage } = setup();
+  await backend.fetchAllHabits();
+  const writes = [];
+  let fail = false;
+  const recording = createLocalBackend({
+    ...storage,
+    setItem(key, value) {
+      writes.push(value);
+      if (fail) throw new Error("quota");
+      storage.setItem(key, value);
+    },
+  });
+  const details = { name: "Read", icon: "AutoStories", frequency: 2, frequencyUnit: "week" };
+  const id = await recording.createHabit(details);
+  assert.equal(writes.length, 1);
+  assert.deepEqual(await backend.fetchHabitById(id), { ...details, id, notificationEnabled: false });
+  const before = await backend.fetchAllHabits();
+  fail = true;
+  await assert.rejects(recording.createHabit(details), /Could not save/);
+  assert.deepEqual(await backend.fetchAllHabits(), before);
+});
+
+test("local persistence rejects invalid goals without changing data and supports clearing a goal", async () => {
+  const { backend } = setup();
+  const before = await backend.fetchAllHabits();
+  for (const goal of [
+    { frequency: -1, frequencyUnit: "day" }, { frequency: 0, frequencyUnit: "day" },
+    { frequency: 1.5, frequencyUnit: "week" }, { frequency: 2 }, { frequencyUnit: "month" },
+  ]) {
+    const habit = { id: "demo-reading", name: "Read", icon: "AutoStories", ...goal };
+    await assert.rejects(backend.createHabit(habit), /Check your habit goal/);
+    await assert.rejects(backend.updateHabit(habit.id, habit), /Check your habit goal/);
+    assert.deepEqual(await backend.fetchAllHabits(), before);
+  }
+  const habit = await backend.fetchHabitById("demo-water");
+  await backend.updateHabit(habit.id, { ...habit, frequency: "", frequencyUnit: "" });
+  const saved = await backend.fetchHabitById(habit.id);
+  assert.equal(saved.frequency, undefined);
+  assert.equal(saved.frequencyUnit, undefined);
+  assert.deepEqual(saved.dates, habit.dates);
 });
 
 test("invalid check-in batches do not partially save", async () => {
@@ -128,7 +173,7 @@ test("malformed data recovers; browser storage failures stay local and fail expl
   const unavailable = createLocalBackend({ getItem() { throw new Error("denied"); }, setItem() {} });
   await assert.rejects(unavailable.fetchAllHabits(), /Could not read local demo data/);
   const full = createLocalBackend({ getItem() { return null; }, setItem() { throw new Error("quota"); } });
-  await assert.rejects(full.createEmptyHabit(), /Could not save local demo data/);
+  await assert.rejects(full.createHabit({ name: "Test", icon: "Default" }), /Could not save local demo data/);
 });
 
 test("the app's eager import graph contains no Firebase SDK or initializer", async () => {

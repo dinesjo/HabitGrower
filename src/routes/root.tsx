@@ -40,7 +40,7 @@ export default function Root() {
   const [registration] = useAtom(registrationAtom);
 
   const isSignInPage = location.pathname === "/profile/signin";
-  const isEditingHabit = location.pathname.endsWith("/edit");
+  const isEditingHabit = location.pathname === "/new-habit" || location.pathname.endsWith("/edit");
   const hasPendingRegistration = location.pathname === "/" && (checkedHabitIds.length > 0 || registration?.phase === "saving" || registration?.phase === "saved");
   const safeBottom = "env(safe-area-inset-bottom, 0px)";
   const outletBottomPadding = isSignInPage ? 0 : isEditingHabit

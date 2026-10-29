@@ -2,6 +2,7 @@ import { get, increment, push, ref, set, update } from "firebase/database";
 import { database, getUser } from "../firebase";
 import { Habit } from "../types/Habit";
 import { registrationTimestamp } from "../utils/habitRegistration";
+import { normalizeHabitGoal } from "../utils/habitGoal";
 
 async function getUserIdOrThrow(): Promise<string> {
   const user = await getUser();
@@ -43,25 +44,22 @@ export async function fetchHabitById(id: string): Promise<Habit | undefined> {
 /**
  * @returns the id of the new habit
  */
-export async function createEmptyHabit(): Promise<string> {
+export async function createHabit(habit: Omit<Habit, "id">): Promise<string> {
+  const goal = normalizeHabitGoal(habit);
   const userId = await getUserIdOrThrow();
-  // Push a new habit to the database
+  // Allocate the ID locally, then save the completed form in one write.
   const newHabitRef = push(ref(database, `users/${userId}/habits`));
-  await set(newHabitRef, {
-    name: "New Habit",
-    icon: "Default",
-    notificationEnabled: false,
-    notificationTime: null,
-  });
+  await set(newHabitRef, { ...habit, frequency: goal.frequency ?? null, frequencyUnit: goal.frequencyUnit ?? null });
   return newHabitRef.key!; // can't be null since not root
 }
 
 export async function updateHabit(id: string, habit: Habit): Promise<void> {
+  const goal = normalizeHabitGoal(habit);
   const userId = await getUserIdOrThrow();
 
   const habitRef = ref(database, `users/${userId}/habits/${id}`);
   const currentHabit = await get(habitRef).then((snapshot) => snapshot.val());
-  await set(habitRef, { ...currentHabit, ...habit });
+  await set(habitRef, { ...currentHabit, ...habit, frequency: goal.frequency ?? null, frequencyUnit: goal.frequencyUnit ?? null });
 }
 
 export async function deleteHabit(id: string): Promise<void> {

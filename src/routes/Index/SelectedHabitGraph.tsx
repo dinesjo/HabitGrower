@@ -7,6 +7,7 @@ import { daysShownAtom, graphFrequencyUnitAtom, userWeekStartsAtMondayAtom } fro
 import { Habit } from "../../types/Habit";
 import { glassPanelSx, sectionLabelSx } from "../../styles/designLanguage";
 import { readableHabitColor } from "../../utils/color";
+import { countRegistrations, groupRegistrations } from "../../utils/habitHistory";
 
 const daysShownMap: Record<number, string> = {
   14: "14 days",
@@ -135,24 +136,9 @@ export default function SelectedHabitGraph({ habit }: { habit: Habit }) {
   }, [habit.dates, daysShown]);
 
   // Memoize aggregated data to avoid recalculation when frequency unit or dates don't change
-  const aggregatedData = useMemo(() => {
-    const data: Record<string, number> = {};
-
-    Object.entries(filteredDates).forEach(([date, completed]) => {
-      const dateObj = dayjs(date);
-      const periodKey = getPeriodKey(dateObj, graphFrequencyUnit, userWeekStartsAtMonday);
-
-      if (!data[periodKey]) {
-        data[periodKey] = 0;
-      }
-
-      if (completed) {
-        data[periodKey] += 1;
-      }
-    });
-
-    return data;
-  }, [filteredDates, graphFrequencyUnit, userWeekStartsAtMonday]);
+  const aggregatedData = useMemo(() => groupRegistrations(filteredDates, (date) =>
+    getPeriodKey(dayjs(date), graphFrequencyUnit, userWeekStartsAtMonday)),
+  [filteredDates, graphFrequencyUnit, userWeekStartsAtMonday]);
 
   // Memoize chart data to avoid regenerating the full dataset unnecessarily
   const dateData = useMemo(() => {
@@ -212,10 +198,7 @@ export default function SelectedHabitGraph({ habit }: { habit: Habit }) {
     if (!habit.dates) return null;
 
     // Sum up total registrations in the period (values can be numbers for multiple registrations)
-    const totalRegistrationsInPeriod = Object.values(filteredDates).reduce<number>(
-      (sum, val) => sum + Number(val || 0),
-      0
-    );
+    const totalRegistrationsInPeriod = countRegistrations(filteredDates);
 
     // Average registrations per day
     const avgPerDay = (totalRegistrationsInPeriod / daysShown).toFixed(1);
