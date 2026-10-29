@@ -1,7 +1,5 @@
 import { CssBaseline, PaletteMode, ThemeProvider } from "@mui/material";
 import { createAppTheme } from "../styles/theme";
-import { LocalizationProvider } from "@mui/x-date-pickers";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { useAtom } from "jotai";
 import { lazy, Suspense, useMemo } from "react";
 import { RouterProvider } from "react-router-dom";
@@ -28,16 +26,14 @@ export default function Main() {
   );
 
   return (
-    <LocalizationProvider dateAdapter={AdapterDayjs}>
-      <ThemeProvider theme={theme}>
-        {DevTools && (
-          <Suspense fallback={null}>
-            <DevTools />
-          </Suspense>
-        )}
-        <CssBaseline />
-        <RouterProvider router={router} />
-      </ThemeProvider>
-    </LocalizationProvider>
+    <ThemeProvider theme={theme}>
+      {DevTools && (
+        <Suspense fallback={null}>
+          <DevTools />
+        </Suspense>
+      )}
+      <CssBaseline />
+      <RouterProvider router={router} />
+    </ThemeProvider>
   );
 }

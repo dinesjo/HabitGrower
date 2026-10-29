@@ -1,12 +1,9 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { createBrowserRouter, createRoutesFromElements, redirect, Route } from "react-router-dom";
-import EditHabitForm from "./components/EditHabitForm";
 import ErrorPage from "./components/ErrorPage";
 import { signOut } from "./services/auth";
 import IndexView from "./routes/Index/IndexView";
-import SelectedHabit from "./routes/Index/SelectedHabit";
-import AccountView from "./routes/Profile/AccountView";
 import SignInView from "./routes/Profile/SignInView";
 import Root from "./routes/root";
 import {
@@ -17,13 +14,16 @@ import {
 } from "./services/habitsPersistance";
 import { checkedHabitIdsAtom, registrationAtom, store, userDayStartsAtAtom, userWeekStartsAtMondayAtom } from "./store";
 import { requireAuth } from "./utils/requireAuth";
-import { Button } from "@mui/material";
+import { Box, Button, CircularProgress, Typography } from "@mui/material";
 import Main from "./components/Main";
 import { showSnackBar } from "./utils/helpers";
 import { isLocalMode } from "./data/mode";
 import { getBackend } from "./data/backend";
 import { installModuleLoadRecovery } from "./utils/moduleLoadRecovery";
 import { newHabitLoader, saveHabitAction } from "./routes/habitEditorActions";
+import { habitLoader } from "./routes/habitLoader";
+
+const loadHabitEditor = async () => ({ Component: (await import("./components/EditHabitForm")).default });
 
 // Install before router loaders can start importing the backend.
 const removeLoadRecovery = installModuleLoadRecovery();
@@ -31,14 +31,19 @@ import.meta.hot?.dispose(removeLoadRecovery);
 
 export const router = createBrowserRouter(
   createRoutesFromElements(
-    <Route element={<Root />} id="root" errorElement={<ErrorPage />} hydrateFallbackElement={<></>}>
+    <Route element={<Root />} id="root" errorElement={<ErrorPage />} hydrateFallbackElement={
+      <Box role="status" sx={{ py: 8, px: 3, textAlign: "center" }}>
+        <CircularProgress size={28} aria-label="Loading HabitGrower" />
+        <Typography sx={{ mt: 2 }} color="text.secondary">Loading HabitGrower…</Typography>
+      </Box>
+    }>
       <Route path="/">
         <Route index element={<IndexView />} loader={requireAuth(IndexView.loader)} action={IndexView.action} />
-        <Route path=":id" element={<SelectedHabit />} loader={requireAuth(SelectedHabit.loader)} />
+        <Route path=":id" lazy={async () => ({ Component: (await import("./routes/Index/SelectedHabit")).default })} loader={requireAuth(habitLoader)} />
         <Route
           path=":id/edit"
-          element={<EditHabitForm />}
-          loader={requireAuth(EditHabitForm.loader)}
+          lazy={loadHabitEditor}
+          loader={requireAuth(habitLoader)}
           action={saveHabitAction}
         />
         <Route
@@ -88,13 +93,16 @@ export const router = createBrowserRouter(
         />
         <Route
           path="new-habit"
-          element={<EditHabitForm />}
+          lazy={loadHabitEditor}
           loader={requireAuth(newHabitLoader)}
           action={saveHabitAction}
         />
       </Route>
       <Route path="profile">
-        <Route index element={<AccountView />} loader={AccountView.loader} />
+        <Route index lazy={async () => {
+          const { default: Component } = await import("./routes/Profile/AccountView");
+          return { Component, loader: Component.loader };
+        }} />
         {isLocalMode && <Route path="reset-demo" action={async () => {
           await (await getBackend()).resetDemoData();
           store.set(checkedHabitIdsAtom, []);

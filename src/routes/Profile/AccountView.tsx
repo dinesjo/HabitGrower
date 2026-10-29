@@ -24,7 +24,7 @@ import {
   Switch,
   Typography,
 } from "@mui/material";
-import { TimePicker } from "@mui/x-date-pickers";
+import TimePicker from "../../components/TimePicker";
 import { Dayjs } from "dayjs";
 import type { AppUser } from "../../data/types";
 import { isLocalMode } from "../../data/mode";

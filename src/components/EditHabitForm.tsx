@@ -13,15 +13,14 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import { TimePicker } from "@mui/x-date-pickers/TimePicker";
+import TimePicker from "./TimePicker";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import { useAtom } from "jotai";
 import { useEffect, useRef, useState, type FormEvent } from "react";
-import { Form, LoaderFunctionArgs, useActionData, useLoaderData, useNavigate, useNavigation, useParams } from "react-router-dom";
+import { Form, useActionData, useLoaderData, useNavigate, useNavigation, useParams } from "react-router-dom";
 import { frequencyUnits } from "../constants/frequencyUnits";
 import { iconMap } from "../constants/iconMap";
-import { fetchHabitById } from "../services/habitsPersistance";
 import { notificationPermissionAtom } from "../store";
 import { Habit } from "../types/Habit";
 import { toFriendlyString } from "../utils/helpers";
@@ -34,18 +33,6 @@ import { validateHabitGoal, type HabitGoalErrors } from "../utils/habitGoal";
 import type { HabitEditorActionData } from "../routes/habitEditorActions";
 
 dayjs.extend(utc);
-
-async function loader({ params }: LoaderFunctionArgs<{ id: string }>) {
-  const { id } = params;
-  if (!id) {
-    return null;
-  }
-  const habit = await fetchHabitById(id);
-  if (!habit) throw new Response("Habit not found", { status: 404, statusText: "Habit not found" });
-  return { habit };
-}
-
-EditHabitForm.loader = loader;
 
 export default function EditHabitForm() {
   const [notificationPermission] = useAtom(notificationPermissionAtom);

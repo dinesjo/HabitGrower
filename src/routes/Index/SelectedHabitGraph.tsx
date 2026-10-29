@@ -1,5 +1,5 @@
 import { Box, Divider, ToggleButton, ToggleButtonGroup, Typography, useTheme } from "@mui/material";
-import { BarChart } from "@mui/x-charts";
+import { BarChart } from "@mui/x-charts/BarChart";
 import dayjs from "dayjs";
 import { useAtom } from "jotai";
 import { useMemo } from "react";
