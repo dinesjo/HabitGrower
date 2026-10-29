@@ -1,8 +1,11 @@
 import { NotificationsActiveOutlined } from "@mui/icons-material";
 import { Box, SxProps, Typography } from "@mui/material";
 import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
 import { Habit } from "../types/Habit";
 import { alphaOrFallback, readableHabitColor } from "../utils/color";
+
+dayjs.extend(utc);
 
 export default function HabitNotificationIndicator({ habit, ...props }: { habit: Habit; sx?: SxProps }) {
   if (habit.notificationEnabled && habit.notificationTime) {

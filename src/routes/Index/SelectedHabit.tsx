@@ -1,14 +1,13 @@
 import { EditOutlined } from "@mui/icons-material";
 import { Alert, AlertTitle, Avatar, Box, Button, Fade, LinearProgress, Typography } from "@mui/material";
 import { alpha } from "@mui/material/styles";
-import { LoaderFunctionArgs, useLoaderData, useNavigate, useParams } from "react-router-dom";
+import { useLoaderData, useNavigate, useParams } from "react-router-dom";
 import { useAtomValue } from "jotai";
 import BackButton from "../../components/BackButton";
 import DeleteHabitWithConfirm from "../../components/DeleteHabitWithConfirm";
 import HabitHeatmap from "../../components/HabitHeatmap";
 import HabitNotificationIndicator from "../../components/HabitNotificationIndicator";
 import { iconMap } from "../../constants/iconMap";
-import { fetchHabitById } from "../../services/habitsPersistance";
 import { Habit } from "../../types/Habit";
 import { alphaOrFallback, readableHabitColor } from "../../utils/color";
 import { getProgress, toFriendlyFrequency } from "../../utils/helpers";
@@ -16,18 +15,6 @@ import { userWeekStartsAtMondayAtom } from "../../store";
 import { ambientPageSx, contentLayerSx, glassPanelSx } from "../../styles/designLanguage";
 import SelectedHabitGraph from "./SelectedHabitGraph";
 import SelectedHabitList from "./SelectedHabitList";
-
-async function loader({ params }: LoaderFunctionArgs<{ id: string }>) {
-  const { id } = params;
-  if (!id) {
-    return null;
-  }
-  const habit = await fetchHabitById(id);
-  if (!habit) throw new Response("Habit not found", { status: 404, statusText: "Habit not found" });
-  return { habit };
-}
-
-SelectedHabit.loader = loader;
 
 export default function SelectedHabit() {
   const { habit } = useLoaderData() as { habit: Habit };
