@@ -14,7 +14,7 @@ import {
 } from "./services/habitsPersistance";
 import { checkedHabitIdsAtom, registrationAtom, store, userDayStartsAtAtom, userWeekStartsAtMondayAtom } from "./store";
 import { requireAuth } from "./utils/requireAuth";
-import { Box, Button, CircularProgress, Typography } from "@mui/material";
+import { Button } from "@mui/material";
 import Main from "./components/Main";
 import { showSnackBar } from "./utils/helpers";
 import { isLocalMode } from "./data/mode";
@@ -31,12 +31,8 @@ import.meta.hot?.dispose(removeLoadRecovery);
 
 export const router = createBrowserRouter(
   createRoutesFromElements(
-    <Route element={<Root />} id="root" errorElement={<ErrorPage />} hydrateFallbackElement={
-      <Box role="status" sx={{ py: 8, px: 3, textAlign: "center" }}>
-        <CircularProgress size={28} aria-label="Loading HabitGrower" />
-        <Typography sx={{ mt: 2 }} color="text.secondary">Loading HabitGrower…</Typography>
-      </Box>
-    }>
+    // The launch screen in index.html stays up until the first route renders.
+    <Route element={<Root />} id="root" errorElement={<ErrorPage />} hydrateFallbackElement={<></>}>
       <Route path="/">
         <Route index element={<IndexView />} loader={requireAuth(IndexView.loader)} action={IndexView.action} />
         <Route path=":id" lazy={async () => ({ Component: (await import("./routes/Index/SelectedHabit")).default })} loader={requireAuth(habitLoader)} />

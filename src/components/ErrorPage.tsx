@@ -1,6 +1,8 @@
 import { Box, Button, Container, Typography } from "@mui/material";
+import { useEffect } from "react";
 import { Link as RouterLink, isRouteErrorResponse, useRouteError } from "react-router-dom";
 import { ambientPageSx, contentLayerSx, glassPanelSx } from "../styles/designLanguage";
+import { dismissLaunchScreen } from "../utils/launchScreen";
 import { isModuleLoadError } from "../utils/moduleLoadRecovery";
 
 function messageOrFallback(message: unknown, fallback: string) {
@@ -9,6 +11,8 @@ function messageOrFallback(message: unknown, fallback: string) {
 
 export default function ErrorPage() {
   const error = useRouteError();
+  // A failed first load renders this page instead of Root.
+  useEffect(() => { dismissLaunchScreen(); }, []);
   const fallbackMessage = "We couldn't open this screen. Try again from your habit list.";
   let errorMessage = fallbackMessage;
 
