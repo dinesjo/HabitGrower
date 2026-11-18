@@ -16,9 +16,11 @@ import { Outlet, ScrollRestoration, useLocation, useNavigation } from "react-rou
 import { checkedHabitIdsAtom, registrationAtom, snackbarActionAtom, snackbarMessageAtom, snackbarOpenAtom, snackbarSeverityAtom } from "../store";
 import { ActionHeightContext, ActionSurface } from "../hooks/useActionSurfaceRef";
 import { useRegistrationLifecycle } from "../hooks/useRegistrationLifecycle";
+import { dismissLaunchScreen } from "../utils/launchScreen";
 
 export default function Root() {
   useRegistrationLifecycle();
+  useEffect(() => { dismissLaunchScreen(); }, []);
   const [actionHeights, setActionHeights] = useState({ register: 58, editor: 73 });
   const updateActionHeight = useCallback((surface: ActionSurface, height: number) => {
     const roundedHeight = Math.ceil(height);
