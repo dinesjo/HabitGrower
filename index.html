@@ -16,15 +16,22 @@
         // Unreadable storage keeps the default theme.
       }
     </script>
-    <!-- Launch screen: painted before the app bundle loads, removed by src/utils/launchScreen.ts. -->
+    <!--
+      Launch screen: painted before the app bundle loads, removed by src/utils/launchScreen.ts.
+      Each moving part is its own HTML-level element animating only transform and opacity, so
+      the compositor keeps it smooth while the main thread is busy evaluating the app bundle.
+      Every SVG layer shares one 0-100 viewBox, so percentages below are viewBox units.
+    -->
     <style id="hg-launch-style">
       #hg-launch {
+        --hg-l-size: 148px;
         --hg-l-bg: #0d1511;
         --hg-l-bg-glow: #15251b;
         --hg-l-mark: #9ccf6b;
         --hg-l-leaf-tip: #c3e99a;
         --hg-l-glow: rgba(156, 207, 107, 0.2);
-        --hg-l-soil: #83ad6b;
+        --hg-l-soil: rgba(131, 173, 107, 0.55);
+        --hg-l-soil-clear: rgba(131, 173, 107, 0);
         --hg-l-spark: #f0af4e;
         --hg-l-text: #aebbad;
         position: fixed;
@@ -42,6 +49,7 @@
         font: 700 11px/1.5 "Avenir Next", "Segoe UI", system-ui, -apple-system, sans-serif;
         -webkit-user-select: none;
         user-select: none;
+        -webkit-tap-highlight-color: transparent;
         transition: opacity 380ms cubic-bezier(0.4, 0, 0.2, 1), visibility 0s linear 380ms;
       }
       :root[data-hg-launch="light"] #hg-launch {
@@ -50,7 +58,8 @@
         --hg-l-mark: #3f7f2d;
         --hg-l-leaf-tip: #62a548;
         --hg-l-glow: rgba(95, 167, 70, 0.16);
-        --hg-l-soil: #668d51;
+        --hg-l-soil: rgba(102, 141, 81, 0.55);
+        --hg-l-soil-clear: rgba(102, 141, 81, 0);
         --hg-l-spark: #d98e2f;
         --hg-l-text: #586858;
       }
@@ -66,7 +75,7 @@
       }
       #hg-launch[data-state="leaving"] .hg-l-stage { transform: translateY(-6px) scale(1.04); }
 
-      .hg-l-emblem { position: relative; width: 148px; height: 148px; }
+      .hg-l-emblem { position: relative; width: var(--hg-l-size); height: var(--hg-l-size); }
       .hg-l-halo { position: absolute; top: -28%; right: -28%; bottom: -28%; left: -28%; transition: transform 420ms cubic-bezier(0.4, 0, 0.2, 1); }
       #hg-launch[data-state="leaving"] .hg-l-halo { transform: scale(1.8); }
       .hg-l-halo::before {
@@ -81,28 +90,38 @@
         opacity: 0;
         animation: hg-l-fade 900ms ease-out 160ms forwards, hg-l-breathe 4.2s ease-in-out 1.1s infinite;
       }
-      .hg-l-mark { position: relative; display: block; width: 100%; height: 100%; overflow: visible; }
-      .hg-l-soil-end { stop-color: var(--hg-l-soil); stop-opacity: 0; }
-      .hg-l-soil-mid { stop-color: var(--hg-l-soil); stop-opacity: 0.55; }
+      .hg-l-layer { position: absolute; top: 0; left: 0; display: block; width: var(--hg-l-size); height: var(--hg-l-size); overflow: visible; fill: var(--hg-l-mark); }
       .hg-l-leaf-base { stop-color: var(--hg-l-mark); }
       .hg-l-leaf-tip { stop-color: var(--hg-l-leaf-tip); }
 
-      /* A soil line draws outward from the center. */
-      .hg-l-soil { fill: none; stroke: url(#hg-l-soil); stroke-width: 1.3; stroke-linecap: round; stroke-dasharray: 44; stroke-dashoffset: 44; animation: hg-l-draw 520ms cubic-bezier(0.65, 0, 0.35, 1) 20ms forwards; }
+      /* A soil line spreads outward from the center. */
+      .hg-l-soil {
+        position: absolute;
+        top: calc(88.6% - 1px);
+        left: 6%;
+        width: 88%;
+        height: 2px;
+        border-radius: 1px;
+        background: linear-gradient(90deg, var(--hg-l-soil-clear), var(--hg-l-soil) 50%, var(--hg-l-soil-clear));
+        transform: scaleX(0);
+        animation: hg-l-settle 520ms cubic-bezier(0.65, 0, 0.35, 1) 20ms forwards;
+      }
 
       /* The H grows up out of the soil, then the crossbar joins its stems. */
-      .hg-l-letter { fill: var(--hg-l-mark); }
-      .hg-l-left, .hg-l-right { transform: translateY(72px); animation: hg-l-settle 680ms cubic-bezier(0.2, 1.18, 0.38, 1) forwards; }
+      .hg-l-ground { position: absolute; top: 0; right: 0; bottom: 13.8%; left: 0; overflow: hidden; }
+      .hg-l-left, .hg-l-right { transform: translateY(72%); animation: hg-l-settle 680ms cubic-bezier(0.2, 1.18, 0.38, 1) forwards; }
       .hg-l-left { animation-delay: 90ms; }
       .hg-l-right { animation-delay: 190ms; }
-      .hg-l-bar { transform-box: view-box; transform-origin: 32px 54px; transform: scaleX(0); animation: hg-l-settle 320ms cubic-bezier(0.65, 0, 0.35, 1) 540ms forwards; }
+      .hg-l-bar { transform-origin: 32% 54%; transform: scaleX(0); animation: hg-l-settle 320ms cubic-bezier(0.65, 0, 0.35, 1) 540ms forwards; }
 
       /* The leaf unfurls from the top of the stem, then sways while the app loads. */
-      .hg-l-sway { transform-box: view-box; transform-origin: 59px 43px; animation: hg-l-sway 3.6s ease-in-out 1.36s infinite; }
-      .hg-l-leaf { fill: url(#hg-l-leaf); transform-box: view-box; transform-origin: 59px 43px; transform: scale(0); animation: hg-l-unfurl 640ms cubic-bezier(0.25, 0.9, 0.35, 1) 720ms forwards; }
-      .hg-l-spark { fill: none; stroke: var(--hg-l-spark); stroke-width: 1.5; stroke-linecap: round; transform-box: fill-box; transform-origin: center; transform: scale(0); opacity: 0; animation: hg-l-twinkle 900ms cubic-bezier(0.2, 0.8, 0.2, 1) 1060ms forwards; }
-      .hg-l-spark + .hg-l-spark { animation-delay: 1150ms; }
-      .hg-l-spark + .hg-l-spark + .hg-l-spark { animation-delay: 1230ms; }
+      .hg-l-sway { transform-origin: 59% 43%; animation: hg-l-sway 3.6s ease-in-out 1.36s infinite; }
+      .hg-l-leaf { transform-origin: 59% 43%; transform: scale(0); animation: hg-l-unfurl 640ms cubic-bezier(0.25, 0.9, 0.35, 1) 720ms forwards; }
+      .hg-l-leaf path { fill: url(#hg-l-leaf); }
+      .hg-l-spark { fill: none; stroke: var(--hg-l-spark); stroke-width: 1.5; stroke-linecap: round; transform: scale(0); opacity: 0; animation: hg-l-twinkle 900ms cubic-bezier(0.2, 0.8, 0.2, 1) 1060ms forwards; }
+      .hg-l-spark-1 { transform-origin: 92% 9%; }
+      .hg-l-spark-2 { transform-origin: 95% 24.25%; animation-delay: 1150ms; }
+      .hg-l-spark-3 { transform-origin: 77.5% 5%; animation-delay: 1230ms; }
 
       .hg-l-name {
         margin: 10px 0 0;
@@ -116,14 +135,12 @@
       }
 
       /* Seedlings sprout in a wave if loading takes longer than the intro. */
-      .hg-l-loader { display: block; margin-top: 26px; overflow: visible; opacity: 0; animation: hg-l-fade 420ms ease 1.4s forwards; }
-      .hg-l-loader-soil { fill: none; stroke: var(--hg-l-soil); stroke-width: 1.2; stroke-linecap: round; opacity: 0.4; }
-      .hg-l-seedling { fill: var(--hg-l-mark); stroke: var(--hg-l-mark); stroke-linecap: round; transform-box: view-box; transform: scale(0); opacity: 0; animation: hg-l-sprout 1.9s cubic-bezier(0.3, 0.7, 0.4, 1) 1.4s infinite; }
-      .hg-l-seedling path:first-child { fill: none; stroke-width: 1.6; }
-      .hg-l-seedling path + path { stroke: none; }
-      .hg-l-s1 { transform-origin: 14px 20px; }
-      .hg-l-s2 { transform-origin: 32px 20px; animation-delay: 1.62s; }
-      .hg-l-s3 { transform-origin: 50px 20px; animation-delay: 1.84s; }
+      .hg-l-loader { position: relative; display: flex; gap: 2.5px; margin-top: 24px; padding: 0 8px; opacity: 0; animation: hg-l-fade 420ms ease 1.4s forwards; }
+      .hg-l-loader::after { content: ""; position: absolute; top: 25.2px; right: 0; left: 0; height: 1.5px; border-radius: 1px; background: var(--hg-l-soil); opacity: 0.75; }
+      .hg-l-seedling { display: block; width: 20px; height: 27.5px; overflow: visible; fill: var(--hg-l-mark); transform-origin: 50% 91%; transform: scale(0); opacity: 0; animation: hg-l-sprout 1.9s cubic-bezier(0.3, 0.7, 0.4, 1) 1.4s infinite; }
+      .hg-l-seedling path:first-child { fill: none; stroke: var(--hg-l-mark); stroke-width: 1.6; stroke-linecap: round; }
+      .hg-l-seedling + .hg-l-seedling { animation-delay: 1.62s; }
+      .hg-l-seedling + .hg-l-seedling + .hg-l-seedling { animation-delay: 1.84s; }
 
       .hg-l-hint {
         position: absolute;
@@ -139,8 +156,8 @@
         animation: hg-l-reveal 500ms ease 12s forwards;
       }
       .hg-l-hint button {
-        margin: -10px -4px;
-        padding: 10px 4px;
+        margin: -13px -8px;
+        padding: 13px 8px;
         border: 0;
         background: none;
         color: var(--hg-l-mark);
@@ -152,7 +169,6 @@
       }
       .hg-l-sr { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
-      @keyframes hg-l-draw { to { stroke-dashoffset: 0; } }
       @keyframes hg-l-settle { to { opacity: 1; transform: none; } }
       @keyframes hg-l-fade { to { opacity: 1; } }
       @keyframes hg-l-reveal { from { visibility: visible; opacity: 0; } to { visibility: visible; opacity: 1; } }
@@ -181,12 +197,12 @@
 
       @media (prefers-reduced-motion: reduce) {
         #hg-launch, .hg-l-stage, .hg-l-halo { transition-duration: 1ms; }
-        .hg-l-halo::before, .hg-l-soil, .hg-l-left, .hg-l-right, .hg-l-bar, .hg-l-sway, .hg-l-leaf, .hg-l-name, .hg-l-loader { animation: none; opacity: 1; transform: none; stroke-dashoffset: 0; }
-        .hg-l-sparks { display: none; }
+        .hg-l-halo::before, .hg-l-soil, .hg-l-left, .hg-l-right, .hg-l-bar, .hg-l-sway, .hg-l-leaf, .hg-l-name, .hg-l-loader { animation: none; opacity: 1; transform: none; }
+        .hg-l-spark { display: none; }
         /* Stays visible if the app's global reduced-motion rule stops the pulse. */
         .hg-l-seedling { opacity: 1; transform: none; animation: hg-l-pulse 2s ease-in-out infinite; }
-        .hg-l-s2 { animation-delay: 0.3s; }
-        .hg-l-s3 { animation-delay: 0.6s; }
+        .hg-l-seedling + .hg-l-seedling { animation-delay: 0.3s; }
+        .hg-l-seedling + .hg-l-seedling + .hg-l-seedling { animation-delay: 0.6s; }
       }
     </style>
   </head>
@@ -196,44 +212,33 @@
       <div class="hg-l-stage" aria-hidden="true">
         <div class="hg-l-emblem">
           <div class="hg-l-halo"></div>
-          <svg class="hg-l-mark" viewBox="0 0 100 100" focusable="false">
-            <defs>
-              <linearGradient id="hg-l-soil" x1="6" y1="0" x2="94" y2="0" gradientUnits="userSpaceOnUse">
-                <stop offset="0" class="hg-l-soil-end" />
-                <stop offset="0.5" class="hg-l-soil-mid" />
-                <stop offset="1" class="hg-l-soil-end" />
-              </linearGradient>
-              <linearGradient id="hg-l-leaf" x1="60" y1="42" x2="86" y2="14" gradientUnits="userSpaceOnUse">
-                <stop offset="0.35" class="hg-l-leaf-base" />
-                <stop offset="1" class="hg-l-leaf-tip" />
-              </linearGradient>
-              <clipPath id="hg-l-ground"><rect x="-10" y="-10" width="120" height="96.2" /></clipPath>
-            </defs>
-            <path class="hg-l-soil" d="M50 88.6H94M50 88.6H6" />
-            <g class="hg-l-letter">
-              <g clip-path="url(#hg-l-ground)">
-                <path class="hg-l-left" d="M20.5 25.5H29.5C32.8 25.5 35.2 27.6 35.2 31V74C35.2 77.5 36.6 80 38.4 81.2C39.6 82 39.8 83.4 39.4 84.2C38.9 85.2 37.8 85.6 36.5 85.6H17.6C16.2 85.6 15.1 85.1 14.7 84.1C14.3 83.1 14.6 82 15.4 81.1C17.2 80 19.1 77.6 19.1 74V36.5C19.1 34.6 18.2 33.4 16.6 32.2C14.9 31 14.3 29.4 14.8 27.8C15.4 26.2 17.3 25.5 20.5 25.5Z" />
-                <path class="hg-l-right" d="M55.9 42.2L62.6 41.9C65.5 41 68.5 39.8 70.6 38.7C71.3 38.4 71.9 38.8 71.9 39.6V74C71.9 77.4 73.4 79.6 75 80.8C76.2 81.7 76.6 82.8 76.3 83.8C75.9 85 74.8 85.6 73.4 85.6H54.6C53.2 85.6 52.1 85 51.7 84C51.3 83 51.7 81.9 52.6 81.1C54.4 79.6 55.9 77.4 55.9 74Z" />
-              </g>
-              <path class="hg-l-bar" d="M32 47.6H35C35.4 48.4 36.2 48.6 37.3 48.6H53.8C54.8 48.6 55.6 48.3 56 47.6H59V61H56C55.6 60.2 54.8 60 53.8 60H37.3C36.2 60 35.4 60.3 35 61H32Z" />
-              <g class="hg-l-sway">
-                <path class="hg-l-leaf" d="M55.9 46V40C55.9 30 59 22.5 66 19C71 16.5 77 14.2 85.2 13.8C85.6 20 83.5 26.5 78.9 30C75 33.2 66.5 36 62.6 41.9V46Z" />
-              </g>
-            </g>
-            <g class="hg-l-sparks">
-              <path class="hg-l-spark" d="M92 5.5V12.5M88.5 9H95.5" />
-              <path class="hg-l-spark" d="M95 22V26.5M92.75 24.25H97.25" />
-              <path class="hg-l-spark" d="M77.5 3V7M75.5 5H79.5" />
-            </g>
-          </svg>
+          <div class="hg-l-soil"></div>
+          <div class="hg-l-ground">
+            <svg class="hg-l-layer hg-l-left" viewBox="0 0 100 100" focusable="false"><path d="M20.5 25.5H29.5C32.8 25.5 35.2 27.6 35.2 31V74C35.2 77.5 36.6 80 38.4 81.2C39.6 82 39.8 83.4 39.4 84.2C38.9 85.2 37.8 85.6 36.5 85.6H17.6C16.2 85.6 15.1 85.1 14.7 84.1C14.3 83.1 14.6 82 15.4 81.1C17.2 80 19.1 77.6 19.1 74V36.5C19.1 34.6 18.2 33.4 16.6 32.2C14.9 31 14.3 29.4 14.8 27.8C15.4 26.2 17.3 25.5 20.5 25.5Z" /></svg>
+            <svg class="hg-l-layer hg-l-right" viewBox="0 0 100 100" focusable="false"><path d="M55.9 42.2L62.6 41.9C65.5 41 68.5 39.8 70.6 38.7C71.3 38.4 71.9 38.8 71.9 39.6V74C71.9 77.4 73.4 79.6 75 80.8C76.2 81.7 76.6 82.8 76.3 83.8C75.9 85 74.8 85.6 73.4 85.6H54.6C53.2 85.6 52.1 85 51.7 84C51.3 83 51.7 81.9 52.6 81.1C54.4 79.6 55.9 77.4 55.9 74Z" /></svg>
+          </div>
+          <svg class="hg-l-layer hg-l-bar" viewBox="0 0 100 100" focusable="false"><path d="M32 47.6H35C35.4 48.4 36.2 48.6 37.3 48.6H53.8C54.8 48.6 55.6 48.3 56 47.6H59V61H56C55.6 60.2 54.8 60 53.8 60H37.3C36.2 60 35.4 60.3 35 61H32Z" /></svg>
+          <div class="hg-l-layer hg-l-sway">
+            <svg class="hg-l-layer hg-l-leaf" viewBox="0 0 100 100" focusable="false">
+              <defs>
+                <linearGradient id="hg-l-leaf" x1="60" y1="42" x2="86" y2="14" gradientUnits="userSpaceOnUse">
+                  <stop offset="0.35" class="hg-l-leaf-base" />
+                  <stop offset="1" class="hg-l-leaf-tip" />
+                </linearGradient>
+              </defs>
+              <path d="M55.9 46V40C55.9 30 59 22.5 66 19C71 16.5 77 14.2 85.2 13.8C85.6 20 83.5 26.5 78.9 30C75 33.2 66.5 36 62.6 41.9V46Z" />
+            </svg>
+          </div>
+          <svg class="hg-l-layer hg-l-spark hg-l-spark-1" viewBox="0 0 100 100" focusable="false"><path d="M92 5.5V12.5M88.5 9H95.5" /></svg>
+          <svg class="hg-l-layer hg-l-spark hg-l-spark-2" viewBox="0 0 100 100" focusable="false"><path d="M95 22V26.5M92.75 24.25H97.25" /></svg>
+          <svg class="hg-l-layer hg-l-spark hg-l-spark-3" viewBox="0 0 100 100" focusable="false"><path d="M77.5 3V7M75.5 5H79.5" /></svg>
         </div>
         <p class="hg-l-name">HabitGrower</p>
-        <svg class="hg-l-loader" viewBox="0 0 64 22" width="64" height="22" focusable="false">
-          <path class="hg-l-loader-soil" d="M5 20.6H59" />
-          <g class="hg-l-seedling hg-l-s1"><path d="M14 20V12.5" /><path d="M14 16C10.6 16 8.5 14 8 11C11.4 11 13.5 13 14 16Z" /><path d="M14 13.6C14.3 10 16.6 7.8 20 7.5C19.8 11.1 17.5 13.3 14 13.6Z" /></g>
-          <g class="hg-l-seedling hg-l-s2"><path d="M32 20V12.5" /><path d="M32 16C28.6 16 26.5 14 26 11C29.4 11 31.5 13 32 16Z" /><path d="M32 13.6C32.3 10 34.6 7.8 38 7.5C37.8 11.1 35.5 13.3 32 13.6Z" /></g>
-          <g class="hg-l-seedling hg-l-s3"><path d="M50 20V12.5" /><path d="M50 16C46.6 16 44.5 14 44 11C47.4 11 49.5 13 50 16Z" /><path d="M50 13.6C50.3 10 52.6 7.8 56 7.5C55.8 11.1 53.5 13.3 50 13.6Z" /></g>
-        </svg>
+        <div class="hg-l-loader">
+          <svg class="hg-l-seedling" viewBox="0 0 16 22" focusable="false"><path d="M8 20V12.5" /><path d="M8 16C4.6 16 2.5 14 2 11C5.4 11 7.5 13 8 16Z" /><path d="M8 13.6C8.3 10 10.6 7.8 14 7.5C13.8 11.1 11.5 13.3 8 13.6Z" /></svg>
+          <svg class="hg-l-seedling" viewBox="0 0 16 22" focusable="false"><path d="M8 20V12.5" /><path d="M8 16C4.6 16 2.5 14 2 11C5.4 11 7.5 13 8 16Z" /><path d="M8 13.6C8.3 10 10.6 7.8 14 7.5C13.8 11.1 11.5 13.3 8 13.6Z" /></svg>
+          <svg class="hg-l-seedling" viewBox="0 0 16 22" focusable="false"><path d="M8 20V12.5" /><path d="M8 16C4.6 16 2.5 14 2 11C5.4 11 7.5 13 8 16Z" /><path d="M8 13.6C8.3 10 10.6 7.8 14 7.5C13.8 11.1 11.5 13.3 8 13.6Z" /></svg>
+        </div>
       </div>
       <p class="hg-l-hint">Still loading. Check your connection or <button type="button" id="hg-launch-reload">reload</button>.</p>
     </div>
